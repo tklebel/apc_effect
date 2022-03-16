@@ -33,9 +33,11 @@ papers <- spark_read_csv(sc, "/user/tklebel/fos/fos_papers_collated.csv",
                          name = "papers")
 fos_labels <- spark_read_csv(sc, "/user/tklebel/fos/fos_papers_FOS_info.csv",
                              name = "fos_labels")
-# join the labels here, since we are doing everything by FOS
-papers <- papers %>% 
-  left_join(fos_labels)
+fos_labels <- fos_labels %>% 
+  select(paperid, fieldofstudyid, fos_displayname)
+
+fos_lookup <- spark_read_csv(sc, "/user/tklebel/fos/fos_lookup.csv",
+                             name = "fos_lookup")
 
 affils <- spark_read_csv(sc,
                          "/user/tklebel/sdg/data/affiliations_with_country_code.csv",
@@ -75,40 +77,46 @@ theme_set(theme_bw())
 ```
 
 
-# APC by sdg
+# APC by FOS
 ```{r, cache=TRUE}
+apc_info <- journals %>% 
+  select(journalid, APC)
+
 step1 <- papers %>% 
   # we can only look at journals, since doaj only is for journals
   # also only look at fairly recent papers
   # also only look at papers which actually are OA
-  filter(!is.na(journalid), is_oa, year < 2020) %>% 
-  left_join(author_paper_affiliations) %>% 
-  left_join(affils) %>% 
-  left_join(journals, by = "journalid") %>% 
+  filter(!is.na(journalid), is_oa, year < 2020,
+         provider_cat != "Repository only") %>% 
+  left_join(apc_info, by = "journalid") %>% 
   # need to filter out some NAs, since the journal table seems to be older than
   # the rest of MAG? at least it does not contain some journals for which we
   # have papers
-  filter(!is.na(APC), provider_cat != "Repository only") %>% 
-  group_by(authorid, paperid) %>% 
-  mutate(frac_value = 1/n()) 
+  filter(!is.na(APC)) 
 
-apc_per_sdg <- step1 %>% 
+step1_with_fos <- step1 %>% 
+  select(year, paperid, APC) %>% 
+  left_join(fos_labels) %>% 
+  left_join(fos_lookup, by = c("fieldofstudyid" = "fos_id"))
+  
+
+apc_per_fos <- step1_with_fos %>% 
   mutate(APC = if_else(APC == "NA", "Not in DOAJ", APC)) %>% 
-  group_by(SDG_label, year) %>% 
+  group_by(top_fos, year) %>% 
   count(APC) %>% 
   collect()
 ```
 
 
-```{r doaj-share, fig.height=3, fig.width=7}
-p <- apc_per_sdg %>% 
+```{r doaj-share, fig.height=7, fig.width=7}
+p <- apc_per_fos %>% 
   filter(year %in% 2015:2018) %>%
-  group_by(SDG_label, APC) %>% 
+  group_by(top_fos, APC) %>% 
   summarise(n = sum(n)) %>% 
   mutate(prop = n / sum(n)) %>% 
   mutate(APC = factor(APC, levels = c("Not in DOAJ", "FALSE", "TRUE"),
                       labels = c("Not in DOAJ", "No", "Yes"))) %>%
-  ggplot(aes(prop, fct_relevel(SDG_label, "SDG_3", after = 1), fill = APC)) +
+  ggplot(aes(prop, fct_reorder(top_fos, prop, max), fill = APC)) + # need the trick on reordering here, should be reordered by "Yes"
   geom_col(width = .7) +
   scale_x_continuous(labels = scales::percent) +
   theme_bw() +
@@ -122,6 +130,8 @@ p
 ```{r, dpi=100}
 plotly::ggplotly(p)
 ```
+
+
 
 ```{r, fig.height=3, fig.width=7}
 p <- apc_per_sdg %>% 
