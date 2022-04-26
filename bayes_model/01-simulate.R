@@ -13,7 +13,7 @@ df <- tibble(
 
 # sample available resources as weakly dependent on ability
 df <- df %>%
-  mutate(r_resources = rnorm(n, r_ability * .2))
+  mutate(r_resources = rnorm(n, r_ability * .7))
 
 
 # compute and visualise interdependence
@@ -122,7 +122,76 @@ m3.3  <- quap(
     br_a ~ dnorm(0, 1)
   ), data = df)
 precis(m3.3)
-# now accounting for ability, we get the direct effect back
+# now accounting for ability, we get the direct effect back (albeit still
+# somewhat biased)
+
+# use paper quality directly (although not available)
+m3.4  <- quap(
+  alist(
+    apc_oa ~ dbinom(1, p),
+    logit(p) <- a + br_r*r_resources + b_q*paper_quality,
+    a ~ dnorm(0, 1),
+    br_r ~ dnorm(0, 1),
+    b_q ~ dnorm(0, 1)
+  ), data = df)
+precis(m3.4)
+# this is much closer.
+
+# further runs varying the effects to understand how effective controlling is
+set.seed(123)
+df <- tibble(
+  r_ability = rnorm(n)
+)
+
+# vary effect of ability on resources
+df <- df %>%
+  mutate(# strong dependence of resources on ability
+         r_resources = rnorm(n, r_ability * .7),
+         paper_quality = rnorm(n, r_ability * .5 + r_resources * .2),
+         apc_oa = rbernoulli(n, 1/(1 + exp(0 - .5 * r_resources -
+                                             .5 * paper_quality))))
+m4.1  <- quap(
+  alist(
+    apc_oa ~ dbinom(1, p),
+    logit(p) <- a + br_r*r_resources + br_a*r_ability,
+    a ~ dnorm(0, 1),
+    br_r ~ dnorm(0, 1),
+    br_a ~ dnorm(0, 1)
+  ), data = df)
+precis(m4.1)
+
+# weak effect of ability on resources, but stronger effect of resources on paper
+# quality
+df <- df %>%
+  mutate(
+    r_resources = rnorm(n, r_ability * .2),
+    paper_quality = rnorm(n, r_ability * .2 + r_resources * .5),
+    apc_oa = rbernoulli(n, 1/(1 + exp(0 - .5 * r_resources -
+                                        .5 * paper_quality))))
+m4.2  <- quap(
+  alist(
+    apc_oa ~ dbinom(1, p),
+    logit(p) <- a + br_r*r_resources + br_a*r_ability,
+    a ~ dnorm(0, 1),
+    br_r ~ dnorm(0, 1),
+    br_a ~ dnorm(0, 1)
+  ), data = df)
+precis(m4.2)
+# in this case, de-confounding does not work well, since the coefficient is not
+# the sole direct effect, but the joint direct effect both on paper quality and
+# apc oa.
+# this can be shown by controlling for paper quality directly, which shows the
+# direct effects
+m4.3  <- quap(
+  alist(
+    apc_oa ~ dbinom(1, p),
+    logit(p) <- a + br_r*r_resources + b_q*paper_quality,
+    a ~ dnorm(0, 1),
+    br_r ~ dnorm(0, 1),
+    b_q ~ dnorm(0, 1)
+  ), data = df)
+precis(m4.3)
+
 
 # next steps:
 # - check the models' posteriors to get a better feel and understanding for how
@@ -130,3 +199,7 @@ precis(m3.3)
 # - Include journals
 # - construct measurement error model for researcher ability
 # - move on to more complicated DAG
+
+
+
+
