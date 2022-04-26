@@ -194,10 +194,10 @@ precis(m4.3)
 
 
 # next steps:
-# - check the models' posteriors to get a better feel and understanding for how
-# to do this
 # - Include journals
 # - construct measurement error model for researcher ability
+# - check the models' posteriors to get a better feel and understanding for how
+# to do this
 # - move on to more complicated DAG
 
 
