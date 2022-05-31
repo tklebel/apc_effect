@@ -12,7 +12,7 @@ simulate_data <- function(n, ability_offset = .3, country_offset = .2,
                           direct_country_effect = .1,
                           direct_institution_effect = .1,
                           true_direct_effect = .4,
-                          sd = .2) {
+                          sd = .4) {
   tibble(
     r_ability = rnorm(n, ability_offset, sd)
   ) %>%
@@ -175,6 +175,7 @@ m7 <- ulam(
 )
 precis(m7, depth = 2)
 
+# full model with many countries and institutes -----
 # estimation should be better with more institutes
 # here we do baseline model without bias
 set.seed(456)
@@ -183,7 +184,7 @@ setup <- tibble(
   n_institutes = rpois(10, 7)
 ) %>%
   mutate(ability_offset = .3,
-         indirect_resource_effect = .01,
+         indirect_resource_effect = 0,
          country_offset = rgamma(10, 2),
          institution_offset = purrr::map(n_institutes, ~runif(.x, max = 5))) %>%
   unnest(institution_offset) %>%
@@ -394,20 +395,21 @@ dev.off()
 # do better vis here: visualise the uncertainty in the parameter, and plot the
 # true value
 
+Kein_Bias_naiv <- extract.samples(m11)$b_r
 Kein_Bias <- extract.samples(m10.2)$b_r
 Bias <- extract.samples(m12)$b_r
 Kontrollierter_Bias <- extract.samples(m13)$b_r
 
 theme_set(hrbrthemes::theme_ipsum(base_family = "Hind"))
 extrafont::loadfonts(device = "win")
-p <- tibble(Kein_Bias, Bias, Kontrollierter_Bias) %>%
+p <- tibble(Kein_Bias, Kein_Bias_naiv, Bias, Kontrollierter_Bias) %>%
   pivot_longer(everything(), names_to = "model") %>%
   ggplot(aes(value, fill = model)) +
   geom_density(alpha = .7) +
   geom_vline(xintercept = .4) +
   annotate("text", x = .48, y = 65, label = "Wahrer Wert = 0.4") +
   labs(y = NULL, x = "beta-Koeffizient für institutionelle Ressourcen",
-       fill = NULL) +
+       fill = NULL, title = "Posterior samples") +
   theme(legend.position = "top")
 ggsave("bayes_model/plots/inst_coef.png", p, width = 7, height = 4.5)
 
