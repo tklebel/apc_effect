@@ -9,7 +9,7 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 10 # this can go up to 17, but in actuality, it seems to max out at 6
+config$spark.executor.instances <- 6 # this can go up to 17, but in actuality, it seems to max out at 6
 config$spark.executor.memory <- "60G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "OA_APCs")
@@ -20,32 +20,45 @@ spark_read_csv(sc, "/user/tklebel/openalex/venues.csv.bz2", escape = '\"',
 
 venues <- tbl(sc, "venues")
 
-venues_in_doaj <- venues %>%
-  filter(is_in_doaj == TRUE, !is.na(issn_l))
-venues_in_doaj <- venues_in_doaj %>% collect()
-nrow(venues_in_doaj)
-# so we have 14402 journals in DOAJ with an issn
+venues_local <- venues %>%
+  filter(!is.na(issn_l)) %>%
+  collect()
+nrow(venues_local)
+# there are 112215 venues with an issn as of now in openalex
 
-doaj <- read_csv("data/external/journalcsv__doaj_20220603_1535_utf8.csv")
+doaj <- read_csv("data/processed/doaj_cleaned.csv")
 doaj
 
 # manufacture the issn_l, let's see if it works
-doaj_thin <- doaj %>%
-  select(title = `Journal title`, pissn = `Journal ISSN (print version)`,
-         eissn = `Journal EISSN (online version)`,
-         APC, APC_amount = `APC amount`) %>%
+doaj <- doaj %>%
   mutate(issn_l = coalesce(pissn, eissn))
 
-venues_joined <- venues_in_doaj %>%
-  left_join(doaj_thin, by = "issn_l")
+venues_joined <- venues_local %>%
+  left_join(doaj, by = "issn_l")
 
-# examine those that were not joined
-venues_joined %>%
-  filter(is.na(APC))
-# quite a few. not sure why this happens
-# also, maybe try to join the doaj data to the whole of openalex, since the
-# flag there might be misleading.
+venues_in_doaj <- venues_joined %>%
+  filter(!is.na(journal_title))
+
+# openalex has quite a few as not being in DOAJ while we merged them
+venues_in_doaj %>% count(is_in_doaj)
+
+# check them out whetere those are mistakes
+venues_in_doaj %>%
+  filter(!is_in_doaj | is.na(is_in_doaj)) %>%
+  select(id, issn_l, issn, pissn, eissn, display_name, journal_title, publisher.x,
+         publisher.y)
+# this seems to be an error on the side of OpenAlex. Most have exact identical
+# names. where this is not the case, sometimes it is just the difference of
+# letters (latin vs cyrillic vs arabic, etc.), or sometimes different versions
+# of the same name (but checked that they are identical, and in these cases
+# both DOAJ and OpenAlex point e.g. to the same website)
+# should report this to OpenAlex at some point
+#
 # inquired here: https://www.issn.org/services/online-services/access-to-issn-l-table/
+# this should improve the matching even further
 
+
+venues_in_doaj %>%
+  write_csv("data/processed/venues_in_doaj.csv")
 
 spark_disconnect(sc)
