@@ -32,7 +32,7 @@ institutions_selection
 institutions_local <- institutions_selection %>%
   collect()
 
-leiden_local <- read_csv("data/external/CWTS Leiden Ranking 2021.csv",
+leiden_local <- read_csv("data/external/CWTS_Leiden_Ranking_2021.csv",
                          show_col_types = FALSE)
 
 leiden_small <- leiden_local %>%
