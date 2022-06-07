@@ -78,3 +78,39 @@ multiple_matches <- joined %>%
   left_join(joined)
 
 View(multiple_matches)
+
+# only work with those that worked for now
+success <- joined %>%
+  filter(Country == country)
+
+success %>%
+  count(University) %>%
+  arrange(desc(n))
+
+# for the remaining duplicates:
+# - https://openalex.org/I3124059619 is the correct version for china university
+# of geosciences (checked with the map on leiden ranking website)
+#  therefore removing https://openalex.org/I3125743391
+#
+# - University of rennes 1 both point to the same university in openalex, so
+# we should keep both (https://openalex.org/I3123023596 and https://openalex.org/I56067802)
+#
+# for medical university of lodz, also both should be kept: https://openalex.org/I4210122071
+# https://openalex.org/I866987647
+#
+# continue for now building the pipeline, fix matching issues later
+# issues:
+# - remaining unmatched ~180 instutions
+# - checking whether the matched institutions are correct (via eye)
+
+# add the two in, and remove the wrong chinese one
+keepers <- joined %>%
+  filter(id %in% c("https://openalex.org/I866987647",
+                   "https://openalex.org/I3123023596"))
+
+intermediate_success <- success %>%
+  filter(id != "https://openalex.org/I3125743391") %>%
+  bind_rows(keepers)
+
+intermediate_success %>%
+  write_csv("data/processed/leiden_matched.csv")
