@@ -13,8 +13,6 @@ config$spark.executor.memory <- "60G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "OA_APCs")
 
-
-
 # read files
 csv_reader("/user/tklebel/openalex/works_host_venues.csv.bz2", "works_venues")
 works_venues <- tbl(sc, "works_venues")
@@ -41,7 +39,7 @@ works_from_journals %>%
 # join and filter works
 works %>%
   inner_join(works_from_journals, by = c("id" = "work_id")) %>%
-  filter(publication_year >= 2000 | publication_year < 2022) %>%
+  filter(publication_year >= 2000 & publication_year < 2022) %>%
   spark_write_parquet("/user/tklebel/apc_paper/selected_works.parquet",
                       partition_by = "publication_year",
                       mode = "overwrite")
