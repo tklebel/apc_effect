@@ -114,3 +114,5 @@ intermediate_success <- success %>%
 
 intermediate_success %>%
   write_csv("data/processed/leiden_matched.csv")
+
+spark_disconnect(sc)
