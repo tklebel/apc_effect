@@ -72,3 +72,9 @@ cut_quartiles <- function(x) {
       labels = c("p[0,25]", "p(25,50]", "p(50,75]", "p(75,100]"),
       include.lowest = TRUE)
 }
+
+
+csv_reader <- function(path, name, memory = TRUE) {
+  sparklyr::spark_read_csv(sc, path = path, name = name, memory = memory,
+                           escape = '\"')
+}
