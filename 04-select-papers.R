@@ -8,8 +8,8 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 20 # this can go up to 17, but in actuality, it seems to max out at 6
-config$spark.executor.memory <- "15G"
+config$spark.executor.instances <- 27
+config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "OA_APCs")
 
@@ -25,9 +25,9 @@ works <- tbl(sc, "works")
 
 lubridate::now() - t1
 
-csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues")
-venues <- tbl(sc, "venues")
-venue_ids <- venues %>% select(id)
+csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues_in_doaj")
+venues_in_doaj <- tbl(sc, "venues_in_doaj")
+venue_ids <- venues_in_doaj %>% select(id)
 
 works_from_journals <- works_venues %>%
   inner_join(venue_ids, by = c("venue_id" = "id"))
@@ -40,7 +40,8 @@ works_from_journals %>%
 works %>%
   inner_join(works_from_journals, by = c("id" = "work_id")) %>%
   filter(publication_year >= 2000 & publication_year < 2022,
-         type == "journal-article") %>%
+         type == "journal-article",
+         publication_date > date_added_to_doaj) %>%
   spark_write_parquet("/user/tklebel/apc_paper/selected_works.parquet",
                       partition_by = "publication_year",
                       mode = "overwrite")
