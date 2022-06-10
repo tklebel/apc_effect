@@ -27,7 +27,7 @@ lubridate::now() - t1
 
 csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues_in_doaj")
 venues_in_doaj <- tbl(sc, "venues_in_doaj")
-venue_ids <- venues_in_doaj %>% select(id)
+venue_ids <- venues_in_doaj %>% select(id, date_added_to_doaj)
 
 works_from_journals <- works_venues %>%
   inner_join(venue_ids, by = c("venue_id" = "id"))
@@ -37,14 +37,20 @@ works_from_journals %>%
 # 9.7m works
 
 # join and filter works
-works %>%
+selected_works <- works %>%
   inner_join(works_from_journals, by = c("id" = "work_id")) %>%
   filter(publication_year >= 2000 & publication_year < 2022,
          type == "journal-article",
-         publication_date > date_added_to_doaj) %>%
-  spark_write_parquet("/user/tklebel/apc_paper/selected_works.parquet",
-                      partition_by = "publication_year",
-                      mode = "overwrite")
+         publication_date > date_added_to_doaj)
+
+# selected_works %>% head(300) %>% collect() <- inspection_set
+# View(inspection_set)
+# # why do we have those articles with oa_status == NA?
+
+spark_write_parquet(selected_works,
+                    "/user/tklebel/apc_paper/selected_works.parquet",
+                    partition_by = "publication_year",
+                    mode = "overwrite")
 
 # the above code removes a couple of items which are not journal articles
 # # Source:     spark<?> [?? x 2]
