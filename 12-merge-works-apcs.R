@@ -20,6 +20,23 @@ fractional_works <- tbl(sc, "fractional_works")
 
 fractional_works
 
+csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues_in_doaj")
+venues_in_doaj <- tbl(sc, "venues_in_doaj")
+
+venues_apcs <- venues_in_doaj %>%
+  select(id, APC, waiver, APC_in_dollar)
+
+
+csv_reader("/user/tklebel/apc_paper/leiden_matched.csv", "leiden_key")
+leiden_key <- tbl(sc, "leiden_key")
+
+spark_read_csv(sc, "leiden", "/user/tklebel/apc_paper/leiden_2021.csv",
+               memory = TRUE, null_value = "NA")
+leiden <- tbl(sc, "leiden") %>%
+  filter(Field == "All sciences", Frac_counting == 1,
+         !is.na(PP_top10)) %>%
+  select(University, Field, Period, Frac_counting, PP_top10)
+
 # hm, this has issues. first, we included NA author positions
 # second, there are works which are not OA, like https://explore.openalex.org/works/W2258570746
 # This comes because some DOAJ journals were not OA before some date X.
@@ -33,7 +50,33 @@ fractional_works
 # so we should filter out those articles where the publication year is smaller
 # than the year the journal got into DOAJ
 
+fractional_works %>% count(is_oa)
+# # Source: spark<?> [?? x 2]
+#   is_oa       n
+#   <lgl>   <int>
+# 1 FALSE   41532
+# 2 TRUE  6694172
+# 3 NA     369903
+
+# those that are not OA might be errors in OpenAlex data in terms of publication
+# date.
+# those that are NA might be those that are simply not covered by Unpaywall.
+
 
 # get journal for work -> get APC value and PPtop_10
+joined <- fractional_works %>%
+  left_join(venues_apcs, by = c("venue_id" = "id")) %>%
+  left_join(leiden_key, by = c("institution_id" = "id")) %>%
+  left_join(leiden, by = c("University"))
+
+# need to filter so the publication year fits to the leiden data year (check
+# earlier code on this)
+
+
+spark_write_parquet(joined, "/user/tklebel/apc_paper/all_papers_merged.parquet",
+                    partition_by = "publication_year",
+                    mode = "overwrite")
+
+
 
 spark_disconnect(sc)
