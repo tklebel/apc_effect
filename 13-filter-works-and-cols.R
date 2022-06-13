@@ -44,7 +44,7 @@ selected_cols <- matched_works %>%
 check(selected_cols, sampling = TRUE)
 
 selected_cols %>%
-  spark_write_parquet("/user/tklebel/apc_paper/all_papers_seleted_cols.parquet",
+  spark_write_parquet("/user/tklebel/apc_paper/all_papers_selected_cols.parquet",
                       mode = "overwrite")
 
 spark_disconnect(sc)
