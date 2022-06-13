@@ -43,6 +43,11 @@ selected_cols <- matched_works %>%
 
 check(selected_cols, sampling = TRUE)
 
+# fix type of APC column
+selected_cols <- selected_cols %>%
+  mutate(APC_in_dollar = as.numeric(APC_in_dollar),
+         last_year_of_period = as.numeric(last_year_of_period))
+
 selected_cols %>%
   spark_write_parquet("/user/tklebel/apc_paper/all_papers_selected_cols.parquet",
                       mode = "overwrite")
