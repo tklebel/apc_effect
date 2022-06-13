@@ -11,7 +11,7 @@ config$spark.executor.cores <- 5 # this should always stay the same
 config$spark.executor.instances <- 27 # this can go up to 17, but in actuality, it seems to max out at 6
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
-                    app_name = "OA_APCs")
+                    app_name = "select_journals")
 
 
 spark_read_csv(sc, "/user/tklebel/openalex/venues.csv.bz2", escape = '\"',

@@ -11,7 +11,7 @@ config$spark.executor.cores <- 5 # this should always stay the same
 config$spark.executor.instances <- 27 # this can go up to 27, depending on RAM
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
-                    app_name = "OA_APCs")
+                    app_name = "fractionalise_authorships")
 
 
 spark_read_parquet(sc, "/user/tklebel/apc_paper/selected_works.parquet",

@@ -11,7 +11,7 @@ config$spark.executor.cores <- 5 # this should always stay the same
 config$spark.executor.instances <- 27
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
-                    app_name = "OA_APCs")
+                    app_name = "select_papers")
 
 # read files
 csv_reader("/user/tklebel/openalex/works_host_venues.csv.bz2", "works_venues")
