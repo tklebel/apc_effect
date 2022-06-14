@@ -30,12 +30,12 @@ works %>%
 works %>%
   count(type) %>%
   arrange(desc(n))
-# as it should be
+# only journal articles, as it should be
 
 works %>%
   summarise(min_date = min(publication_year),
             max_date = max(publication_year))
-# this is as it should be
+# this is as it should be, minimum is 2002. DOAJ was launched in 2003.
 
 
 # assign works to institutions and do fractional counting -----
