@@ -23,7 +23,8 @@ mean_apcs <- works %>%
   group_by(University, publication_year, country, PP_top10) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
-  group_by(University, publication_year, country, PP_top10, sum_frac) %>%
+  group_by(University, publication_year, country, PP_top10, sum_frac,
+           author_position) %>%
   summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
 
 mean_apcs_local <- mean_apcs %>%
@@ -37,14 +38,19 @@ mean_apcs_local %>%
 apc_2019 <- mean_apcs_local %>%
   filter(publication_year == 2019)
 
+labels <- apc_2019 %>%
+  group_by(author_position) %>%
+  summarise(cor = cor(mean_apc, PP_top10)) %>%
+  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 2)}"))
 
 apc_2019 %>%
   ggplot(aes(PP_top10, mean_apc)) +
-  geom_point() +
+  geom_point(aes(colour = sum_frac),
+             alpha = .5) +
   geom_smooth() +
-  annotate("text", x = .225, y = 200,
-           label = paste("cor = ",
-                         round(cor(apc_2019$PP_top10, apc_2019$mean_apc), 2)))
+  facet_wrap(vars(author_position)) +
+  geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
+  scale_colour_viridis_c(trans = "sqrt")
 ggsave(filename = "plots/apc_pptop10_2019.png", width = 6, height = 4.5)
 
 # might want to add world bank income regions and geographic regions
