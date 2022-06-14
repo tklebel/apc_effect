@@ -34,7 +34,7 @@ works_from_journals <- works_venues %>%
 
 works_from_journals %>%
   count()
-# 9.7m works
+# 10.86m works
 
 # join and filter works
 selected_works <- works %>%
@@ -42,6 +42,8 @@ selected_works <- works %>%
   filter(publication_year >= 2000 & publication_year < 2022,
          type == "journal-article",
          publication_date > date_added_to_doaj)
+
+check(selected_works)
 
 # selected_works %>% head(300) %>% collect() <- inspection_set
 # View(inspection_set)
@@ -53,6 +55,8 @@ spark_write_parquet(selected_works,
                     mode = "overwrite")
 
 # the above code removes a couple of items which are not journal articles
+# (the numbers below are from an earlier version, where we had matched DOAJ
+# without the linking ISSN information)
 # # Source:     spark<?> [?? x 2]
 # # Ordered by: desc(n)
 # type                      n
