@@ -22,8 +22,8 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 15 # this can go up to 27, depending on RAM
-config$spark.executor.memory <- "12G"
+config$spark.executor.instances <- 8 # this can go up to 27, depending on RAM
+config$spark.executor.memory <- "25G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "OA_APCs")
 message("Connection to Spark successful!")
@@ -62,7 +62,7 @@ frac_concept_papers <- works %>%
 ```
 
 
-```{r}
+```{r concept-overview}
 frac_concept_papers %>% 
   drop_na() %>% 
   ggplot(aes(frac_papers, fct_reorder(display_name, frac_papers))) +
@@ -71,6 +71,82 @@ frac_concept_papers %>%
   labs(y = NULL, x = "Fractional papers")
 ```
 
+```{r}
+mean_apcs <- works %>%
+  # first get rid of duplicates from concepts
+  distinct(id, author_position, work_frac, APC_in_dollar, University, country,
+           publication_year, PP_top10) %>% 
+  group_by(University, publication_year, country, PP_top10) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(University, publication_year, country, PP_top10, sum_frac,
+           author_position) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+
+mean_apcs_local <- mean_apcs %>%
+  collect()
+```
+
+```{r apc-first-last, fig.width=8, fig.height=5}
+# plot for 2019
+apc_16_19 <- mean_apcs_local %>%
+  filter(publication_year > 2015 & publication_year < 2020)
+
+labels <- apc_16_19 %>%
+  group_by(author_position) %>%
+  summarise(cor = cor(mean_apc, PP_top10, use = "pairwise.complete")) %>%
+  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 2)}"))
+
+apc_16_19 %>%
+  ggplot(aes(PP_top10, mean_apc)) +
+  geom_point(aes(colour = sum_frac),
+             alpha = .5) +
+  geom_smooth() +
+  facet_wrap(vars(author_position)) +
+  geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
+  scale_colour_viridis_c(trans = "sqrt") +
+  labs(caption = "2016-2019")
+```
+
+Something went wrong here from splitting into concepts
+
+
+```{r}
+mean_apcs_by_concept <- works %>%
+  group_by(University, publication_year, country, PP_top10, display_name) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(University, publication_year, country, PP_top10, sum_frac,
+           author_position, display_name) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+
+apcs_by_concept_local <- mean_apcs_by_concept %>%
+  collect()
+```
+
+
+```{r apc-concepts, fig.height=20, fig.width=6}
+# plot for 2016-2019
+apc_concept_16_19 <- apcs_by_concept_local %>%
+  filter(publication_year > 2015 & publication_year < 2020,
+         !is.na(display_name))
+
+labels <- apc_concept_16_19 %>%
+  group_by(author_position, display_name) %>%
+  summarise(cor = cor(mean_apc, PP_top10, use = "pairwise.complete.obs")) %>%
+  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 0)}"))
+
+apc_concept_16_19 %>%
+  ggplot(aes(PP_top10, mean_apc)) +
+  geom_point(aes(colour = sum_frac),
+             alpha = .7) +
+  geom_smooth() +
+  facet_grid(cols = vars(author_position),
+             rows = vars(str_wrap(display_name, 10))) +
+  geom_text(data = labels, aes(label = cor, x = .3, y = 4000)) +
+  scale_colour_viridis_c(trans = "log10") +
+  labs(caption = "2016-2019")
+```
 
 
 ```{r}
