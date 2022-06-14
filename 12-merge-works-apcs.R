@@ -54,9 +54,9 @@ fractional_works %>% count(is_oa)
 # # Source: spark<?> [?? x 2]
 #   is_oa       n
 #   <lgl>   <int>
-# 1 FALSE   41532
-# 2 TRUE  6694172
-# 3 NA     369903
+# 1 TRUE  7287081
+# 2 NA     421665
+# 3 FALSE   44476
 
 # those that are not OA might be errors in OpenAlex data in terms of publication
 # date.
@@ -76,7 +76,5 @@ joined <- fractional_works %>%
 spark_write_parquet(joined, "/user/tklebel/apc_paper/all_papers_merged.parquet",
                     partition_by = "publication_year",
                     mode = "overwrite")
-
-
 
 spark_disconnect(sc)
