@@ -1,0 +1,79 @@
+---
+title: "Relationship between OA publishing, APCs and IF"
+author: "Thomas Klebel"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 300)
+
+# setup -----
+Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
+library(sparklyr)
+library(tidyverse)
+library(arrow)
+library(patchwork)
+source(here::here("R/helpers.R"))
+
+message("Connecting to spark...")
+
+config <- spark_config()
+config$spark.executor.cores <- 5 # this should always stay the same
+config$spark.executor.instances <- 15 # this can go up to 27, depending on RAM
+config$spark.executor.memory <- "12G"
+sc <- spark_connect(master = "yarn-client", config = config,
+                    app_name = "OA_APCs")
+message("Connection to Spark successful!")
+
+spark_read_parquet(
+  sc, "works", "/user/tklebel/apc_paper/papers_with_concepts.parquet",
+  memory = TRUE
+)
+works <- tbl(sc, "works")
+
+message("Successfully read all datasets!")
+
+theme_set(theme_bw())
+```
+
+
+# Distribution across topics
+How many papers do we have, which also have a topic?
+```{r}
+works %>% 
+  filter(author_position == "first", !is.na(display_name)) %>% 
+  sdf_nrow()
+```
+This is only slightly lower than the total number of papers we have.
+
+
+
+Which topics are represented in our sample?
+```{r}
+frac_concept_papers <- works %>% 
+  filter(author_position == "first") %>% 
+  group_by(display_name) %>% 
+  summarise(frac_papers = sum(concept_frac)) %>% 
+  arrange(desc(frac_papers)) %>% 
+  collect()
+```
+
+
+```{r}
+frac_concept_papers %>% 
+  drop_na() %>% 
+  ggplot(aes(frac_papers, fct_reorder(display_name, frac_papers))) +
+  geom_col(width = .7) +
+  scale_x_continuous(labels = scales::comma) +
+  labs(y = NULL, x = "Fractional papers")
+```
+
+
+
+```{r}
+spark_disconnect(sc)
+```
+
