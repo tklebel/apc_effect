@@ -108,8 +108,6 @@ apc_16_19 %>%
   labs(caption = "2016-2019")
 ```
 
-Something went wrong here from splitting into concepts
-
 
 ```{r}
 mean_apcs_by_concept <- works %>%
