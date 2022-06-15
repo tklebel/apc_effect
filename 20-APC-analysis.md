@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "14 June, 2022"
+date: "15 June, 2022"
 output: 
   html_document:
     keep_md: true
@@ -87,7 +87,7 @@ apc_16_19 %>%
   ggplot(aes(PP_top10, mean_apc)) +
   geom_point(aes(colour = sum_frac),
              alpha = .5) +
-  geom_smooth() +
+  geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
   scale_colour_viridis_c(trans = "sqrt") +
@@ -99,8 +99,6 @@ apc_16_19 %>%
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-first-last-1.png)<!-- -->
-
-Something went wrong here from splitting into concepts
 
 
 
@@ -161,6 +159,52 @@ apc_concept_16_19 %>%
 
 ![](20-APC-analysis_files/figure-html/apc-concepts-1.png)<!-- -->
 
+Including journals that have no APC as having one of "0" changes the results 
+slightly, but not in the same way for all fields. In some, the correlation is
+then stronger, in some weaker. This likely points to different hierarchies and
+traditions in terms of prestigious journals in these fields.
+
+## Over time - first-authors
+
+```r
+apcs_by_concept_local %>%
+  filter(!is.na(display_name), author_position == "first") %>% 
+  group_by(publication_year, display_name) %>%
+  mutate(pptop10_quantiles = cut_quartiles(PP_top10)) %>%
+  group_by(pptop10_quantiles, publication_year, display_name) %>%
+  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
+            .groups = "drop_last") %>%
+  ggplot(aes(publication_year, mean_apc, colour = pptop10_quantiles,
+             group = pptop10_quantiles)) +
+  geom_line() +
+  facet_wrap(vars(display_name)) +
+  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  theme(legend.position = "top") +
+  labs(x = NULL)
+```
+
+![](20-APC-analysis_files/figure-html/apc-time-concept-first-1.png)<!-- -->
+
+## Over time - last-authors
+
+```r
+apcs_by_concept_local %>%
+  filter(!is.na(display_name), author_position == "last") %>% 
+  group_by(publication_year, display_name) %>%
+  mutate(pptop10_quantiles = cut_quartiles(PP_top10)) %>%
+  group_by(pptop10_quantiles, publication_year, display_name) %>%
+  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
+            .groups = "drop_last") %>%
+  ggplot(aes(publication_year, mean_apc, colour = pptop10_quantiles,
+             group = pptop10_quantiles)) +
+  geom_line() +
+  facet_wrap(vars(display_name)) +
+  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  theme(legend.position = "top") +
+  labs(x = NULL)
+```
+
+![](20-APC-analysis_files/figure-html/apc-time-concept-last-1.png)<!-- -->
 
 
 ```r
