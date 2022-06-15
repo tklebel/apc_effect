@@ -87,7 +87,7 @@ mean_apcs_local <- mean_apcs %>%
   collect()
 ```
 
-```{r apc-first-last, fig.width=8, fig.height=5}
+```{r apc-first-last, fig.width=8, fig.height=4}
 # plot for 2019
 apc_16_19 <- mean_apcs_local %>%
   filter(publication_year > 2015 & publication_year < 2020)
