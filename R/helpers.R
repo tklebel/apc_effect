@@ -72,3 +72,30 @@ cut_quartiles <- function(x) {
       labels = c("p[0,25]", "p(25,50]", "p(50,75]", "p(75,100]"),
       include.lowest = TRUE)
 }
+
+
+csv_reader <- function(path, name, memory = TRUE) {
+  sparklyr::spark_read_csv(sc, path = path, name = name, memory = memory,
+                           escape = '\"')
+}
+
+# interactive function for checking
+check <- function(spark_df, sampling = TRUE) {
+  if (interactive()) {
+    if (sampling) {
+      n <- sdf_nrow(spark_df)
+      # get 100 rows
+      frac <- 100 / n
+
+      spark_df %>%
+        sdf_sample(fraction = frac, replacement = FALSE) %>%
+        collect() %>%
+        View()
+    } else {
+      spark_df %>%
+        head(100) %>%
+        collect() %>%
+        View()
+    }
+  }
+}
