@@ -146,6 +146,11 @@ apc_concept_16_19 %>%
   labs(caption = "2016-2019")
 ```
 
+Including journals that have no APC as having one of "0" changes the results 
+slightly, but not in the same way for all fields. In some, the correlation is
+then stronger, in some weaker. This likely points to different hierarchies and
+traditions in terms of prestigious journals in these fields.
+
 ## Over time - first-authors
 ```{r apc-time-concept-first, fig.width=10, fig.height=8}
 apcs_by_concept_local %>%
