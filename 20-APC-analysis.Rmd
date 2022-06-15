@@ -101,7 +101,7 @@ apc_16_19 %>%
   ggplot(aes(PP_top10, mean_apc)) +
   geom_point(aes(colour = sum_frac),
              alpha = .5) +
-  geom_smooth() +
+  geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
   scale_colour_viridis_c(trans = "sqrt") +
