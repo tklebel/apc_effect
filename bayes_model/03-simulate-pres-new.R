@@ -395,14 +395,27 @@ dev.off()
 # do better vis here: visualise the uncertainty in the parameter, and plot the
 # true value
 
-Kein_Bias_naiv <- extract.samples(m11)$b_r
-Kein_Bias <- extract.samples(m10.2)$b_r
-Bias <- extract.samples(m12)$b_r
-Kontrollierter_Bias <- extract.samples(m13)$b_r
+Linear_Regression <- extract.samples(m11)$b_r
+Multilevel_Model <- extract.samples(m10.2)$b_r
+Starker_indirekter_Effekt <- extract.samples(m12)$b_r
+Kontrolliert <- extract.samples(m13)$b_r
 
 theme_set(hrbrthemes::theme_ipsum(base_family = "Hind"))
 extrafont::loadfonts(device = "win")
-p <- tibble(Kein_Bias, Kein_Bias_naiv, Bias, Kontrollierter_Bias) %>%
+# make two plots
+p <- tibble(Linear_Regression, Multilevel_Model) %>%
+  pivot_longer(everything(), names_to = "model") %>%
+  ggplot(aes(value, fill = model)) +
+  geom_density(alpha = .7) +
+  geom_vline(xintercept = .4) +
+  annotate("text", x = .42, y = 65, label = "Wahrer Wert = 0.4") +
+  labs(y = NULL, x = "beta-Koeffizient für institutionelle Ressourcen",
+       fill = NULL, title = "Posterior samples") +
+  theme(legend.position = "top")
+ggsave("bayes_model/plots/inst_coef.png", p, width = 7, height = 4.5)
+
+# make two plots
+p <- tibble(Starker_indirekter_Effekt, Kontrolliert) %>%
   pivot_longer(everything(), names_to = "model") %>%
   ggplot(aes(value, fill = model)) +
   geom_density(alpha = .7) +
@@ -411,6 +424,6 @@ p <- tibble(Kein_Bias, Kein_Bias_naiv, Bias, Kontrollierter_Bias) %>%
   labs(y = NULL, x = "beta-Koeffizient für institutionelle Ressourcen",
        fill = NULL, title = "Posterior samples") +
   theme(legend.position = "top")
-ggsave("bayes_model/plots/inst_coef.png", p, width = 7, height = 4.5)
-
+ggsave("bayes_model/plots/inst_coef_bias.png", p, width = 7, height = 4.5)
+venue
 
