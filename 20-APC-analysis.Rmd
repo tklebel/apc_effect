@@ -15,7 +15,6 @@ Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
 library(sparklyr)
 library(tidyverse)
 library(arrow)
-library(patchwork)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
