@@ -68,8 +68,81 @@ precis(m1)
 # potentially varying effects
 
 # interpretation
+# following p126 of mcelreath
+sd(mdfi_small$PP_top10)
+# 0.04094348
+sd(mdfi_small$APC_in_dollar)
+# 990.9862
 
+# so b_r of one would mean a change by .04 in pptop10 leads to a change in 990
+# in mean APC
+# we have b_r = .23 ->
+991 * .23
+# a change of one sd in pptop10 leads to a change of 228$ in APC, according to
+# the model
 
+# compare this to the naive version
+lm(apc_price ~ inst_res, data = dlist) %>% summary()
+with(dlist, cor(apc_price, inst_res))
+# both get us the same value: .229 correlation, or .229 coefficient
+# this is weird, it is the exact same value as in the multilevel regression
+
+# doing naive linear regression shows that the coefficient changes
+lm(apc_price ~ inst_res + as.factor(country),
+   data = dlist) %>%
+  summary()
+
+# furthermore, it did not change when we changed the standardisation
+
+# let's try without the institutes
+m2 <- ulam(
+  alist(
+    apc_price ~ dnorm(mu, sigma),
+    mu <- z[country]*a_sigma + b_bar + b_r * inst_res,
+    b_r ~ dnorm(0, 1),
+    z[country] ~ dnorm(0, 1),
+    a_sigma ~ dexp(1),
+    b_bar ~ dnorm(0, 1),
+    sigma ~ dexp(1),
+    gq> vector[country]:a <<- b_bar + z*a_sigma
+  ), data = dlist, chains = 4, cores = 4, log_lik = TRUE
+)
+# samples much faster
+precis(m2)
+# again, the exact same parameter. Can this effect really be that stable?
+
+# run the completely naive model
+# naive model
+m3 <- ulam(
+  alist(
+    apc_price ~ dnorm(mu, sigma),
+    mu <- a + b_r * inst_res,
+    a ~ dnorm(0, 1),
+    b_r ~ dnorm(0, 1),
+    sigma ~ dexp(1)
+  ), data = dlist, chains = 4, cores = 4, log_lik = TRUE
+)
+precis(m3)
+# again, bloody same .23
+
+# after checking biology, there the parameter changes, but leads to .23 as well
+# when including country and institution
+# let's find out more about the magnitude
+hist(mdfi$PP_top10, breaks = 30)
+# so the var goes from 0 to about .25, with an outlier at .32 (mdfi$PP_top10 %>% max())
+# the majority of institutions is between .05 and .15. so the parameter roughly
+# shows the change from middle to high pptop
+#
+# what would be interesting here, would be to compare fields, and to compare
+# countries, i.e.: have varying effects for b_r within fields and country.
+# this would be similar to the correlation plot we have, but incorporating
+# country and other institution information, as well as first and last authors
+# countries, fields and authors should have varying slopes
+
+# todos:
+# - do prior simulations to get meaningful priors
+# - read up on varying slopes DONE, but: how to adapt this here? (p448)
+#   need to do the sampling and checking first
 
 # diagnostics
 
