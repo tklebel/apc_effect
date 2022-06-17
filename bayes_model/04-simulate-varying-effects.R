@@ -1,6 +1,6 @@
 library(tidyverse)
 library(rethinking)
-
+library(brms)
 
 simulate_data <- function(n, ability_offset = .3, country_offset = .2,
                           institution_offset = 0,
@@ -27,10 +27,11 @@ simulate_data <- function(n, ability_offset = .3, country_offset = .2,
 
 # simulate first and last authors with differing effect
 set.seed(456)
-n <- 20
+n <- 80
+n_countries <- 5
 setup <- tibble(
-  country = 1:2,
-  n_institutes = rpois(2, 7)
+  country = 1:n_countries,
+  n_institutes = rpois(n_countries, 7)
 ) %>%
   mutate(ability_offset = .3,
          indirect_resource_effect = .0,
@@ -96,6 +97,21 @@ precis(m1)
 # b_sigma 0.02 0.02 0.00  0.06  1248     1
 # sigma   0.75 0.01 0.73  0.76  4364     1
 # as expected, we have an average effect here, because we pooled the coefficients
+
+# try the same with brms
+m1.0 <- brm(apc_price ~ 1 + inst_res + (1|country) + (1|institute),
+            family = "gaussian",
+            prior = c(prior(normal(0, .5), class = Intercept),
+                      prior(normal(0, .5), class = b),
+                      prior(exponential(1), class = sd),
+                      prior(exponential(1), class = sigma)),
+            data = dlist,
+            warmup = 500, iter = 1000, chains = 4, cores = 4,
+            control = list(adapt_delta = 0.95))
+summary(m1.0)
+conditional_effects(m1.0)
+launch_shinystan(m1.0)
+
 
 # let's add first and last with varying intercept first
 m2 <- ulam(
@@ -218,5 +234,24 @@ precis(m3, depth = 2)
 # b_bar       0.58 0.53 -0.33  1.37   262  1.01
 # b_sigma     0.04 0.03  0.01  0.08   221  1.01
 # sigma       0.53 0.01  0.51  0.55  1458  1.00
+
+# do the same as above but with brms
+m3.1 <- brm(apc_price ~ 1 + inst_res + (1|country) + (1|institute) +
+              (1 + inst_res|author_pos),
+            family = "gaussian",
+            prior = c(prior(normal(0, .5), class = Intercept),
+                      prior(normal(0, .5), class = b),
+                      prior(exponential(1), class = sd),
+                      prior(exponential(1), class = sigma),
+                      prior(lkj(2), class = cor)),
+            data = dlist,
+            warmup = 500, iter = 1000, chains = 4, cores = 4,
+            control = list(adapt_delta = .98))
+summary(m3.1)
+fixef(m3.1)
+ranef(m3.1)
+# this is correct but not very efficient (many divergent transitions)
+# also, the standard errors are quite large. maybe due to small data.
+# so increasing data retroactively.
 
 # next step is to vary the intercept also by country
