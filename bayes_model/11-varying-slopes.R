@@ -12,6 +12,10 @@ base <- df %>%
          APC_in_dollar) %>%
   filter(!is.na(APC_in_dollar))
 
+model_base <- base %>%
+  mutate(PP_top10 = scale(log(PP_top10)),
+         APC_in_dollar = scale(APC_in_dollar))
+
 # start with model that incorporates all varying intercepts
 m1 <- brm(APC_in_dollar ~ 1 + PP_top10 + (1|country) + (1|institution_id) +
             (1|author_position) + (1|field),
@@ -89,3 +93,7 @@ conditional_fields <- fields %>%
 conditional_effects(m2, conditions = conditional_fields)
 
 waic(m1, m2)
+
+
+# issues with the data: high numbers of 0 values
+# this might help a lot: https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/
