@@ -157,7 +157,7 @@ m5 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institut
           control = list(adapt_delta = .9),
           save_model = "bayes_model/m5.stan",
           file = "bayes_model/m5")
-pp_check(m5)
+pp_check(m5, ndraws = 30)
 summary(m5)
 forest(m5, "field")
 forest(m5, "country")
@@ -175,3 +175,23 @@ conditional_effects(m5, conditions = conditions, re_formula = NULL, dpar = "hu")
 
 fixef(m5) # hurdle modle is on logit scale
 ranef(m5)
+
+# lets try one more time, this time with logged pptop10
+base_big <- base %>%
+  mutate(PP_top10 = log(PP_top10))
+
+m6 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
+               (1|author_position) + (1 + PP_top10|field),
+             hu ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
+               (1|author_position) + (1 + PP_top10|field)),
+          family = hurdle_lognormal(),
+          prior = c(prior(normal(0, .5), class = Intercept),
+                    prior(normal(0, .5), class = b),
+                    prior(exponential(1), class = sd),
+                    prior(exponential(1), class = sigma),
+                    prior(lkj(2), class = cor)),
+          data = base_big,
+          chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
+          control = list(adapt_delta = .92),
+          save_model = "bayes_model/m6.stan",
+          file = "bayes_model/m6")
