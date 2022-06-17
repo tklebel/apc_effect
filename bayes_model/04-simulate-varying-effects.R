@@ -5,7 +5,7 @@ library(brms)
 simulate_data <- function(n, ability_offset = .3, country_offset = .2,
                           institution_offset = 0,
                           indirect_resource_effect = .2,
-                          direct_country_effect = .1,
+                          direct_country_effect = 1.1,
                           direct_institution_effect = .1,
                           true_direct_effect = .4,
                           sd = .4) {
@@ -18,23 +18,24 @@ simulate_data <- function(n, ability_offset = .3, country_offset = .2,
                                  r_ability + r_resources * .2 +
                                    inst_resources * indirect_resource_effect,
                                  sd),
-           apc_price = rnorm(n,
-                             direct_country_effect + direct_institution_effect +
-                               inst_resources * true_direct_effect +
-                               paper_quality * .6,
-                             sd))
+           apc_price = rnorm(
+             n, direct_institution_effect +
+               inst_resources * true_direct_effect * direct_country_effect +
+               paper_quality * .6,
+             sd))
 }
 
 # simulate first and last authors with differing effect
 set.seed(456)
-n <- 80
-n_countries <- 5
+n <- 30
+n_countries <- 2
 setup <- tibble(
   country = 1:n_countries,
   n_institutes = rpois(n_countries, 7)
 ) %>%
   mutate(ability_offset = .3,
          indirect_resource_effect = .0,
+         direct_country_effect = rgamma(nrow(.), 2),
          country_offset = rgamma(nrow(.), 2),
          institution_offset = purrr::map(n_institutes, ~runif(.x, max = 5))) %>%
   unnest(institution_offset) %>%
@@ -46,6 +47,7 @@ sim_first <- setup %>%
   mutate(sim = pmap(list(n = n_researchers, ability_offset = ability_offset,
                          indirect_resource_effect = indirect_resource_effect,
                          country_offset = country_offset,
+                         direct_country_effect = direct_country_effect,
                          institution_offset = institution_offset), simulate_data)) %>%
   unnest(sim) %>%
   mutate(author_position = "first")
@@ -69,7 +71,7 @@ dlist <- list(
   country = sim$country,
   institute = sim$inst,
   inst_res = sim$inst_resources,
-  author_pos = as.numeric(as.factor(sim$author_position)),
+  author_pos = as.factor(sim$author_position),
   apc_price = sim$apc_price
 )
 
@@ -245,7 +247,7 @@ m3.1 <- brm(apc_price ~ 1 + inst_res + (1|country) + (1|institute) +
                       prior(exponential(1), class = sigma),
                       prior(lkj(2), class = cor)),
             data = dlist,
-            warmup = 500, iter = 1000, chains = 4, cores = 4,
+            warmup = 500, iter = 500, chains = 4, cores = 4,
             control = list(adapt_delta = .98))
 summary(m3.1)
 fixef(m3.1)
@@ -255,3 +257,22 @@ ranef(m3.1)
 # so increasing data retroactively.
 
 # next step is to vary the intercept also by country
+m4 <- brm(apc_price ~ 1 + inst_res + (1 + inst_res|country) + (1 + inst_res|institute) +
+              (1 + inst_res|author_pos),
+            family = "gaussian",
+            prior = c(prior(normal(0, .5), class = Intercept),
+                      prior(normal(0, .5), class = b),
+                      prior(exponential(1), class = sd),
+                      prior(exponential(1), class = sigma),
+                      prior(lkj(2), class = cor)),
+            data = dlist,
+            warmup = 500, iter = 1000, chains = 4, cores = 4,
+            control = list(adapt_delta = .95),
+          save_model = "bayes_model/m4.stan",
+          file = "bayes_model/m4")
+summary(m4)
+fixef(m4)
+ranef(m4)
+launch_shinystan(m4)
+conditional_effects(m4, effects = "inst_res")
+# this does not really work well - rsession crashes regularly
