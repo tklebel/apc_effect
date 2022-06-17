@@ -169,5 +169,9 @@ conditions <- make_conditions(conditions_base, vars = c("field", "country"))
 conditional_effects(m5, conditions = conditions, re_formula = NULL) %>%
   plot(ncol = 3)
 
+# hurdle part: predicted proportion of zero APC
+conditional_effects(m5, conditions = conditions, re_formula = NULL, dpar = "hu") %>%
+  plot(ncol = 3)
+
 fixef(m5) # hurdle modle is on logit scale
 ranef(m5)
