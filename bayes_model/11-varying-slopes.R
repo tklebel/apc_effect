@@ -1,7 +1,18 @@
 library(tidyverse)
 library(brms)
-library(brmstools) # see how this can be replaced by tidybayes
-library(tidybayes)
+library(emmeans)         # Calculate marginal effects in fancy ways
+library(tidybayes)       # Manipulate Stan objects in a tidy way
+library(broom)
+library(brmstools)
+
+options(mc.cores = 4,
+        brms.backend = "cmdstanr")
+
+# Set some global Stan options
+CHAINS <- 4
+ITER <- 2000
+WARMUP <- 1000
+BAYES_SEED <- 1234
 
 df <- read_csv("data/processed/multilevel_sample.csv")
 
@@ -9,10 +20,10 @@ df <- read_csv("data/processed/multilevel_sample.csv")
 base <- df %>%
   select(institution_id, country, author_position, PP_top10,
          field = display_name,
-         APC_in_dollar) %>%
-  filter(!is.na(APC_in_dollar))
+         APC_in_dollar)
 
 model_base <- base %>%
+  filter(APC_in_dollar != 0) %>%
   mutate(PP_top10 = scale(log(PP_top10)),
          APC_in_dollar = scale(APC_in_dollar))
 
@@ -24,8 +35,8 @@ m1 <- brm(APC_in_dollar ~ 1 + PP_top10 + (1|country) + (1|institution_id) +
                     prior(normal(0, .5), class = b),
                     prior(exponential(1), class = sd),
                     prior(exponential(1), class = sigma)),
-          data = base,
-          chains = 4, cores = 4,
+          data = model_base,
+          chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
           control = list(adapt_delta = .95),
           save_model = "bayes_model/m1.stan",
           file = "bayes_model/m1")
@@ -43,8 +54,8 @@ m2 <- brm(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution
                     prior(exponential(1), class = sd),
                     prior(exponential(1), class = sigma),
                     prior(lkj(2), class = cor)),
-          data = base,
-          warmup = 2000, iter = 3000, chains = 4, cores = 4,
+          data = model_base,
+          chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
           control = list(adapt_delta = .98),
           save_model = "bayes_model/m2.stan",
           file = "bayes_model/m2")
@@ -97,3 +108,66 @@ waic(m1, m2)
 
 # issues with the data: high numbers of 0 values
 # this might help a lot: https://www.andrewheiss.com/blog/2022/05/09/hurdle-lognormal-gaussian-brms/
+
+# do pp check first
+pp_check(m2)
+# well, this shows the problem, doesn't it? ^^
+# no adapt_delta will get us out of this mis-specification
+
+base_small <- base %>%
+  slice_sample(n = 1000) %>%
+  mutate(PP_top10 = scale(PP_top10))
+
+# hurdle model
+m3 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
+            (1|author_position) + (1 + PP_top10|field),
+            hu ~ 1),
+          family = hurdle_lognormal(),
+          prior = c(prior(normal(0, .5), class = Intercept),
+                    prior(normal(0, .5), class = b),
+                    prior(exponential(1), class = sd),
+                    prior(exponential(1), class = sigma),
+                    prior(lkj(2), class = cor)),
+          data = base_small,
+          chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
+          control = list(adapt_delta = .8),
+          save_model = "bayes_model/m3.stan",
+          file = "bayes_model/m3")
+# this samples much faster, despite the low adapt delta
+pp_check(m3)
+# this is already way better, although not yet very good
+summary(m3)
+ranef(m3)
+forest(m3, "field")
+forest(m3, "country")
+
+# more complex model for hurdle
+m5 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
+               (1|author_position) + (1 + PP_top10|field),
+             hu ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
+               (1|author_position) + (1 + PP_top10|field)),
+          family = hurdle_lognormal(),
+          prior = c(prior(normal(0, .5), class = Intercept),
+                    prior(normal(0, .5), class = b),
+                    prior(exponential(1), class = sd),
+                    prior(exponential(1), class = sigma),
+                    prior(lkj(2), class = cor)),
+          data = base_small,
+          chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
+          control = list(adapt_delta = .9),
+          save_model = "bayes_model/m5.stan",
+          file = "bayes_model/m5")
+pp_check(m5)
+summary(m5)
+forest(m5, "field")
+forest(m5, "country")
+
+conditions_base <- expand_grid(field = c("Biology", "Medicine", "Psychology"),
+                               country = c("China", "United States", "United Kingdom"))
+conditions <- make_conditions(conditions_base, vars = c("field", "country"))
+
+conditional_effects(m5, conditions = conditions, re_formula = NULL) %>%
+  plot(ncol = 3)
+
+fixef(m5) # hurdle modle is on logit scale
+ranef(m5)
