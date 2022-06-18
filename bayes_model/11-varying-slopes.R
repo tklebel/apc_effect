@@ -380,3 +380,42 @@ hurdle_full <- base %>%
 
 hm1.1 <- update(hm1, newdata = hurdle_full, iter = 2000, warmup = 1000,
                 file = "bayes_model/hm1.1")
+pp_check(hm1.1)
+summary(hm1.1)
+forest(hm1.1, "country")
+forest(hm1.1, "field")
+
+newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey",
+                                   "Brazil"),
+                       PP_top10 = seq(-3, 3, by = .1),
+                       field = c("Physics", "Biology", "Psychology", "Sociology",
+                                 "Medicine", "Engineering"))
+posterior_epred(hm1, newdata = newdata) %>% head()
+tidy_epred <- hm1.1 %>%
+  epred_draws(newdata = newdata)
+tidy_epred
+pptop_offset <- attributes(hurdle_full$PP_top10)$`scaled:center`
+pptop_scale <- attributes(hurdle_full$PP_top10)$`scaled:scale`
+tidy_epred <- tidy_epred %>%
+  mutate(pptop_rescaled = exp(PP_top10 * pptop_scale + pptop_offset))
+
+tidy_epred %>%
+  ggplot(aes(.epred, fill = country)) +
+  stat_halfeye(alpha = .5) +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ungroup() %>%
+  slice_sample(n = 1000) %>%
+  ggplot(aes(pptop_rescaled, .epred, colour = country)) +
+  geom_point() +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ungroup() %>%
+  slice_sample(n = 100000) %>%
+  ggplot(aes(pptop_rescaled, .epred, colour = country)) +
+  geom_smooth() +
+  facet_wrap(vars(field)) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(x = expression(PP["top 10%"]))
