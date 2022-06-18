@@ -192,6 +192,18 @@ m6 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institut
                     prior(lkj(2), class = cor)),
           data = base_big,
           chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
-          control = list(adapt_delta = .92),
+          control = list(adapt_delta = .85),
           save_model = "bayes_model/m6.stan",
           file = "bayes_model/m6")
+
+# All 4 chains finished successfully.
+# Mean chain execution time: 15196.8 seconds.
+# Total execution time: 15308.7 seconds.
+#
+# Warning: 4000 of 4000 (100.0%) transitions hit the maximum treedepth limit of 10.
+# See https://mc-stan.org/misc/warnings for details.
+
+# this hurdle thing seems to be a little unwieldy. maybe better try with separate
+# models, one for APC == 0 (glm), and one for APC > 0.
+# and for this try a completely nested formulation
+# 1 + PP_top10 + (1 + PP_top10 | author_position / institution_id / country) + (1 + PP_top10|field)
