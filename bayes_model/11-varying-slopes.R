@@ -328,7 +328,7 @@ conditional_effects(hm1, conditions = country_conditions,
 
 # do the same epred as above
 newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey"),
-                       PP_top10 = seq(-2, 2, by = .1),
+                       PP_top10 = seq(-3, 3, by = .1),
                        field = c("Physics", "Biology", "Psychology", "Sociology"))
 posterior_epred(hm1, newdata = newdata) %>% head()
 tidy_epred <- hm1 %>%
@@ -354,3 +354,29 @@ tidy_epred %>%
 # both of them are very interesting, and bring out differences regarding Turkey
 # (which might be an artefact of using small data): in the hurdle model Turkey
 # is much flatter, and much lower (because it has way more 0s then the others)
+
+# try to get the pptop scale back
+pptop_offset <- attributes(hurdle_base$PP_top10)$`scaled:center`
+pptop_scale <- attributes(hurdle_base$PP_top10)$`scaled:scale`
+tidy_epred <- tidy_epred %>%
+  mutate(pptop_rescaled = exp(PP_top10 * pptop_scale + pptop_offset))
+# tidy_epred %>%
+#   ungroup() %>%
+#   distinct(PP_top10, pptop_rescaled)
+
+tidy_epred %>%
+  ggplot(aes(pptop_rescaled, .epred, colour = country)) +
+  geom_smooth() +
+  facet_wrap(vars(field)) +
+  scale_x_continuous(labels = scales::percent) +
+  labs(x = expression("PP_[top 10%]"))
+# this is very insightful. Also opens up the question: should pptop10 really be
+# modelled using the log? so is it a reasonable assumption that increases at lower
+# ends have higher impact?
+
+# run the hurdle once more, now in full
+hurdle_full <- base %>%
+  mutate(PP_top10 = scale(log(PP_top10)))
+
+hm1.1 <- update(hm1, newdata = hurdle_full, iter = 2000, warmup = 1000,
+                file = "bayes_model/hm1.1")
