@@ -25,7 +25,7 @@ base <- df %>%
          field = display_name,
          APC_in_dollar)
 
-subsample_countries <- c("China", "United States", "Turkey",
+subsample_countries <- c("China", "United States", "Turkey", "Brazil",
                          "Russia", "Germany", "United Kingdom")
 subsample_fields <- c("Biology", "Physics", "Sociology", "Psychology")
 
@@ -153,3 +153,55 @@ pp_check(m5.1, ndraws = 30)
 summary(m5.1)
 forest(m5.1)
 
+# expand by adding fields and author positions
+m6 <- brm(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) +
+            (1 + PP_top10|field) + (1 + PP_top10|author_position),
+          family = lognormal(),
+          prior = c(prior(normal(7.5, .7), class = Intercept),
+                    prior(normal(0, .01), class = b),
+                    prior(normal(0, .2), class = sd),
+                    prior(normal(0, .1), class = sigma),
+                    prior(lkj(2), class = cor)),
+          data = model_base_exp,
+          chains = CHAINS, iter = 600, warmup = 300, seed = BAYES_SEED,
+          sample_prior = "no", file = "bayes_model/m6")
+pp_check(m6, ndraws = 30)
+summary(m6)
+
+forest(m6, "country")
+forest(m6, "field")
+forest(m6, "author_position")
+
+# use more fields
+subsample_countries <- c("China", "United States", "Turkey", "Brazil",
+                                     "Russia", "Germany", "United Kingdom")
+
+new_base <- base %>%
+  filter(APC_in_dollar != 0) %>%
+  mutate(PP_top10 = scale(log(PP_top10))) %>%
+  filter(country %in% subsample_countries)
+
+m6.1 <- update(m6, newdata = new_base, file = "bayes_model/m6.1",
+               control = list(adapt_delta = .9))
+pp_check(m6.1)
+summary(m6.1)
+forest(m6.1, "country")
+forest(m6.1, "field")
+forest(m6.1, "author_position")
+ranef(m6.1)
+
+# what sample sizes do we have in this data?
+new_base %>%
+  count(field, sort = TRUE)
+new_base %>%
+  count(country, sort = TRUE)
+new_base %>%
+  count(institution_id, sort = TRUE)
+
+# try to reduce complexity by removing the author term
+m6.2 <- update(m6.1, . ~ . -(1 + PP_top10|author_position),
+               file = "bayes_model/m6.2")
+# this samples better
+summary(m6.2)
+forest(m6.2, "country")
+forest(m6.2, "field")
