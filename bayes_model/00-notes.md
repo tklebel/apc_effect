@@ -7,7 +7,8 @@
 
 # What have we found?
 
-1.  In the current model (m6.2), the average effect of PP_top10 on the APC is zero, after accounting for country and field.
+1.  In the current model (m6.2), the average effect of PP_top10 on the APC is zero, after accounting for country and field -\> all effects are found in the country coeffients
+2.  
 
 # Next steps
 
