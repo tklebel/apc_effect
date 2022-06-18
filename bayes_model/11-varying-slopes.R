@@ -1,11 +1,13 @@
 library(tidyverse)
 library(brms)
 library(emmeans)         # Calculate marginal effects in fancy ways
+library(marginaleffects)
 library(tidybayes)       # Manipulate Stan objects in a tidy way
 library(broom)
 library(brmstools)
 library(loo)
 library(bayesplot)
+library(gghalves)
 
 options(mc.cores = 4,
         brms.backend = "cmdstanr",
@@ -201,7 +203,154 @@ new_base %>%
 # try to reduce complexity by removing the author term
 m6.2 <- update(m6.1, . ~ . -(1 + PP_top10|author_position),
                file = "bayes_model/m6.2")
-# this samples better
+# this samples better, since it presumably reduces issues with identification
 summary(m6.2)
 forest(m6.2, "country")
 forest(m6.2, "field")
+
+# visualise marginal effects
+country_conditions <- make_conditions(
+  tibble(country = c("Turkey", "China", "United States"),
+         field = c("Biology", "Medicine", "Environmental science")),
+  vars = c("country", "field")
+)
+
+conditional_effects(m6.2, conditions = country_conditions, re_formula = NULL)
+
+
+newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey"),
+                       PP_top10 = seq(-2, 2, by = .1),
+                       field = c("Medicine", "Biology", "Environmental science"))
+
+posterior_epred(m6.2, newdata = newdata) %>% head()
+tidy_epred <- m6.2 %>%
+  epred_draws(newdata = newdata)
+tidy_epred
+
+tidy_epred %>%
+  ggplot(aes(.epred, fill = country)) +
+  stat_halfeye(alpha = .5) +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ungroup() %>%
+  slice_sample(n = 1000) %>%
+  ggplot(aes(PP_top10, .epred, colour = country)) +
+  geom_point() +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ggplot(aes(PP_top10, .epred, colour = country)) +
+  geom_smooth() +
+  facet_wrap(vars(field))
+# this looks like the sort of plot we are after
+
+# for comparison, let us do the predicted values (incorporating full uncertainty)
+tidy_pred <- m6.2 %>%
+  predicted_draws(newdata = newdata)
+
+tidy_pred %>%
+  # ungroup() %>%
+  # slice_sample(n = 50000) %>%
+  ggplot(aes(PP_top10, .prediction, colour = country)) +
+  geom_smooth() +
+  facet_wrap(vars(field))
+# when visualising this way, there is no difference in the slope and intercept
+# of the lines (as expected), simply the uncertainty interval is bigger
+#
+# what I don't really get about those: why is the line so curved up, when the
+# parameter itself is 0?
+# looking at ranef(m6.2): because all the effect lives now in the country
+# coefficient - there is simply no further variation that goes unexplained
+# right now
+
+# try with marginaleffects/eamms
+countries_to_use <- tibble(country = c("Turkey", "China", "United States"))
+m6.2preds <- m6.2 %>%
+  predictions(newdata = datagrid(PP_top10 = seq(-3, 3, .1),
+                                 country = countries_to_use))
+
+  emmeans(~ PP_top10 + country, var = "PP_top10",
+          at = list(PP_top10 = seq(-3, 3, .1),
+                    country = countries_to_use),
+          regrid = "response") |>
+  as_tibble()
+
+ggplot(logit_predictions, aes(x = public_sector_corruption, y = prob, color = region)) +
+  geom_line(size = 1) +
+  labs(x = "Public sector corruption", y = "Predicted probability of having\na campaign finance disclosure law", color = NULL) +
+  scale_y_continuous(labels = percent_format()) +
+  scale_color_manual(values = c(clrs, "grey30")) +
+  theme_mfx() +
+  theme(legend.position = "bottom")
+
+
+# give hurdle model another try
+hurdle_base <- base %>%
+  mutate(PP_top10 = scale(log(PP_top10))) %>%
+  filter(country %in% subsample_countries,
+         field %in% subsample_fields)
+
+hm1 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) +
+             (1 + PP_top10|field),
+             hu ~ 1 + PP_top10 + (1 + PP_top10|country) +
+               (1 + PP_top10|field)),
+           family = hurdle_lognormal(),
+           prior = c(prior(normal(7.5, .7), class = Intercept),
+                     prior(normal(0, .01), class = b),
+                     prior(normal(0, .01), class = b, dpar = hu),
+                     prior(normal(0, .2), class = sd),
+                     prior(normal(0, .1), class = sigma),
+                     prior(lkj(2), class = cor)),
+           data = hurdle_base,
+           chains = CHAINS, iter = 200, warmup = 100, seed = BAYES_SEED,
+           sample_prior = "no", file = "bayes_model/hm1")
+pp_check(hm1)
+summary(hm1)
+forest(hm1, "country")
+forest(hm1, "field")
+
+country_conditions <- make_conditions(
+  tibble(country = c("Turkey", "China", "United States")),
+  vars = c("country")
+)
+
+conditional_effects(hm1, conditions = country_conditions, re_formula = NULL)
+conditional_effects(hm1, conditions = country_conditions,
+                    re_formula = NULL, dpar = "hu")
+# this model seems to work now, but it obvs samples slower than the other one,
+# simply because it is actually two models.
+# The conditional plots show that although the coefficients are small, the
+# conditional effects (here: the expected APC?) is quite substantial: going from
+# mean pptop10 two sd's up increases the average APC by about 300-400$
+# Given that these coefficients are bigger for other countries, this might be
+# massive
+
+# do the same epred as above
+newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey"),
+                       PP_top10 = seq(-2, 2, by = .1),
+                       field = c("Physics", "Biology", "Psychology", "Sociology"))
+posterior_epred(hm1, newdata = newdata) %>% head()
+tidy_epred <- hm1 %>%
+  epred_draws(newdata = newdata)
+tidy_epred
+
+tidy_epred %>%
+  ggplot(aes(.epred, fill = country)) +
+  stat_halfeye(alpha = .5) +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ungroup() %>%
+  slice_sample(n = 1000) %>%
+  ggplot(aes(PP_top10, .epred, colour = country)) +
+  geom_point() +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ggplot(aes(PP_top10, .epred, colour = country)) +
+  geom_smooth() +
+  facet_wrap(vars(field))
+# both of them are very interesting, and bring out differences regarding Turkey
+# (which might be an artefact of using small data): in the hurdle model Turkey
+# is much flatter, and much lower (because it has way more 0s then the others)
