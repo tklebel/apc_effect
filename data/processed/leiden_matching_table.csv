@@ -1,10 +1,10 @@
 ﻿University,Country,university_normalized,id,display_name,display_name_alternatives,country_code,country,keep,comment
-Al-Azhar University,Egypt,al-azhar university,https://openalex.org/I4210125886,Al-Azhar University,[],ID,Indonesia,FALSE,
+Al-Azhar University,Egypt,al-azhar university,https://openalex.org/I184834183,Al Azhar University,[],EG,Egypot,TRUE,
 All India Institute of Medical Science,India,all india institute of medical science,https://openalex.org/I63739035,All India Institute of Medical Sciences,All India Institute of Medical Sciences,IN,India,TRUE,"choosing the Delhi one, after consulting CWTS website"
 Anna University,India,anna university,https://openalex.org/I33585257,"Anna University, Chennai",NA,IN,India,TRUE,
 Autonomous University of Nuevo Leon,Mexico,autonomous university of nuevo leon,https://openalex.org/I169046204,Universidad Autónoma de Nuevo León,NA,MX,Mexico,TRUE,
 "Binghamton University, State University of New York",United States,binghamton university state university of new york,https://openalex.org/I123946342,Binghamton University,NA,US,United States,TRUE,
-Brescia University,Italy,brescia university,https://openalex.org/I30667456,Brescia University,[],US,United States,FALSE,
+Brescia University,Italy,brescia university,https://openalex.org/I79940851,University of Brescia,[],IT,Italy,TRUE,
 Brno University of Technology,Czech Republic,brno university of technology,https://openalex.org/I60587646,Brno University of Technology,"[""Vysok\u00e9 U\u010den\u00ed Technick\u00e9 v Brn\u011b""]",CZ,Czechia,TRUE,
 Bursa Uludağ University,Turkey,bursa uludag university,https://openalex.org/I131835042,Uludağ University,NA,TR,Turkey,TRUE,
 Charles University,Czech Republic,charles university,https://openalex.org/I21250087,Charles University,"[""Univerzita Karlova v Praze"", ""Karls-Universit\u00e4t Prag"", ""Charles University in Prague""]",CZ,Czechia,TRUE,
@@ -184,7 +184,7 @@ University of Newcastle,Australia,university of newcastle,https://openalex.org/I
 University of Padova,Italy,university of padova,https://openalex.org/I138689650,University of Padua,NA,IT,Italy,TRUE,
 University of Palermo,Italy,university of palermo,https://openalex.org/I4210139084,University of Palermo,[],AR,Argentina,FALSE,
 University of São Paulo,Brazil,university of sao paulo,https://openalex.org/I17974374,Universidade de São Paulo,NA,BR,Brazil,TRUE,
-University of Science and Technology,South Korea,university of science and technology,https://openalex.org/I118692353,University of Science and Technology,[],YE,Yemen,FALSE,
+University of Science and Technology,South Korea,university of science and technology,https://openalex.org/I88761825,Korea University of Science and Technology,[],KR,South Korea,TRUE,
 University of Silesia in Katowice,Poland,university of silesia in katowice,https://openalex.org/I864159182,University of Silesia,NA,PL,Poland,TRUE,
 "University of South Carolina, Columbia",United States,university of south carolina columbia,https://openalex.org/I155781252,University of South Carolina,NA,US,United States,TRUE,
 "University of South Florida, Tampa",United States,university of south florida tampa,https://openalex.org/I2613432,University of South Florida,NA,US,United States,TRUE,
