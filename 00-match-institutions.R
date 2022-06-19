@@ -8,7 +8,7 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 10 # this can go up to 27
+config$spark.executor.instances <- 20 # this can go up to 27
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "match_institutions")
@@ -21,8 +21,6 @@ spark_read_csv(sc, "/user/tklebel/openalex/institutions_geo.csv.bz2", escape = '
                name = "institutions_geo", memory = TRUE)
 institutions_geo <- tbl(sc, "institutions_geo") %>%
   select(institution_id, country)
-
-
 
 institutions_selection <- institutions %>%
   select(id, display_name, display_name_alternatives, country_code) %>%
@@ -79,6 +77,13 @@ multiple_matches <- joined %>%
 
 View(multiple_matches)
 
+# both country mismatch and multiple matches have the same error source:
+# sometimes there is more than one university of the same name. However,
+# this can be resolved by taking the country into account: all but one cases
+# (see below) can be explained by a country mismatch. Googling a handful of
+# these revealed that this approach is seems valid: OpenAlex simply has more
+# institutions, but we can trust the matching if the country also matches.
+
 # only work with those that worked for now
 success <- joined %>%
   filter(Country == country)
@@ -111,6 +116,16 @@ keepers <- joined %>%
 intermediate_success <- success %>%
   filter(id != "https://openalex.org/I3125743391") %>%
   bind_rows(keepers)
+
+# resolve unmatched universities manually
+unmatched <- joined %>%
+  anti_join(intermediate_success)
+
+unmatched %>%
+  write_csv("data/processed/leiden_unmatched.csv")
+
+# match manually, and then read in again, and combine with the other one
+
 
 intermediate_success %>%
   write_csv("data/processed/leiden_matched.csv")
