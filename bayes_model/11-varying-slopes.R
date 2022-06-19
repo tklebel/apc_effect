@@ -419,3 +419,12 @@ tidy_epred %>%
   facet_wrap(vars(field)) +
   scale_x_continuous(labels = scales::percent) +
   labs(x = expression(PP["top 10%"]))
+
+# what are the sample sizes we worked with?
+hurdle_full %>%
+  count(field, sort = TRUE)
+# pretty dominated by medicine and biology
+
+hurdle_full %>%
+  count(country, sort = TRUE) %>%
+  arrange(n)
