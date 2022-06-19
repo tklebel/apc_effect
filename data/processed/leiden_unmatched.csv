@@ -1,0 +1,213 @@
+University,Country,university_normalized,id,display_name,display_name_alternatives,country_code,country
+Al-Azhar University,Egypt,al-azhar university,https://openalex.org/I4210125886,Al-Azhar University,[],ID,Indonesia
+All India Institute of Medical Science,India,all india institute of medical science,NA,NA,NA,NA,NA
+Anna University,India,anna university,NA,NA,NA,NA,NA
+Autonomous University of Nuevo Leon,Mexico,autonomous university of nuevo leon,NA,NA,NA,NA,NA
+"Binghamton University, State University of New York",United States,binghamton university state university of new york,NA,NA,NA,NA,NA
+Brescia University,Italy,brescia university,https://openalex.org/I30667456,Brescia University,[],US,United States
+Brno University of Technology,Czech Republic,brno university of technology,https://openalex.org/I60587646,Brno University of Technology,"[""Vysok\u00e9 U\u010den\u00ed Technick\u00e9 v Brn\u011b""]",CZ,Czechia
+Bursa Uludağ University,Turkey,bursa uludag university,NA,NA,NA,NA,NA
+Charles University,Czech Republic,charles university,https://openalex.org/I21250087,Charles University,"[""Univerzita Karlova v Praze"", ""Karls-Universit\u00e4t Prag"", ""Charles University in Prague""]",CZ,Czechia
+China Medical University,China,china medical university,https://openalex.org/I184693016,China Medical University,"[""China Medical College""]",TW,Taiwan
+"China Medical University, Taiwan",Taiwan,china medical university taiwan,NA,NA,NA,NA,NA
+China University of Geosciences,China,china university of geosciences,https://openalex.org/I3125743391,China University of Geosciences,"[""Zh\u014dnggu\u00f3 D\u00eczh\u00ec D\u00e0xu\u00e9""]",CN,China
+"City, University London",United Kingdom,city university london,NA,NA,NA,NA,NA
+Claude Bernard Lyon 1 University,France,claude bernard lyon 1 university,NA,NA,NA,NA,NA
+College of William and Mary,United States,college of william and mary,NA,NA,NA,NA,NA
+Comenius University in Bratislava,Slovakia,comenius university in bratislava,NA,NA,NA,NA,NA
+COMSATS Institute of Information Technology,Pakistan,comsats institute of information technology,NA,NA,NA,NA,NA
+Concordia University,Canada,concordia university,https://openalex.org/I4210148195,Concordia University,[],US,United States
+Concordia University,Canada,concordia university,https://openalex.org/I4210143216,Concordia University,"[""Concordia Teachers College"", ""Concordia College"", ""Concordia University, Seward""]",US,United States
+Concordia University,Canada,concordia university,https://openalex.org/I161856759,Concordia University,[],US,United States
+Czech Technical University in Prague,Czech Republic,czech technical university in prague,https://openalex.org/I44504214,Czech Technical University in Prague,"[""\u010cesk\u00e9 vysok\u00e9 u\u010den\u00ed technick\u00e9 v Praze""]",CZ,Czechia
+Czech University of Life Sciences Prague,Czech Republic,czech university of life sciences prague,https://openalex.org/I205984670,Czech University of Life Sciences Prague,"[""\u010cesk\u00e1 zem\u011bd\u011blsk\u00e1 univerzita v Praze"", ""Czech University of Agriculture in Prague""]",CZ,Czechia
+Eberhard Karls University of Tübingen,Germany,eberhard karls university of tubingen,NA,NA,NA,NA,NA
+Eidgenössische Technische Hochschule Zürich,Switzerland,eidgenossische technische hochschule zurich,NA,NA,NA,NA,NA
+Federal University of Mato Grosso,Brazil,federal university of mato grosso,NA,NA,NA,NA,NA
+Federal University of Pelotas,Brazil,federal university of pelotas,NA,NA,NA,NA,NA
+Federal University of Santa Maria,Brazil,federal university of santa maria,NA,NA,NA,NA,NA
+Friedrich-Alexander-Universität Erlangen-Nürnberg,Germany,friedrich-alexander-universitat erlangen-nurnberg,NA,NA,NA,NA,NA
+Gabriele D'Annunzio University,Italy,gabriele d'annunzio university,NA,NA,NA,NA,NA
+Georg-August-Universität Göttingen,Germany,georg-august-universitat gottingen,NA,NA,NA,NA,NA
+Gottfried Wilhelm Leibniz Universität Hannover,Germany,gottfried wilhelm leibniz universitat hannover,NA,NA,NA,NA,NA
+Gustave Eiffel University,France,gustave eiffel university,NA,NA,NA,NA,NA
+Heidelberg University,Germany,heidelberg university,https://openalex.org/I85384741,Heidelberg University,"[""Heidelberg College""]",US,United States
+Heriot-Watt University,United Kingdom,heriot-watt university,https://openalex.org/I4210085930,Heriot-Watt University,[],MY,Malaysia
+HSE University,Russia,hse university,NA,NA,NA,NA,NA
+"Icahn School of Medicine, Mount Sinai",United States,icahn school of medicine mount sinai,NA,NA,NA,NA,NA
+Indian Institute of Science,India,indian institute of science,NA,NA,NA,NA,NA
+Indian Institute of Technology (Indian School of Mines),India,indian institute of technology (indian school of mines),NA,NA,NA,NA,NA
+Institut National Polytechnique de Toulouse,France,institut national polytechnique de toulouse,NA,NA,NA,NA,NA
+Islamic Azad University Science & Research Tehran,Iran,islamic azad university science and research tehran,NA,NA,NA,NA,NA
+JiLin Agriculture University,China,jilin agriculture university,NA,NA,NA,NA,NA
+Jinan University,China,jinan university,https://openalex.org/I4210146271,Jinan University,[],LB,Lebanon
+Johannes Gutenberg University Mainz,Germany,johannes gutenberg university mainz,NA,NA,NA,NA,NA
+Johannes Kepler University Linz,Austria,johannes kepler university linz,NA,NA,NA,NA,NA
+Julius-Maximilians-Universität Würzburg,Germany,julius-maximilians-universitat wurzburg,NA,NA,NA,NA,NA
+Justus Liebig University Giessen,Germany,justus liebig university giessen,NA,NA,NA,NA,NA
+K.N. Toosi University of Technology,Iran,k.n. toosi university of technology,NA,NA,NA,NA,NA
+Karolinska Institutet,Sweden,karolinska institutet,NA,NA,NA,NA,NA
+Katholieke Universiteit Leuven,Belgium,katholieke universiteit leuven,NA,NA,NA,NA,NA
+Kazan (Volga region) Federal University,Russia,kazan (volga region) federal university,NA,NA,NA,NA,NA
+Kocaeli University,Turkey,kocaeli university,NA,NA,NA,NA,NA
+Korea University,South Korea,korea university,https://openalex.org/I4210161052,Korea University,[],JP,Japan
+KTH Royal Institute of Technology,Sweden,kth royal institute of technology,NA,NA,NA,NA,NA
+Masaryk University,Czech Republic,masaryk university,https://openalex.org/I21449261,Masaryk University,"[""Masarykova univerzita""]",CZ,Czechia
+Medical University of Gdańsk,Poland,medical university of gdansk,NA,NA,NA,NA,NA
+Medical University of Innsbruck,Austria,medical university of innsbruck,NA,NA,NA,NA,NA
+National Chiao Tung University,Taiwan,national chiao tung university,NA,NA,NA,NA,NA
+National Distance Education University,Spain,national distance education university,NA,NA,NA,NA,NA
+"National Polytechnic Institute, Mexico",Mexico,national polytechnic institute mexico,NA,NA,NA,NA,NA
+National Research Nuclear University MEPhI,Russia,national research nuclear university mephi,NA,NA,NA,NA,NA
+National Research Tomsk Polytechnic University,Russia,national research tomsk polytechnic university,NA,NA,NA,NA,NA
+"National University of Sciences and Technology, Islamabad",Pakistan,national university of sciences and technology islamabad,NA,NA,NA,NA,NA
+National Yang-Ming University,Taiwan,national yang-ming university,https://openalex.org/I96323854,National Yang-Ming University,[],TW,NA
+Nicolaus Copernicus University in Toruń,Poland,nicolaus copernicus university in torun,https://openalex.org/I119233137,Nicolaus Copernicus University in Toruń,[],PL,NA
+Northeastern University,China,northeastern university,https://openalex.org/I12912129,Northeastern University,[],US,United States
+"Northeastern University, USA",United States,northeastern university usa,NA,NA,NA,NA,NA
+Northwest Agriculture & Forestry University,China,northwest agriculture and forestry university,NA,NA,NA,NA,NA
+Northwest University,China,northwest university,https://openalex.org/I36819085,Northwest University,[],US,United States
+Northwestern University,United States,northwestern university,https://openalex.org/I4210100400,Northwestern University,"[""Northwestern University Laoag City""]",PH,Philippines
+Ohio State University,United States,ohio state university,NA,NA,NA,NA,NA
+"Oklahoma State University, Stillwater",United States,oklahoma state university stillwater,NA,NA,NA,NA,NA
+Otto von Guericke University Magdeburg,Germany,otto von guericke university magdeburg,NA,NA,NA,NA,NA
+Paderborn University,Germany,paderborn university,NA,NA,NA,NA,NA
+Palacký University Olomouc,Czech Republic,palacky university olomouc,https://openalex.org/I70703428,"Palacký University, Olomouc","[""Univerzita Palack\u00e9ho v Olomouci""]",CZ,Czechia
+Peking Union Medical College,China,peking union medical college,NA,NA,NA,NA,NA
+Philipps-Universität Marburg,Germany,philipps-universitat marburg,NA,NA,NA,NA,NA
+Politecnico di Bari,Italy,politecnico di bari,NA,NA,NA,NA,NA
+Politecnico di Torino,Italy,politecnico di torino,NA,NA,NA,NA,NA
+Postgraduate Institute of Medical Education & Research,India,postgraduate institute of medical education and research,NA,NA,NA,NA,NA
+Poznań University of Life Sciences,Poland,poznan university of life sciences,NA,NA,NA,NA,NA
+Radboud University,Netherlands,radboud university,NA,NA,NA,NA,NA
+Rey Juan Carlos University,Spain,rey juan carlos university,NA,NA,NA,NA,NA
+Ruhr-Universität Bochum,Germany,ruhr-universitat bochum,NA,NA,NA,NA,NA
+Saint Petersburg State University,Russia,saint petersburg state university,NA,NA,NA,NA,NA
+Samsun Ondokuz Mayis University,Turkey,samsun ondokuz mayis university,NA,NA,NA,NA,NA
+Savitribai Phule Pune University,India,savitribai phule pune university,NA,NA,NA,NA,NA
+Shahid Chamran University of Ahwaz,Iran,shahid chamran university of ahwaz,NA,NA,NA,NA,NA
+Shiraz University of Medical Science,Iran,shiraz university of medical science,NA,NA,NA,NA,NA
+Soochow University,China,soochow university,https://openalex.org/I185940356,Soochow University,[],TW,Taiwan
+Southeast University,China,southeast university,https://openalex.org/I4210090971,Southeast University,[],BD,Bangladesh
+St Louis University,United States,st louis university,NA,NA,NA,NA,NA
+"Stony Brook University, The State University of New York",United States,stony brook university the state university of new york,NA,NA,NA,NA,NA
+Süleyman Demirel University,Turkey,suleyman demirel university,https://openalex.org/I4210120897,Suleyman Demirel University,[],KZ,Kazakhstan
+"Technion, Israel Institute of Technology",Israel,technion israel institute of technology,NA,NA,NA,NA,NA
+Technische Universität Bergakademie Freiberg,Germany,technische universitat bergakademie freiberg,NA,NA,NA,NA,NA
+Technische Universität Berlin,Germany,technische universitat berlin,NA,NA,NA,NA,NA
+Technische Universität Darmstadt,Germany,technische universitat darmstadt,NA,NA,NA,NA,NA
+Technische Universität Dresden,Germany,technische universitat dresden,NA,NA,NA,NA,NA
+Technische Universität Kaiserslautern,Germany,technische universitat kaiserslautern,NA,NA,NA,NA,NA
+Tecnológico de Monterrey (ITESM),Mexico,tecnologico de monterrey (itesm),NA,NA,NA,NA,NA
+"Texas A&M University, College Station",United States,texas aandm university college station,NA,NA,NA,NA,NA
+Thapar Institute of Engineering and Technology,India,thapar institute of engineering and technology,NA,NA,NA,NA,NA
+The Hebrew University of Jerusalem,Israel,the hebrew university of jerusalem,NA,NA,NA,NA,NA
+The University of Edinburgh,United Kingdom,the university of edinburgh,NA,NA,NA,NA,NA
+The University of Manchester,United Kingdom,the university of manchester,NA,NA,NA,NA,NA
+The University of Sheffield,United Kingdom,the university of sheffield,NA,NA,NA,NA,NA
+The University of Tokyo,Japan,the university of tokyo,NA,NA,NA,NA,NA
+The University of Warwick,United Kingdom,the university of warwick,NA,NA,NA,NA,NA
+Ton Duc Thang University,Viet Nam,ton duc thang university,https://openalex.org/I141445968,Ton Duc Thang University,"[""Ton Duc Thang Private Technology University""]",VN,Vietnam
+"Trinity College Dublin, The University of Dublin",Ireland,trinity college dublin the university of dublin,NA,NA,NA,NA,NA
+Ulm University,Germany,ulm university,NA,NA,NA,NA,NA
+Universidad Autónoma de Madrid,Spain,universidad autonoma de madrid,NA,NA,NA,NA,NA
+Universidad de Almería,Spain,universidad de almeria,NA,NA,NA,NA,NA
+Universidad de Concepción,Chile,universidad de concepcion,NA,NA,NA,NA,NA
+Universidad de La Laguna,Spain,universidad de la laguna,NA,NA,NA,NA,NA
+Universidad de la República,Uruguay,universidad de la republica,NA,NA,NA,NA,NA
+Universidad de los Andes,Colombia,universidad de los andes,https://openalex.org/I4210143738,Universidad de Los Andes,[],BO,Bolivia
+Universidad Nacional de Colombia,Colombia,universidad nacional de colombia,NA,NA,NA,NA,NA
+Universidad Nacional de La Plata,Argentina,universidad nacional de la plata,NA,NA,NA,NA,NA
+Universidade de Brasília,Brazil,universidade de brasilia,NA,NA,NA,NA,NA
+Universidade de Lisboa,Portugal,universidade de lisboa,NA,NA,NA,NA,NA
+Universidade Estadual Paulista,Brazil,universidade estadual paulista,NA,NA,NA,NA,NA
+Universidade Federal da Bahia,Brazil,universidade federal da bahia,NA,NA,NA,NA,NA
+Universidade Federal de São Paulo,Brazil,universidade federal de sao paulo,NA,NA,NA,NA,NA
+Universidade Federal do Paraná,Brazil,universidade federal do parana,NA,NA,NA,NA,NA
+Universidade Federal do Rio de Janeiro,Brazil,universidade federal do rio de janeiro,NA,NA,NA,NA,NA
+Universidade Federal Fluminense,Brazil,universidade federal fluminense,NA,NA,NA,NA,NA
+Università Cattolica del Sacro Cuore,Italy,universita cattolica del sacro cuore,NA,NA,NA,NA,NA
+Università del Salento,Italy,universita del salento,NA,NA,NA,NA,NA
+Università Politecnica delle Marche,Italy,universita politecnica delle marche,NA,NA,NA,NA,NA
+Universitat Autònoma de Barcelona,Spain,universitat autonoma de barcelona,NA,NA,NA,NA,NA
+Universitat Jaume I,Spain,universitat jaume i,NA,NA,NA,NA,NA
+"Universitat Politècnica de Catalunya, BarcelonaTech",Spain,universitat politecnica de catalunya barcelonatech,NA,NA,NA,NA,NA
+Universität Regensburg,Germany,universitat regensburg,NA,NA,NA,NA,NA
+Universitat Rovira i Virgili,Spain,universitat rovira i virgili,NA,NA,NA,NA,NA
+Universität zu Lübeck,Germany,universitat zu lubeck,NA,NA,NA,NA,NA
+Université de Lorraine,France,universite de lorraine,NA,NA,NA,NA,NA
+Université de Montréal,Canada,universite de montreal,NA,NA,NA,NA,NA
+Université de Nantes,France,universite de nantes,NA,NA,NA,NA,NA
+Université de Paris,France,universite de paris,NA,NA,NA,NA,NA
+Université de Tours,France,universite de tours,NA,NA,NA,NA,NA
+Université de Tunis El Manar,Tunisia,universite de tunis el manar,NA,NA,NA,NA,NA
+Université de Versailles Saint-Quentin-en-Yvelines,France,universite de versailles saint-quentin-en-yvelines,NA,NA,NA,NA,NA
+Université des Sciences et de la Technologie Houari Boumediene,Algeria,universite des sciences et de la technologie houari boumediene,NA,NA,NA,NA,NA
+Université du Québec à Montréal,Canada,universite du quebec a montreal,NA,NA,NA,NA,NA
+Université Grenoble Alpes,France,universite grenoble alpes,NA,NA,NA,NA,NA
+Université Paris Sciences et Lettres,France,universite paris sciences et lettres,NA,NA,NA,NA,NA
+Université Paris-Est Créteil Val de Marne,France,universite paris-est creteil val de marne,NA,NA,NA,NA,NA
+Université Paris-Saclay,France,universite paris-saclay,NA,NA,NA,NA,NA
+Université Sorbonne Paris Nord,France,universite sorbonne paris nord,NA,NA,NA,NA,NA
+Université Toulouse III - Paul Sabatier,France,universite toulouse iii - paul sabatier,NA,NA,NA,NA,NA
+Universiti Kebangsaan Malaysia,Malaysia,universiti kebangsaan malaysia,NA,NA,NA,NA,NA
+Universiti Teknologi Malaysia,Malaysia,universiti teknologi malaysia,NA,NA,NA,NA,NA
+"University at Albany, The State University of New York",United States,university at albany the state university of new york,NA,NA,NA,NA,NA
+"University at Buffalo, The State University of New York",United States,university at buffalo the state university of new york,NA,NA,NA,NA,NA
+"University of Alabama, Birmingham",United States,university of alabama birmingham,NA,NA,NA,NA,NA
+"University of Alabama, Tuscaloosa",United States,university of alabama tuscaloosa,NA,NA,NA,NA,NA
+"University of Arkansas for Medical Sciences, Little Rock",United States,university of arkansas for medical sciences little rock,NA,NA,NA,NA,NA
+"University of Arkansas, Fayetteville",United States,university of arkansas fayetteville,NA,NA,NA,NA,NA
+University of Caen Normandy,France,university of caen normandy,NA,NA,NA,NA,NA
+University of Campinas,Brazil,university of campinas,NA,NA,NA,NA,NA
+"University of Chemistry and Technology, Prague",Czech Republic,university of chemistry and technology prague,NA,NA,NA,NA,NA
+University of Cordoba,Spain,university of cordoba,https://openalex.org/I324290372,University of Córdoba,"[""Unicor"", ""Unic\u00f3rdoba""]",CO,Colombia
+"University of Georgia, Athens",United States,university of georgia athens,NA,NA,NA,NA,NA
+"University of Hawaii, Manoa",United States,university of hawaii manoa,NA,NA,NA,NA,NA
+University of Health Sciences,Turkey,university of health sciences,NA,NA,NA,NA,NA
+"University of Illinois, Chicago",United States,university of illinois chicago,NA,NA,NA,NA,NA
+University of Innsbruck,Austria,university of innsbruck,NA,NA,NA,NA,NA
+University of Life Sciences in Lublin,Poland,university of life sciences in lublin,NA,NA,NA,NA,NA
+"University of Maine, Orono",United States,university of maine orono,NA,NA,NA,NA,NA
+University of Michigan,United States,university of michigan,NA,NA,NA,NA,NA
+"University of Minnesota, Twin Cities",United States,university of minnesota twin cities,NA,NA,NA,NA,NA
+"University of Missouri, Columbia",United States,university of missouri columbia,NA,NA,NA,NA,NA
+"University of Missouri, Kansas City",United States,university of missouri kansas city,NA,NA,NA,NA,NA
+"University of Natural Resources and Life Sciences, Vienna",Austria,university of natural resources and life sciences vienna,NA,NA,NA,NA,NA
+"University of Nebraska, Lincoln",United States,university of nebraska lincoln,NA,NA,NA,NA,NA
+University of New England,Australia,university of new england,https://openalex.org/I275799156,University of New England,[],US,United States
+University of New South Wales,Australia,university of new south wales,NA,NA,NA,NA,NA
+University of Newcastle,Australia,university of newcastle,NA,NA,NA,NA,NA
+"University of North Carolina, Chapel Hill",United States,university of north carolina chapel hill,NA,NA,NA,NA,NA
+"University of North Carolina, Charlotte",United States,university of north carolina charlotte,NA,NA,NA,NA,NA
+"University of North Carolina, Greensboro",United States,university of north carolina greensboro,NA,NA,NA,NA,NA
+University of Padova,Italy,university of padova,NA,NA,NA,NA,NA
+University of Palermo,Italy,university of palermo,https://openalex.org/I4210139084,University of Palermo,[],AR,Argentina
+University of São Paulo,Brazil,university of sao paulo,NA,NA,NA,NA,NA
+University of Science and Technology,South Korea,university of science and technology,https://openalex.org/I118692353,University of Science and Technology,[],YE,Yemen
+University of Silesia in Katowice,Poland,university of silesia in katowice,NA,NA,NA,NA,NA
+"University of South Carolina, Columbia",United States,university of south carolina columbia,NA,NA,NA,NA,NA
+"University of South Florida, Tampa",United States,university of south florida tampa,NA,NA,NA,NA,NA
+University of Tampere,Finland,university of tampere,https://openalex.org/I166825849,University of Tampere,[],FI,NA
+"University of Tennessee, Knoxville",United States,university of tennessee knoxville,NA,NA,NA,NA,NA
+University of Texas at Arlington,United States,university of texas at arlington,NA,NA,NA,NA,NA
+University of Texas at Austin,United States,university of texas at austin,NA,NA,NA,NA,NA
+University of Texas at Dallas,United States,university of texas at dallas,NA,NA,NA,NA,NA
+University of Texas at El Paso,United States,university of texas at el paso,NA,NA,NA,NA,NA
+University of Texas at San Antonio,United States,university of texas at san antonio,NA,NA,NA,NA,NA
+University of Texas Health Science Center at Houston,United States,university of texas health science center at houston,NA,NA,NA,NA,NA
+University of Texas Health Science Center at San Antonio,United States,university of texas health science center at san antonio,NA,NA,NA,NA,NA
+University of Texas Medical Branch at Galveston,United States,university of texas medical branch at galveston,NA,NA,NA,NA,NA
+University of Texas Southwestern Medical Center at Dallas,United States,university of texas southwestern medical center at dallas,NA,NA,NA,NA,NA
+University of the Chinese Academy of Sciences,China,university of the chinese academy of sciences,NA,NA,NA,NA,NA
+University of the West of England Bristol,United Kingdom,university of the west of england bristol,NA,NA,NA,NA,NA
+"University of Washington, Seattle",United States,university of washington seattle,NA,NA,NA,NA,NA
+"University of Wisconsin, Madison",United States,university of wisconsin madison,NA,NA,NA,NA,NA
+"University of Wisconsin, Milwaukee",United States,university of wisconsin milwaukee,NA,NA,NA,NA,NA
+Vellore Institute of Technology,India,vellore institute of technology,NA,NA,NA,NA,NA
+"Victoria University, Melbourne",Australia,victoria university melbourne,NA,NA,NA,NA,NA
+Vienna University of Technology,Austria,vienna university of technology,NA,NA,NA,NA,NA
+Virginia Polytechnic Institute and State University,United States,virginia polytechnic institute and state university,NA,NA,NA,NA,NA
+Vrije Universiteit Amsterdam,Netherlands,vrije universiteit amsterdam,NA,NA,NA,NA,NA
+"West Pomeranian University of Technology, Szczecin",Poland,west pomeranian university of technology szczecin,NA,NA,NA,NA,NA
+Western University,Canada,western university,https://openalex.org/I4210116551,Western University,[],KH,Cambodia

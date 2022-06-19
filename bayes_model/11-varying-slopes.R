@@ -180,6 +180,7 @@ ranef(m5)
 base_big <- base %>%
   mutate(PP_top10 = scale(log(PP_top10)))
 
+
 m6 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
                (1|author_position) + (1 + PP_top10|field),
              hu ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institution_id) +
@@ -192,7 +193,7 @@ m6 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institut
                     prior(lkj(2), class = cor)),
           data = base_big,
           chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
-          control = list(adapt_delta = .85),
+          control = list(adapt_delta = .9),
           save_model = "bayes_model/m6.stan",
           file = "bayes_model/m6")
 
@@ -207,3 +208,4 @@ m6 <- brm(bf(APC_in_dollar ~ 1 + PP_top10 + (1 + PP_top10|country) + (1|institut
 # models, one for APC == 0 (glm), and one for APC > 0.
 # and for this try a completely nested formulation
 # 1 + PP_top10 + (1 + PP_top10 | author_position / institution_id / country) + (1 + PP_top10|field)
+
