@@ -34,8 +34,8 @@ spark_read_csv(sc, "leiden", "/user/tklebel/apc_paper/leiden_2021.csv",
                memory = TRUE, null_value = "NA")
 leiden <- tbl(sc, "leiden") %>%
   filter(Field == "All sciences", Frac_counting == 1,
-         !is.na(PP_top10)) %>%
-  select(University, Field, Period, Frac_counting, PP_top10)
+         !is.na(P_top10)) %>%
+  select(University, Period, Frac_counting, P_top10)
 
 # hm, this has issues. first, we included NA author positions
 # second, there are works which are not OA, like https://explore.openalex.org/works/W2258570746
@@ -62,6 +62,9 @@ fractional_works %>% count(is_oa)
 # date.
 # those that are NA might be those that are simply not covered by Unpaywall.
 
+# for this reason, we only keep those that OpenAlex also identifies as OA
+fractional_works <- fractional_works %>%
+  filter(is_oa == TRUE)
 
 # get journal for work -> get APC value and PPtop_10
 joined <- fractional_works %>%
@@ -69,8 +72,17 @@ joined <- fractional_works %>%
   left_join(leiden_key, by = c("institution_id" = "id")) %>%
   left_join(leiden, by = c("University"))
 
-# need to filter so the publication year fits to the leiden data year (check
-# earlier code on this)
+# how many works remain?
+joined %>%
+  distinct(id) %>%
+  count()
+# # Source: spark<?> [?? x 1]
+#           n
+#       <int>
+#   1 3773586
+
+# need to filter so the publication year fits to the leiden data year -> this
+# is done in the next script
 
 
 spark_write_parquet(joined, "/user/tklebel/apc_paper/all_papers_merged.parquet",
