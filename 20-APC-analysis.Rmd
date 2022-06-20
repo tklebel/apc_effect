@@ -15,6 +15,7 @@ Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
 library(sparklyr)
 library(tidyverse)
 library(arrow)
+library(scales)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
@@ -74,6 +75,7 @@ frac_concept_papers %>%
   labs(y = NULL, x = "Fractional papers")
 ```
 
+# Association between P_top10 and APC
 ```{r}
 mean_apcs <- works %>%
   # first get rid of duplicates from concepts
@@ -106,9 +108,30 @@ apc_16_19 %>%
   geom_smooth() +
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
+  scale_y_continuous(labels = dollar) +
   labs(caption = "2016-2019", y = "Mean APC",
        x = expression(P["top 10%"]))
 ```
+
+```{r apc-first-last-time, fig.height=4, fig.width=8}
+mean_apcs_local %>%
+  group_by(publication_year, author_position) %>%
+  mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
+  group_by(ptop10_quantiles, publication_year, author_position) %>%
+  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
+            .groups = "drop_last") %>%
+  ggplot(aes(publication_year, mean_apc, colour = ptop10_quantiles,
+             group = ptop10_quantiles)) +
+  geom_line() +
+  facet_wrap(vars(author_position)) +
+  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_y_continuous(labels = dollar) +
+  theme(legend.position = "top") +
+  labs(caption = "Fractional counting", y = "Mean APC",
+       colour = expression(P["top 10%"]), x = NULL)
+```
+
+
 
 
 ```{r}
