@@ -8,6 +8,7 @@ library(brmstools)
 library(loo)
 library(bayesplot)
 library(gghalves)
+library(modelr)
 
 options(mc.cores = 4,
         brms.backend = "cmdstanr",
@@ -18,6 +19,12 @@ CHAINS <- 4
 ITER <- 200
 WARMUP <- ITER / 2
 BAYES_SEED <- 1234
+
+# Use the Johnson color palette
+clrs <- MetBrewer::met.brewer("Johnson")
+
+# Tell bayesplot to use the Johnson palette (for things like pp_check())
+bayesplot::color_scheme_set(c("grey30", clrs[2], clrs[1], clrs[3], clrs[5], clrs[4]))
 
 df <- read_csv("data/processed/multilevel_sample.csv")
 wdi <- WDI::WDI_data$country %>%
@@ -119,8 +126,107 @@ summary(hm2)
 # non-zero part, but the zero-part is relevant and should stay in the model
 
 # analyse and visualise -----
+conditional_effects(hm2)
+conditional_effects(hm2, dpar = "hu")
+# wow, the error bars are wide
 
+newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey",
+                                   "Brazil"),
+                       P_top10 = seq(-3, 3, by = .1),
+                       field = c("Physics", "Biology", "Psychology", "Sociology",
+                                 "Medicine", "Engineering"))
+posterior_epred(hm2, newdata = newdata) %>% head()
+tidy_epred <- hm2 %>%
+  epred_draws(newdata = newdata)
+tidy_epred
 
-# relax the priors a bit
+ptop_offset <- attributes(base$P_top10)$`scaled:center`
+ptop_scale <- attributes(base$P_top10)$`scaled:scale`
+tidy_epred <- tidy_epred %>%
+  mutate(ptop_rescaled = exp(P_top10 * ptop_scale + ptop_offset))
+
+tidy_epred %>%
+  ggplot(aes(.epred, fill = country)) +
+  stat_halfeye(alpha = .5) +
+  facet_wrap(vars(field))
+
+tidy_epred %>%
+  ggplot(aes(ptop_rescaled, .epred)) +
+  stat_lineribbon(color = clrs[4], size = 1) +
+  scale_fill_manual(values = colorspace::lighten(clrs[4], c(0.95, 0.7, 0.4))) +
+  facet_grid(rows = vars(country),
+             cols = vars(field)) +
+  scale_x_log10()
+# this is going in a good direction, but having fields and countries at the same
+# time is difficult
+
+new_fields <- expand_grid(field = unique(base$field),
+                          P_top10 = seq(-3, 3, by = .1),
+                          country = "China")
+field_draws <- hm2 %>%
+  epred_draws(newdata = new_fields, ndraws = 500)
+field_draws <- field_draws %>%
+  mutate(ptop_rescaled = exp(P_top10 * ptop_scale + ptop_offset))
+
+field_draws %>%
+  ggplot(aes(ptop_rescaled, .epred)) +
+  stat_lineribbon(color = clrs[4], size = 1) +
+  scale_fill_manual(values = colorspace::lighten(clrs[4], c(0.95, 0.7, 0.4))) +
+  facet_wrap(vars(field)) +
+  scale_x_log10()
+# this is interesting, but need to choose reference category for country
+# so directly showing coefficients would be better
+
+new_countries <- expand_grid(field = "Medicine",
+                          P_top10 = seq(-3, 3, by = .1),
+                          country = unique(base$country))
+country_draws <- hm2 %>%
+  epred_draws(newdata = new_countries, ndraws = 500) %>%
+  mutate(ptop_rescaled = exp(P_top10 * ptop_scale + ptop_offset))
+
+country_draws %>%
+  ggplot(aes(ptop_rescaled, .epred)) +
+  stat_lineribbon(color = clrs[4], size = 1) +
+  scale_fill_manual(values = colorspace::lighten(clrs[4], c(0.95, 0.7, 0.4))) +
+  facet_wrap(vars(country)) +
+  scale_x_log10()
+# this does not make it easy to show anything
+# use the code from here: https://discourse.mc-stan.org/t/convenience-function-for-plotting-random-group-effects/13461/2
+
+get_variables(hm2)
+
+hm2 %>%
+  spread_draws(r_field[field,term]) %>%
+  median_qi() %>%
+  filter(term == "P_top10") %>%
+  arrange(r_field)
+  head()
+
+hm2 %>%
+  spread_draws(b_Intercept, b_P_top10, r_field[field,term])
+
+# field effects
+rescale_ptop <- function(x) exp(x * ptop_scale + ptop_offset)
+hm2 %>%
+  spread_draws(b_P_top10, r_field[field,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_P_top10 + r_field,
+         total_effect = rescale_ptop(total_effect)) %>%
+  ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
+  stat_halfeye() +
+  labs(x = "Average marginal effect of what exactly?")
+
+# country effects
+hm2 %>%
+  spread_draws(b_P_top10, r_country[country,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_P_top10 + r_country,
+         total_effect = rescale_ptop(total_effect)) %>%
+  ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
+  stat_halfeye() +
+  labs(x = "Average marginal effect of what exactly?")
+
+# need the same for hu part
+
 
 
