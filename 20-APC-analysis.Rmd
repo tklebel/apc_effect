@@ -168,7 +168,7 @@ p
 ```
 
 
-```{r}
+```{r dpi=100}
 plotly::ggplotly(p)
 ```
 
