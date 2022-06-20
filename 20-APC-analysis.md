@@ -21,7 +21,7 @@ works %>%
 ```
 
 ```
-## [1] 1572245
+## [1] 1633554
 ```
 This is our total sample size.
 
@@ -53,16 +53,23 @@ frac_concept_papers %>%
 # Association between P_top10 and APC
 
 ```r
-mean_apcs <- works %>%
-  # first get rid of duplicates from concepts
-  distinct(id, author_position, work_frac, APC_in_dollar, University, country,
-           publication_year, P_top10) %>% 
-  group_by(University, publication_year, country, P_top10) %>%
-  # compute the average APC using fractional authorships as weights
-  mutate(sum_frac = sum(work_frac)) %>%
-  group_by(University, publication_year, country, P_top10, sum_frac,
-           author_position) %>%
-  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+get_mean_apc_by_author_position <- function(df) {
+  df %>%
+    # first get rid of duplicates from concepts
+    distinct(id, author_position, work_frac, APC_in_dollar, University, country,
+             publication_year, P_top10) %>% 
+    group_by(University, publication_year, country, P_top10) %>%
+    # compute the average APC using fractional authorships as weights
+    mutate(sum_frac = sum(work_frac)) %>%
+    group_by(University, publication_year, country, P_top10, sum_frac,
+             author_position) %>%
+    summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
+              fractional_works = sum(work_frac))
+}
+
+mean_apcs <- works %>% 
+  filter(publication_year == last_year_of_period) %>% 
+  get_mean_apc_by_author_position()
 
 mean_apcs_local <- mean_apcs %>%
   collect()
@@ -73,16 +80,28 @@ mean_apcs_local <- mean_apcs %>%
 ## 'P_top10', 'sum_frac'. You can override using the `.groups` argument.
 ```
 
+```r
+mean_apc_16_19 <- works %>% 
+  filter(first_year_of_period == 2016) %>% 
+  get_mean_apc_by_author_position()
+
+mean_apc_16_19_local <- mean_apc_16_19 %>% 
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'University', 'publication_year', 'country',
+## 'P_top10', 'sum_frac'. You can override using the `.groups` argument.
+```
+
 
 ```r
-# plot for 2019
-apc_16_19 <- mean_apcs_local %>%
-  filter(publication_year > 2015 & publication_year < 2020)
+# plot for 2016-19
 
 # taking out the correlation, because they are incorrect given that the figure
 # shows a non-linear relationship (x-axis logged), but the correlation is linear
 # (and quite unsuitable to the skewed P_top10)
-apc_16_19 %>%
+mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc)) +
@@ -123,21 +142,38 @@ mean_apcs_local %>%
 ![](20-APC-analysis_files/figure-html/apc-first-last-time-1.png)<!-- -->
 
 
+```r
+get_mean_apc_by_concept <- function(df) {
+  df %>%
+    distinct(id, University, publication_year, P_top10, field, work_frac, 
+             APC_in_dollar, author_position) %>% 
+    group_by(University, publication_year, P_top10, field) %>%
+    # compute the average APC using fractional authorships as weights
+    mutate(sum_frac = sum(work_frac)) %>%
+    group_by(University, publication_year, P_top10, sum_frac,
+             author_position, field) %>%
+    summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+}
 
+mean_apc_concept <- works %>% 
+  filter(publication_year == last_year_of_period) %>% 
+  get_mean_apc_by_concept()
 
+mean_apc_concept_local <- mean_apc_concept %>%
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'University', 'publication_year', 'P_top10',
+## 'sum_frac', 'author_position'. You can override using the `.groups` argument.
+```
 
 ```r
-mean_apcs_by_concept <- works %>%
-  distinct(id, University, publication_year, P_top10, field, work_frac, 
-           APC_in_dollar, author_position) %>% 
-  group_by(University, publication_year, P_top10, field) %>%
-  # compute the average APC using fractional authorships as weights
-  mutate(sum_frac = sum(work_frac)) %>%
-  group_by(University, publication_year, P_top10, sum_frac,
-           author_position, field) %>%
-  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+mean_apc_concept_16_19 <- works %>% 
+  filter(first_year_of_period == 2016) %>% 
+  get_mean_apc_by_concept()
 
-apcs_by_concept_local <- mean_apcs_by_concept %>%
+mean_apc__concept_16_19_local <- mean_apc_concept_16_19 %>% 
   collect()
 ```
 
@@ -148,13 +184,10 @@ apcs_by_concept_local <- mean_apcs_by_concept %>%
 
 
 
+
 ```r
 # plot for 2016-2019
-apc_concept_16_19 <- apcs_by_concept_local %>%
-  filter(publication_year > 2015 & publication_year < 2020,
-         !is.na(field))
-
-p <- apc_concept_16_19 %>%
+p <- mean_apc_concept_16_19 %>%
   ggplot(aes(P_top10, mean_apc, colour = field)) +
   geom_smooth(alpha = .15) +
   facet_wrap(vars(author_position), nrow = 1) +
@@ -181,14 +214,14 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve8eeec7408abf0b91
+preserve53a907cc215192c1
 
 
 
 ## Over time - first-authors
 
 ```r
-apcs_by_concept_local %>%
+mean_apc_concept_local %>%
   filter(!is.na(field), author_position == "first") %>% 
   group_by(publication_year, field) %>%
   mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
@@ -210,7 +243,7 @@ apcs_by_concept_local %>%
 ## Over time - last-authors
 
 ```r
-apcs_by_concept_local %>%
+mean_apc_concept_local %>%
   filter(!is.na(field), author_position == "last") %>% 
   group_by(publication_year, field) %>%
   mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
@@ -228,6 +261,53 @@ apcs_by_concept_local %>%
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-time-concept-last-1.png)<!-- -->
+
+# Country comparison
+
+```r
+mean_apc_country_16_19 <- works %>%
+  filter(first_year_of_period == 2016) %>% 
+  # first get rid of duplicates from concepts
+  distinct(id, work_frac, APC_in_dollar, University, country, P_top10, country_code) %>% 
+  group_by(University, country, P_top10) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(University, country, P_top10, sum_frac, country_code) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+
+mean_apc_country_16_19_local <- mean_apc_country_16_19 %>%
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'University', 'country', 'P_top10',
+## 'sum_frac'. You can override using the `.groups` argument.
+```
+
+
+```r
+mean_apc_country_16_19_local <- mean_apc_country_16_19_local %>% 
+  left_join(wdi, by = c("country_code" = "iso2c"))
+```
+
+
+```r
+mean_apc_country_16_19_local %>% 
+  ggplot(aes(P_top10, mean_apc, colour = region)) +
+  geom_point(alpha = .3, size = 1.2) +
+  geom_smooth(alpha = .3) +
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) +
+  labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
+  theme(legend.position = "top")
+```
+
+```
+## `geom_smooth()` using method = 'loess' and formula 'y ~ x'
+```
+
+![](20-APC-analysis_files/figure-html/apc-by-country-1.png)<!-- -->
+
 
 
 ```r
