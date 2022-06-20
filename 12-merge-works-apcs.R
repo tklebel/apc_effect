@@ -61,11 +61,7 @@ fractional_works %>% count(is_oa)
 # those that are not OA might be errors in OpenAlex data in terms of publication
 # date.
 # those that are NA might be those that are simply not covered by Unpaywall.
-
-# for this reason, we only keep those that OpenAlex also identifies as OA
-fractional_works <- fractional_works %>%
-  filter(is_oa == TRUE)
-
+# we only keep those that are OA, which is done in the next script
 # get journal for work -> get APC value and PPtop_10
 joined <- fractional_works %>%
   left_join(venues_apcs, by = c("venue_id" = "id")) %>%
@@ -79,7 +75,7 @@ joined %>%
 # # Source: spark<?> [?? x 1]
 #           n
 #       <int>
-#   1 3773586
+#   1 4052353
 
 # need to filter so the publication year fits to the leiden data year -> this
 # is done in the next script
