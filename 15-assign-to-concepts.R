@@ -24,7 +24,7 @@ csv_reader("/user/tklebel/openalex/concepts.csv.bz2", "concepts",
 concepts <- tbl(sc, "concepts")
 
 concepts <- concepts %>%
-  select(id, display_name, level) %>%
+  select(id, field = display_name, level) %>%
   filter(level == 0)
 concepts
 
