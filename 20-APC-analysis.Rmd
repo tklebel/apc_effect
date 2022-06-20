@@ -16,6 +16,7 @@ library(sparklyr)
 library(tidyverse)
 library(arrow)
 library(scales)
+library(WDI)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
@@ -34,11 +35,18 @@ spark_read_parquet(
 )
 works <- tbl(sc, "works")
 
+works <- works %>% 
+  mutate(country_code = case_when(country_code == "UK" ~ "GB",
+                                  TRUE ~ country_code))
+
 message("Successfully read all datasets!")
 
 # need to select based on previous rules
 works <- works %>% 
   filter(publication_year == last_year_of_period)
+
+wdi <- WDI_data$country %>% as_tibble() %>% 
+  select(iso2c, region, income)
 
 theme_set(theme_bw())
 ```
@@ -95,7 +103,7 @@ mean_apcs_local <- mean_apcs %>%
 ```{r apc-first-last, fig.width=8, fig.height=3.5}
 # plot for 2019
 apc_16_19 <- mean_apcs_local %>%
-  filter(publication_year > 2015 & publication_year < 2020)
+  filter(publication_year > 2015 & publication_year < 2020) # this needs to change <<<------
 
 # taking out the correlation, because they are incorrect given that the figure
 # shows a non-linear relationship (x-axis logged), but the correlation is linear
@@ -211,6 +219,36 @@ apcs_by_concept_local %>%
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
 ```
+
+# Country comparison
+```{r}
+mean_apc_country_16_19 <- works %>%
+  filter(first_year_of_period == 2016) %>% 
+  # first get rid of duplicates from concepts
+  distinct(id, work_frac, APC_in_dollar, University, country, P_top10, country_code) %>% 
+  group_by(University, country, P_top10) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(University, country, P_top10, sum_frac, country_code) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
+
+mean_apc_country_16_19_local <- mean_apc_country_16_19 %>%
+  collect()
+```
+
+```{r}
+mean_apc_country_16_19_local <- mean_apc_country_16_19_local %>% 
+  left_join(wdi, by = c("country_code" = "iso2c"))
+```
+
+```{r apc-by-country}
+mean_apc_country_16_19_local %>% 
+  ggplot(aes(P_top10, mean_apc, colour = region)) +
+  geom_point() +
+  scale_x_log10() +
+  geom_smooth()
+```
+
 
 ```{r}
 spark_disconnect(sc)
