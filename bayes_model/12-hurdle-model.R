@@ -20,9 +20,14 @@ WARMUP <- ITER / 2
 BAYES_SEED <- 1234
 
 df <- read_csv("data/processed/multilevel_sample.csv")
+wdi <- WDI::WDI_data$country %>%
+  as_tibble() %>%
+  select(iso2c, region, income)
 
 base <- df %>%
-  select(institution_id, University, country, author_position, P_top10, field,
+  left_join(wdi, by = c("country_code" = "iso2c")) %>%
+  select(institution_id, University, country, region, author_position,
+         P_top10, field,
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
                                    TRUE ~ APC_in_dollar))
@@ -42,21 +47,24 @@ base %>%
 base <- base %>%
   mutate(P_top10 = scale(log(P_top10)))
 
-subsample_countries <- c("China", "United States", "Turkey", "Brazil",
-                         "Russia", "Germany")
+subsample_countries <- c("United States", "Turkey", "Brazil", "Germany")
 subsample_fields <- c("Biology", "Physics", "Sociology", "Medicine")
 
-set.seed(98734)
 subsample <- base %>%
   filter(field %in% subsample_fields,
-         country %in% subsample_countries) %>%
-  sample_n(size = 1000)
+         country %in% subsample_countries)
 
 # prior predictive checking
 model_formula <- bf(
   APC_in_dollar | weights(total_weight) ~ 1 + P_top10 + (1 + P_top10|country) +
     (1 + P_top10|field),
-  hu ~ 1 + P_top10 + (1 + P_top10|country) + (1 + P_top10|field)
+  hu ~ 1 + P_top10 + (1 + P_top10|country) +
+    (1 + P_top10|field)
+)
+
+model_formula_nonzero <- bf(
+  APC_in_dollar | weights(total_weight) ~ 1 + P_top10 + (1 + P_top10|country) +
+  (1 + P_top10|field)
 )
 
 priors <- c(prior(normal(7.5, .7), class = Intercept),
@@ -65,6 +73,15 @@ priors <- c(prior(normal(7.5, .7), class = Intercept),
             prior(normal(0, .2), class = sd),
             prior(normal(0, .1), class = sigma),
             prior(lkj(2), class = cor))
+
+priors_wide <- c(
+  prior(normal(7.5, 1), class = Intercept),
+  prior(normal(0, .05), class = b),
+  prior(normal(0, .05), class = b, dpar = hu),
+  prior(normal(0, .5), class = sd),
+  prior(normal(0, .5), class = sigma),
+  prior(lkj(2), class = cor)
+)
 
 hm0 <- brm(model_formula,
            family = hurdle_lognormal(),
@@ -89,3 +106,21 @@ pp_check(hm1)
 
 hm2 <- update(hm0, sample_prior = "no", newdata = base,
               iter = 2000, warmup = 1000, file = "bayes_model/final_models/hm2")
+# 83 minutes
+pp_check(hm2)
+summary(hm2)
+
+# other tries: censored model does not change anything (looic is actually worse)
+# and we do not have a censoring mechanism.
+# tried gaussian on data without zero component, but it is simply very bad
+# (bimodal posterior)
+#
+# modeling without the zero component seems to give similar results for the
+# non-zero part, but the zero-part is relevant and should stay in the model
+
+# analyse and visualise -----
+
+
+# relax the priors a bit
+
+
