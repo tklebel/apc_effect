@@ -125,9 +125,33 @@ unmatched %>%
   write_csv("data/processed/leiden_unmatched.csv")
 
 # match manually, and then read in again, and combine with the other one
+# common issues here:
+# - non-english versions of the name (happens inconsistently,
+#   sometimes in OpenAlex, less often in Leiden Ranking)
+# - punctuation or abbreviations (ETH Zürich)
 
+remaining_matches <- read_csv("data/processed/leiden_matching_table.csv")
+additions <- remaining_matches %>%
+  filter(keep) %>%
+  select(-keep, -comment)
 
-intermediate_success %>%
+# this should be two short of the full list
+full_matched <- intermediate_success %>%
+  bind_rows(additions)
+# now it is on par, but we seem to have dupliates (but is fine, see below)
+
+leiden_small %>%
+  anti_join(full_matched)
+# tampere and jilin are on purpose
+
+full_matched %>%
+  count(University) %>%
+  filter(n > 1)
+# what are these now?
+# ah, see above: we found two entries in OpenAlex for the respective universities
+# that we wanted to keep. so this is fine.
+
+full_matched %>%
   write_csv("data/processed/leiden_matched.csv")
 
 spark_disconnect(sc)

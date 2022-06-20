@@ -31,22 +31,24 @@ check(works_w_leiden)
 
 # only keep rows where publication year is the last year of the leiden period
 matched_works <- works_w_leiden %>%
-  mutate(last_year_of_period = regexp_extract(Period, "(\\\\d{4})$", 1)) %>%
-  filter(publication_year == last_year_of_period)
+  mutate(first_year_of_period = regexp_extract(Period, "^(\\\\d{4})", 1) %>% as.numeric(),
+         last_year_of_period = regexp_extract(Period, "(\\\\d{4})$", 1) %>% as.numeric()) %>%
+  filter(publication_year <= last_year_of_period &
+           publication_year >= first_year_of_period)
 
 check(matched_works)
 
 selected_cols <- matched_works %>%
   select(id, doi, title, venue_id, author_position, institution_id, work_frac,
          APC, waiver, APC_in_dollar, University, country = Country1,
-         Period, PP_top10, publication_year, last_year_of_period)
+         country_code, Period, P_top10, publication_year, first_year_of_period,
+         last_year_of_period)
 
 check(selected_cols, sampling = TRUE)
 
 # fix type of APC column
 selected_cols <- selected_cols %>%
-  mutate(APC_in_dollar = as.numeric(APC_in_dollar),
-         last_year_of_period = as.numeric(last_year_of_period))
+  mutate(APC_in_dollar = as.numeric(APC_in_dollar))
 
 selected_cols %>%
   spark_write_parquet("/user/tklebel/apc_paper/all_papers_selected_cols.parquet",

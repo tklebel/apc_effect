@@ -87,15 +87,17 @@ check <- function(spark_df, sampling = TRUE) {
       # get 100 rows
       frac <- 100 / n
 
-      spark_df %>%
+      out <- spark_df %>%
         sdf_sample(fraction = frac, replacement = FALSE) %>%
-        collect() %>%
-        View()
+        collect()
+      View(out)
+      invisible(out)
     } else {
-      spark_df %>%
+      out <- spark_df %>%
         head(100) %>%
-        collect() %>%
-        View()
+        collect()
+      View(out)
+      invisible(out)
     }
   }
 }
