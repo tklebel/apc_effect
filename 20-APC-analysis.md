@@ -15,22 +15,22 @@ How many papers do we have, which also have a topic?
 
 ```r
 works %>% 
-  filter(author_position == "first", !is.na(field)) %>% 
+  filter(!is.na(field)) %>% 
+  distinct(id) %>% 
   sdf_nrow()
 ```
 
 ```
-## [1] 1920204
+## [1] 1572245
 ```
-This is only slightly lower than the total number of papers we have.
-
+This is our total sample size.
 
 
 Which topics are represented in our sample?
 
 ```r
 frac_concept_papers <- works %>% 
-  filter(author_position == "first") %>% 
+  distinct(id, field, concept_frac) %>% 
   group_by(field) %>% 
   summarise(frac_papers = sum(concept_frac)) %>% 
   arrange(desc(frac_papers)) %>% 
@@ -50,6 +50,7 @@ frac_concept_papers %>%
 
 ![](20-APC-analysis_files/figure-html/concept-overview-1.png)<!-- -->
 
+# Association between P_top10 and APC
 
 ```r
 mean_apcs <- works %>%
@@ -78,20 +79,20 @@ mean_apcs_local <- mean_apcs %>%
 apc_16_19 <- mean_apcs_local %>%
   filter(publication_year > 2015 & publication_year < 2020)
 
-labels <- apc_16_19 %>%
-  group_by(author_position) %>%
-  summarise(cor = cor(mean_apc, P_top10, use = "pairwise.complete")) %>%
-  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 2)}"))
-
+# taking out the correlation, because they are incorrect given that the figure
+# shows a non-linear relationship (x-axis logged), but the correlation is linear
+# (and quite unsuitable to the skewed P_top10)
 apc_16_19 %>%
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc)) +
-  geom_point(aes(colour = sum_frac),
-             alpha = .5) +
-  geom_smooth(colour = "grey30") +
+  geom_point(alpha = .1) +
+  geom_smooth() +
   facet_wrap(vars(author_position)) +
-  geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
-  scale_colour_viridis_c(trans = "sqrt") +
-  labs(caption = "2016-2019")
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) +
+  labs(caption = "2016-2019", y = "Mean APC",
+       x = expression(P["top 10%"]))
 ```
 
 ```
@@ -101,13 +102,38 @@ apc_16_19 %>%
 ![](20-APC-analysis_files/figure-html/apc-first-last-1.png)<!-- -->
 
 
+```r
+mean_apcs_local %>%
+  group_by(publication_year, author_position) %>%
+  mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
+  group_by(ptop10_quantiles, publication_year, author_position) %>%
+  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
+            .groups = "drop_last") %>%
+  ggplot(aes(publication_year, mean_apc, colour = ptop10_quantiles,
+             group = ptop10_quantiles)) +
+  geom_line() +
+  facet_wrap(vars(author_position)) +
+  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_y_continuous(labels = dollar) +
+  theme(legend.position = "top") +
+  labs(caption = "Fractional counting", y = "Mean APC",
+       colour = expression(P["top 10%"]), x = NULL)
+```
+
+![](20-APC-analysis_files/figure-html/apc-first-last-time-1.png)<!-- -->
+
+
+
+
 
 ```r
 mean_apcs_by_concept <- works %>%
-  group_by(University, publication_year, country, P_top10, field) %>%
+  distinct(id, University, publication_year, P_top10, field, work_frac, 
+           APC_in_dollar, author_position) %>% 
+  group_by(University, publication_year, P_top10, field) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
-  group_by(University, publication_year, country, P_top10, sum_frac,
+  group_by(University, publication_year, P_top10, sum_frac,
            author_position, field) %>%
   summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
 
@@ -116,9 +142,8 @@ apcs_by_concept_local <- mean_apcs_by_concept %>%
 ```
 
 ```
-## `summarise()` has grouped output by 'University', 'publication_year', 'country',
-## 'P_top10', 'sum_frac', 'author_position'. You can override using the `.groups`
-## argument.
+## `summarise()` has grouped output by 'University', 'publication_year', 'P_top10',
+## 'sum_frac', 'author_position'. You can override using the `.groups` argument.
 ```
 
 
@@ -129,28 +154,15 @@ apc_concept_16_19 <- apcs_by_concept_local %>%
   filter(publication_year > 2015 & publication_year < 2020,
          !is.na(field))
 
-labels <- apc_concept_16_19 %>%
-  group_by(author_position, field) %>%
-  summarise(cor = cor(mean_apc, P_top10, use = "pairwise.complete.obs")) %>%
-  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 0)}"))
-```
-
-```
-## `summarise()` has grouped output by 'author_position'. You can override using
-## the `.groups` argument.
-```
-
-```r
-apc_concept_16_19 %>%
-  ggplot(aes(P_top10, mean_apc)) +
-  geom_point(aes(colour = sum_frac),
-             alpha = .7) +
-  geom_smooth() +
-  facet_grid(cols = vars(author_position),
-             rows = vars(str_wrap(field, 10))) +
-  geom_text(data = labels, aes(label = cor, x = .3, y = 4000)) +
-  scale_colour_viridis_c(trans = "log10") +
-  labs(caption = "2016-2019")
+p <- apc_concept_16_19 %>%
+  ggplot(aes(P_top10, mean_apc, colour = field)) +
+  geom_smooth(alpha = .15) +
+  facet_wrap(vars(author_position), nrow = 1) +
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) + 
+  labs(caption = "2016-2019", y = "Mean APC",
+       x = expression(P["top 10%"]))
+p
 ```
 
 ```
@@ -159,10 +171,19 @@ apc_concept_16_19 %>%
 
 ![](20-APC-analysis_files/figure-html/apc-concepts-1.png)<!-- -->
 
-Including journals that have no APC as having one of "0" changes the results 
-slightly, but not in the same way for all fields. In some, the correlation is
-then stronger, in some weaker. This likely points to different hierarchies and
-traditions in terms of prestigious journals in these fields.
+
+
+```r
+plotly::ggplotly(p)
+```
+
+```
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+```
+
+preserve8eeec7408abf0b91
+
+
 
 ## Over time - first-authors
 
@@ -180,7 +201,8 @@ apcs_by_concept_local %>%
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   theme(legend.position = "top") +
-  labs(x = NULL)
+  labs(caption = "Fractional counting", y = "Mean APC",
+       colour = expression(P["top 10%"]), x = NULL)
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-time-concept-first-1.png)<!-- -->
@@ -201,7 +223,8 @@ apcs_by_concept_local %>%
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   theme(legend.position = "top") +
-  labs(x = NULL)
+  labs(caption = "Fractional counting", y = "Mean APC",
+       colour = expression(P["top 10%"]), x = NULL)
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-time-concept-last-1.png)<!-- -->
