@@ -259,9 +259,12 @@ mean_apc_country_16_19_local <- mean_apc_country_16_19_local %>%
 ```{r apc-by-country}
 mean_apc_country_16_19_local %>% 
   ggplot(aes(P_top10, mean_apc, colour = region)) +
-  geom_point() +
+  geom_point(alpha = .3, size = 1.2) +
+  geom_smooth(alpha = .3) +
   scale_x_log10() +
-  geom_smooth()
+  scale_y_continuous(labels = dollar) +
+  labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
+  theme(legend.position = "top")
 ```
 
 
