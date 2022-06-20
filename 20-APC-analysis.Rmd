@@ -47,17 +47,17 @@ theme_set(theme_bw())
 How many papers do we have, which also have a topic?
 ```{r}
 works %>% 
-  filter(author_position == "first", !is.na(field)) %>% 
+  filter(!is.na(field)) %>% 
+  distinct(id) %>% 
   sdf_nrow()
 ```
-This is only slightly lower than the total number of papers we have.
-
+This is our total sample size.
 
 
 Which topics are represented in our sample?
 ```{r}
 frac_concept_papers <- works %>% 
-  filter(author_position == "first") %>% 
+  distinct(id, field, concept_frac) %>% 
   group_by(field) %>% 
   summarise(frac_papers = sum(concept_frac)) %>% 
   arrange(desc(frac_papers)) %>% 
@@ -90,25 +90,24 @@ mean_apcs_local <- mean_apcs %>%
   collect()
 ```
 
-```{r apc-first-last, fig.width=8, fig.height=4}
+```{r apc-first-last, fig.width=8, fig.height=3.5}
 # plot for 2019
 apc_16_19 <- mean_apcs_local %>%
   filter(publication_year > 2015 & publication_year < 2020)
 
-labels <- apc_16_19 %>%
-  group_by(author_position) %>%
-  summarise(cor = cor(mean_apc, P_top10, use = "pairwise.complete")) %>%
-  mutate(cor = glue::glue("r = {format(cor, nsmall = 2, digits = 2)}"))
-
+# taking out the correlation, because they are incorrect given that the figure
+# shows a non-linear relationship (x-axis logged), but the correlation is linear
+# (and quite unsuitable to the skewed P_top10)
 apc_16_19 %>%
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc)) +
-  geom_point(aes(colour = sum_frac),
-             alpha = .5) +
-  geom_smooth(colour = "grey30") +
+  geom_point(alpha = .1) +
+  geom_smooth() +
   facet_wrap(vars(author_position)) +
-  geom_text(data = labels, aes(label = cor, x = .25, y = 2250)) +
-  scale_colour_viridis_c(trans = "sqrt") +
-  labs(caption = "2016-2019")
+  scale_x_log10() +
+  labs(caption = "2016-2019", y = "Mean APC",
+       x = expression(P["top 10%"]))
 ```
 
 
