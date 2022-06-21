@@ -101,7 +101,7 @@ hm0 <- brm(model_formula,
            data = subsample,
            chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
            sample_prior = "only",
-           # file_refit = "never",
+           file_refit = "never",
            file = "bayes_model/final_models/hm0")
 
 country_conditions <- make_conditions(
@@ -117,7 +117,7 @@ hm1 <- update(hm0, sample_prior = "no", file = "bayes_model/final_models/hm1")
 summary(hm1)
 pp_check(hm1)
 
-hm2 <- update(hm0, sample_prior = "no", newdata = base,
+hm2 <- update(hm0, sample_prior = "no", newdata = base, file_refit = "never",
               iter = 2000, warmup = 1000, file = "bayes_model/final_models/hm2")
 # 83 minutes
 pp_check(hm2)
@@ -216,8 +216,7 @@ rescale_ptop <- function(x) exp(x * ptop_scale + ptop_offset)
 hm2 %>%
   spread_draws(b_P_top10, r_field[field,term]) %>%
   filter(term == "P_top10") %>%
-  mutate(total_effect = b_P_top10 + r_field,
-         total_effect = rescale_ptop(total_effect)) %>%
+  mutate(total_effect = b_P_top10 + r_field) %>%
   ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
   stat_halfeye() +
   labs(x = "Average marginal effect of what exactly?")
@@ -282,6 +281,76 @@ pred_vis <- function(df, model, country_selection, alpha = 1) {
 pred_vis(base, hm2, "Austria")
 pred_vis(base, hm2, "United States", alpha = .2)
 pred_vis(base, hm2, "Brazil", alpha = .4)
-# this is good
+# this is good, but need to relax the prior a bit
+
+# now on to the actual effects
+hm2 %>%
+  marginaleffects(newdata = datagrid(P_top10 = c(-1, 0, 1),
+                                     field = "Biology",
+                                     country = "United States"),
+                  eps = 0.001)
+
+all_marginals <- plot_cme(hm2, effect = "P_top10",
+                          condition = c("field", "country"), draw = FALSE) %>%
+  as_tibble()
+
+all_marginals %>%
+  filter(condition1 %in% c("Medicine", "Biology", "Art", "Economics")) %>%
+  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+             y = fct_reorder(condition2, dydx))) +
+  geom_pointrange() +
+  facet_wrap(vars(condition1))
+# marginal effects. hold constant: China for fields and Medicine for countries
+
+# this is what we are going to do!!! <<<<<------------------------------------------------
+all_marginals %>%
+  filter(condition1 %in% c("Medicine")) %>%
+  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+             y = fct_reorder(condition2, dydx))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
+  geom_pointrange()
+# colour or split them by continent
+
+# all_marginals %>%
+#   filter(condition1 %in% c("Biology")) %>%
+#   ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+#              y = fct_reorder(condition2, dydx))) +
+#   geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
+#   geom_pointrange()
+
+all_marginals %>%
+  filter(condition2 %in% c("China")) %>%
+  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+             y = fct_reorder(condition1, dydx))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
+  geom_pointrange()
 
 
+oord_flip()
+
+plot_cme(hm2, effect = "P_top10", condition = c("country")) +
+  coord_flip()
+
+p <- plot_cme(hm2, effect = "P_top10", condition = c("field", "country")) +
+  coord_flip()
+plotly::ggplotly(p)
+
+hm2 %>%
+  marginaleffects(newdata = datagrid(P_top10 = seq(-3, 3, .1),
+                                     field = "Biology",
+                                     country = unique(base$country)),
+                  eps = 0.001) %>%
+  ggplot(aes(x = P_top10, y = dydx)) +
+  geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.1, fill = clrs[1]) +
+  geom_line(size = 1, color = clrs[1]) +
+  facet_wrap(vars(country)) +
+  coord_cartesian(ylim = c(0, 1000))
+
+all_effects <- hm2 %>%
+  marginaleffects(newdata = datagrid(P_top10 = seq(-3, 3, .1),
+                                     field = unique(base$field),
+                                     country = unique(base$country)),
+                  eps = 0.001)
+hm2 %>%
+  marginaleffects() %>%
+  summary()
