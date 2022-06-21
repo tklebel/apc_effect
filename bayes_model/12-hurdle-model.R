@@ -9,6 +9,7 @@ library(loo)
 library(bayesplot)
 library(gghalves)
 library(modelr)
+library(scales)
 
 options(mc.cores = 4,
         brms.backend = "cmdstanr",
@@ -193,7 +194,7 @@ country_draws %>%
 # this does not make it easy to show anything
 # use the code from here: https://discourse.mc-stan.org/t/convenience-function-for-plotting-random-group-effects/13461/2
 
-get_variables(hm2)
+get_variables(hm2) %>% head(100)
 
 hm2 %>%
   spread_draws(r_field[field,term]) %>%
@@ -228,5 +229,31 @@ hm2 %>%
 
 # need the same for hu part
 
+# visualise intercepts-----
+# countries
+hm2 %>%
+  spread_draws(b_Intercept, r_country[country,term]) %>%
+  filter(term == "Intercept") %>%
+  mutate(country_intercept = exp(b_Intercept + r_country)) %>%
+  ggplot(aes(x = country_intercept, reorder(country, country_intercept))) +
+  stat_pointinterval() +
+  scale_x_continuous(labels = dollar) +
+  labs(x = "Intercept for APC", y = NULL)
+# this is correct now, but not very informative, because it gives the intercept
+# at the mean of the logged ptop10
+
+# hurdle component
+hm2 %>%
+  spread_draws(b_hu_Intercept, r_country__hu[country,term]) %>%
+  filter(term == "Intercept") %>%
+  mutate(country_intercept = exp(b_hu_Intercept + r_country__hu)) %>%
+  ggplot(aes(x = country_intercept, reorder(country, country_intercept))) +
+  stat_pointinterval() +
+  scale_x_continuous(labels = function(x) paste0(x, "%")) +
+  labs(x = "Proportion of articles with no APC (at mean of logged P_top10)",
+       y = NULL)
+
+summary(hm2)
 
 
+# visualise predictions for certain countries
