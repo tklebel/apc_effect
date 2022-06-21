@@ -49,13 +49,13 @@ base <- df %>%
 ```
 
 ```{r}
-hm2 <- brm(file = "final_models/hm2.rds", file_refit = "never")
+hm3 <- brm(file = "final_models/hm3.rds", file_refit = "never")
 ```
 
 # Posterior predictive check
 
 ```{r pp_check}
-pp_check(hm2, ndraws = 50)
+pp_check(hm3, ndraws = 50)
 ```
 
 ```{r}
@@ -87,19 +87,19 @@ pred_vis(base, hm3, "Austria")
 ```
 
 ```{r pp_brazil, fig.width=10, fig.height=7}
-pred_vis(base, hm2, "Brazil", alpha = .4)
+pred_vis(base, hm3, "Brazil", alpha = .4)
 ```
 
 ```{r pp_china, fig.width=10, fig.height=7}
-pred_vis(base, hm2, "China", alpha = .15)
+pred_vis(base, hm3, "China", alpha = .15)
 ```
 
 ```{r pp_us, fig.width=10, fig.height=7}
-pred_vis(base, hm2, "United States", alpha = .2)
+pred_vis(base, hm3, "United States", alpha = .2)
 ```
 
 ```{r pp_turkey, fig.width=10, fig.height=7}
-pred_vis(base, hm2, "Turkey", alpha = .7)
+pred_vis(base, hm3, "Turkey", alpha = .7)
 ```
 
 
@@ -110,86 +110,20 @@ summary(hm3)
 
 
 # Marginal effects
-All of the below does not work, because we have a logged exposure.
+This guide seemed promising: https://vincentarelbundock.github.io/marginaleffects/articles/transformation.html#back-transform-lognormal-hurdle
+However, all of the marginal effects do not work, because we have a logged exposure.
 The slopes are correct for the logged exposure, but not correct when we
 rescale (exponentiate and un-center) the exposure. Don't know how to correctly
 compute those marginal effects in this instance.
-```{r}
-all_marginals <- plot_cme(hm3, effect = "P_top10", 
-                          condition = c("field", "country"), draw = FALSE,
-                          type = "link") %>%
-  as_tibble()
-```
 
-Computing this on the 
-
-```{r marginal-country, fig.height = 15, fig.width=10}
-all_marginals %>%
-  filter(condition1 %in% c("Medicine")) %>%
-  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
-             y = fct_reorder(condition2, dydx))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  geom_pointrange() +
-  labs(y = NULL, x = "Average marginal effect")
-```
-
-What is the x scale here, what do these precisely mean?
-A one unit change (Whatever that is in our current model) in ptop10 leads to
-this effect (in $), or if we choose "link"
-above, it equates the percentage change 
-(see here: https://vincentarelbundock.github.io/marginaleffects/articles/brms.html#hurdle-models)
-
-Look at the bottom plot here to make this better:
-https://vincentarelbundock.github.io/marginaleffects/articles/brms.html#hurdle-models
-
-
-
-```{r marginal-field, fig.height=8, fig.width=10}
-all_marginals %>%
-  filter(condition2 %in% c("China")) %>%
-  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
-             y = fct_reorder(condition1, dydx))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  geom_pointrange() +
-  labs(y = NULL, x = "Average marginal effect")
-```
-
-Finally, this is the correct guide: bottom here:
-
-https://vincentarelbundock.github.io/marginaleffects/articles/transformation.html#back-transform-lognormal-hurdle
+This is best shown in the below: the predicted values taper off, as P_top10
+increases. But the logged P_top10 has positive AMEs that increase.
 
 ```{r}
-eps <- 0.001
-
-
-fields <- comparisons(
-  hm3,
-  dpar = "mu",
-  variables = list(P_top10 = eps),
-  newdata = datagrid(country = "China",
-                     P_top10 = 0,
-                     field = unique(base$field)),
-  # rescale the elements of the slope
-  # (exp(40.001) - exp(40)) / exp(0.001)
-  transform_pre = function(hi, lo) ((exp(hi) - exp(lo)) / exp(eps)) / eps
-)
-```
-
-
-```{r}
-fields %>% 
-  ggplot(aes(comparison, reorder(field, comparison),
-             xmin = conf.low, xmax = conf.high)) +
-  geom_pointrange() +
-  scale_x_continuous(labels = dollar) +
-  labs(x = "Average marginal effect of P_top10 on APC", y = NULL,
-       caption = "Computed at the average of P_top10, with country = China")
-```
-
-```{r}
+eps <- .001
 predictions_data <- predictions(
   hm3,
-  newdata = datagrid(country = "China",
+  newdata = datagrid(country = "Brazil",
                      P_top10 = seq(-3, 3, .1),
                      field = "Biology"),
   dpar = "mu",
@@ -254,6 +188,7 @@ hm3 %>%
 
 
 ## Effect on hurdle
+I'm not entirely certain about the interpretation of the below coefficients.
 ```{r hu-effect-field, fig.width=7, fig.height=8}
 hm3 %>%
   spread_draws(b_hu_P_top10, r_field__hu[field,term]) %>%
