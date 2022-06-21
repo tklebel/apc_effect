@@ -54,6 +54,10 @@ base %>%
 # prepare var
 base <- base %>%
   mutate(P_top10 = scale(log(P_top10)))
+# base <- base %>%
+#   mutate(P_top10 = log(P_top10),
+#          P_top10_log_mean = mean(P_top10),
+#          P_top10 = P_top10 - P_top10_log_mean)
 
 subsample_countries <- c("United States", "Turkey", "Brazil", "Germany")
 subsample_fields <- c("Biology", "Physics", "Sociology", "Medicine")
@@ -97,6 +101,7 @@ hm0 <- brm(model_formula,
            data = subsample,
            chains = CHAINS, iter = ITER, warmup = WARMUP, seed = BAYES_SEED,
            sample_prior = "only",
+           # file_refit = "never",
            file = "bayes_model/final_models/hm0")
 
 country_conditions <- make_conditions(
@@ -257,3 +262,26 @@ summary(hm2)
 
 
 # visualise predictions for certain countries
+# austria
+
+pred_vis <- function(df, model, country_selection, alpha = 1) {
+  df %>%
+    filter(country == country_selection) %>%
+    data_grid(P_top10, country, field) %>%
+    add_predicted_draws(model) %>%
+    ggplot(aes(P_top10, .prediction)) +
+    stat_interval() +
+    scale_color_manual(values = colorspace::lighten(clrs[4], c(0.95, .8, .5))) +
+    geom_point(aes(y = APC_in_dollar), alpha = alpha,
+               data = filter(df, country == country_selection)) +
+    facet_wrap(vars(field)) +
+    labs(y = "Predicted vs. actual APC", x = expression(P["top 10%"]),
+         color = "Credible interval")
+}
+
+pred_vis(base, hm2, "Austria")
+pred_vis(base, hm2, "United States", alpha = .2)
+pred_vis(base, hm2, "Brazil", alpha = .4)
+# this is good
+
+
