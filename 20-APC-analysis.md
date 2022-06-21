@@ -104,14 +104,17 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
-  ggplot(aes(P_top10, mean_apc)) +
-  geom_point(alpha = .1) +
-  geom_smooth() +
+  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) +
+  geom_point(aes(), alpha = .5) +
+  scale_colour_viridis_c(option = "B", trans = "log10") +
+  geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
   scale_y_continuous(labels = dollar) +
-  labs(caption = "2016-2019", y = "Mean APC",
-       x = expression(P["top 10%"]))
+  labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
+       colour = "Number of papers per institution",
+       x = expression(P["top 10%"])) +
+  theme(legend.position = "top")
 ```
 
 ```
@@ -214,7 +217,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve53a907cc215192c1
+preserve3b5b3419aad81e5d
 
 
 
