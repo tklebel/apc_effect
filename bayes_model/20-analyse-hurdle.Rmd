@@ -1,0 +1,286 @@
+---
+title: "Analyse Hurdle model"
+author: "Thomas Klebel"
+date: '2022-06-21'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(brms)
+library(tidybayes)
+library(marginaleffects)
+library(scales)
+library(modelr)
+
+# Use the Johnson color palette
+clrs <- MetBrewer::met.brewer("Johnson")
+
+# Tell bayesplot to use the Johnson palette (for things like pp_check())
+bayesplot::color_scheme_set(c("grey30", clrs[2], clrs[1], clrs[3], clrs[5], clrs[4]))
+
+# theme adapted from https://www.andrewheiss.com/blog/2021/11/10/ame-bayes-re-guide
+theme_clean <- function() {
+  theme_minimal(base_family = "Hind") +
+    theme(panel.grid.minor = element_blank(),
+          strip.text = element_text(size = rel(1), hjust = 0),
+          strip.background = element_rect(fill = "grey90", color = NA),
+          plot.margin = margin(5, 5, 5, 5))
+}
+
+extrafont::loadfonts(device = "win")
+
+# load the data
+df <- read_csv(here::here("data/processed/multilevel_sample.csv"))
+wdi <- WDI::WDI_data$country %>%
+  as_tibble() %>%
+  select(iso2c, region, income)
+
+base <- df %>%
+  left_join(wdi, by = c("country_code" = "iso2c")) %>%
+  select(institution_id, University, country, region, author_position,
+         P_top10, field,
+         APC_in_dollar, total_weight) %>%
+  mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
+                                   TRUE ~ APC_in_dollar)) %>% 
+  mutate(P_top10 = scale(log(P_top10), scale = FALSE))
+```
+
+```{r}
+hm2 <- brm(file = "final_models/hm2.rds", file_refit = "never")
+```
+
+# Posterior predictive check
+
+```{r pp_check}
+pp_check(hm2, ndraws = 50)
+```
+
+```{r}
+pred_vis <- function(df, model, country_selection, alpha = 1, ndraws = 1000) {
+  get_back <- function(df) mutate(df, P_top10 = exp(6.09 + P_top10))
+  
+  df %>%
+    filter(country == country_selection) %>%
+    data_grid(P_top10, country, field) %>%
+    add_predicted_draws(model, ndraws = ndraws, re_formula = NULL) %>%
+    get_back() %>% 
+    ggplot(aes(P_top10, .prediction)) +
+    stat_interval() +
+    scale_color_manual(values = colorspace::lighten(clrs[4], c(.8, .67, .42))) +
+    scale_y_continuous(labels = dollar) +
+    geom_point(aes(y = APC_in_dollar), alpha = alpha,
+               data = filter(df, country == country_selection) %>% get_back()) +
+    facet_wrap(vars(field)) +
+    labs(y = "Predicted vs. actual APC", x = expression(P["top 10%"]),
+         color = "Credible interval") +
+    # theme_minimal(base_family = "Hind") +
+    theme_clean() +
+    theme(legend.position = "bottom")
+}
+```
+
+```{r pp_austria, fig.width=10, fig.height=7}
+pred_vis(base, hm3, "Austria")
+```
+
+```{r pp_brazil, fig.width=10, fig.height=7}
+pred_vis(base, hm2, "Brazil", alpha = .4)
+```
+
+```{r pp_china, fig.width=10, fig.height=7}
+pred_vis(base, hm2, "China", alpha = .15)
+```
+
+```{r pp_us, fig.width=10, fig.height=7}
+pred_vis(base, hm2, "United States", alpha = .2)
+```
+
+```{r pp_turkey, fig.width=10, fig.height=7}
+pred_vis(base, hm2, "Turkey", alpha = .7)
+```
+
+
+# Model variances and covariances
+```{r}
+summary(hm3)
+```
+
+
+# Marginal effects
+All of the below does not work, because we have a logged exposure.
+The slopes are correct for the logged exposure, but not correct when we
+rescale (exponentiate and un-center) the exposure. Don't know how to correctly
+compute those marginal effects in this instance.
+```{r}
+all_marginals <- plot_cme(hm3, effect = "P_top10", 
+                          condition = c("field", "country"), draw = FALSE,
+                          type = "link") %>%
+  as_tibble()
+```
+
+Computing this on the 
+
+```{r marginal-country, fig.height = 15, fig.width=10}
+all_marginals %>%
+  filter(condition1 %in% c("Medicine")) %>%
+  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+             y = fct_reorder(condition2, dydx))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
+  geom_pointrange() +
+  labs(y = NULL, x = "Average marginal effect")
+```
+
+What is the x scale here, what do these precisely mean?
+A one unit change (Whatever that is in our current model) in ptop10 leads to
+this effect (in $), or if we choose "link"
+above, it equates the percentage change 
+(see here: https://vincentarelbundock.github.io/marginaleffects/articles/brms.html#hurdle-models)
+
+Look at the bottom plot here to make this better:
+https://vincentarelbundock.github.io/marginaleffects/articles/brms.html#hurdle-models
+
+
+
+```{r marginal-field, fig.height=8, fig.width=10}
+all_marginals %>%
+  filter(condition2 %in% c("China")) %>%
+  ggplot(aes(x = dydx, xmin = conf.low, xmax = conf.high,
+             y = fct_reorder(condition1, dydx))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
+  geom_pointrange() +
+  labs(y = NULL, x = "Average marginal effect")
+```
+
+Finally, this is the correct guide: bottom here:
+
+https://vincentarelbundock.github.io/marginaleffects/articles/transformation.html#back-transform-lognormal-hurdle
+
+```{r}
+eps <- 0.001
+
+
+fields <- comparisons(
+  hm3,
+  dpar = "mu",
+  variables = list(P_top10 = eps),
+  newdata = datagrid(country = "China",
+                     P_top10 = 0,
+                     field = unique(base$field)),
+  # rescale the elements of the slope
+  # (exp(40.001) - exp(40)) / exp(0.001)
+  transform_pre = function(hi, lo) ((exp(hi) - exp(lo)) / exp(eps)) / eps
+)
+```
+
+
+```{r}
+fields %>% 
+  ggplot(aes(comparison, reorder(field, comparison),
+             xmin = conf.low, xmax = conf.high)) +
+  geom_pointrange() +
+  scale_x_continuous(labels = dollar) +
+  labs(x = "Average marginal effect of P_top10 on APC", y = NULL,
+       caption = "Computed at the average of P_top10, with country = China")
+```
+
+```{r}
+predictions_data <- predictions(
+  hm3,
+  newdata = datagrid(country = "China",
+                     P_top10 = seq(-3, 3, .1),
+                     field = "Biology"),
+  dpar = "mu",
+  transform_post = exp
+) 
+predictions_data %>% 
+  mutate(P_top10 = exp(6 + P_top10)) %>% 
+  ggplot(aes(x = P_top10, y = predicted)) +
+  geom_line(size = 1)
+
+slopes_data <- comparisons(
+  hm3,
+  dpar = "mu",
+  variables = list(P_top10 = eps),
+  newdata = datagrid(country = "Brazil",
+                     P_top10 = c(-2, 0, 2),
+                     field = "Biology"),
+  # rescale the elements of the slope
+  # (exp(40.001) - exp(40)) / exp(0.001)
+  transform_pre = function(hi, lo) ((exp(hi) - exp(lo)) / exp(eps)) / eps
+) %>% 
+  left_join(predictions_data, by = "P_top10") %>%
+  # Point-slope formula: (y - y1) = m(x - x1)
+  mutate(intercept = comparison * (-P_top10) + predicted)
+
+ggplot(predictions_data, aes(x = P_top10, y = predicted)) +
+  geom_line(size = 1) + 
+  geom_abline(data = slopes_data, aes(slope = comparison, intercept = intercept), 
+              size = 0.5, color = "red") +
+  geom_point(data = slopes_data) +
+  geom_label(data = slopes_data, aes(label = paste0("Slope: ", round(comparison, 1))),
+             nudge_x = -1, hjust = 1) +
+  theme_minimal()
+```
+
+
+## Revert back to directly plotting effects
+### Effect of ptop10 on APC
+```{r mu-effect-field, fig.width=7, fig.height=8}
+hm3 %>%
+  spread_draws(b_P_top10, r_field[field,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_P_top10 + r_field) %>%
+  ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
+  stat_halfeye() + 
+  scale_x_continuous(labels = percent) +
+  labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
+  theme_clean()
+```
+
+```{r mu-effect-country, fig.width=7, fig.height=15}
+hm3 %>%
+  spread_draws(b_P_top10, r_country[country,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_P_top10 + r_country) %>%
+  ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
+  stat_halfeye() + 
+  scale_x_continuous(labels = percent) +
+  labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
+  theme_clean()
+```
+
+
+## Effect on hurdle
+```{r hu-effect-field, fig.width=7, fig.height=8}
+hm3 %>%
+  spread_draws(b_hu_P_top10, r_field__hu[field,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_hu_P_top10 + r_field__hu) %>%
+  ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
+  stat_halfeye() + 
+  scale_x_continuous(labels = percent) +
+  labs(x = "Change in probability of no APC for 1% increase in P_top10", 
+       y = NULL) +
+  theme_clean()
+```
+
+```{r hu-effect-country, fig.width=7, fig.height=15}
+hm3 %>%
+  spread_draws(b_hu_P_top10, r_country__hu[country,term]) %>%
+  filter(term == "P_top10") %>%
+  mutate(total_effect = b_hu_P_top10 + r_country__hu) %>%
+  ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
+  stat_halfeye() + 
+  scale_x_continuous(labels = percent) +
+  labs(x = "Change in probability of no APC for 1% increase in P_top10", 
+       y = NULL) +
+  coord_cartesian(xlim = c(-.8, .8)) +
+  theme_clean()
+```
+
+# Marginal effects for selected countries
+US, China, Brazil, Austria, France, India, South africa
+show the lines here
