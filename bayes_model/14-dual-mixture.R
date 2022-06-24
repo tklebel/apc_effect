@@ -334,7 +334,7 @@ field_comp
 
 loc1 <- log(500) - 6.09
 field_comp1 <- comparisons(mix_identified, type = "response",
-                           variables = list(P_top10 = (log(501) - 6.09) - (log(500) - 6.09)),
+                           variables = list(P_top10 = (log(501) - 6.09) - (log(500) - 6.09)), # this should be rater (log(500*1.01) - 6.09) - (log(500) - 6.09))
                            newdata = datagrid(P_top10 = loc1,
                                               country = "United States",
                                               field = unique(subsample$field)))
