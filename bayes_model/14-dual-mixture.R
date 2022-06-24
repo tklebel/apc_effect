@@ -334,14 +334,14 @@ field_comp
 
 loc1 <- log(500) - 6.09
 field_comp1 <- comparisons(mix_identified, type = "response",
-                           variables = list(P_top10 = log(500) * .01),
+                           variables = list(P_top10 = (log(501) - 6.09) - (log(500) - 6.09)),
                            newdata = datagrid(P_top10 = loc1,
                                               country = "United States",
                                               field = unique(subsample$field)))
 
 loc2 <- log(2000) - 6.09
 field_comp2 <- comparisons(mix_identified, type = "response",
-                           variables = list(P_top10 = log(2000) * .01),
+                           variables = list(P_top10 = (log(2001) - 6.09) - (log(2000) - 6.09)),
                            newdata = datagrid(P_top10 = loc2,
                                               country = "United States",
                                               field = unique(subsample$field)))
@@ -349,8 +349,7 @@ field_comp2 <- comparisons(mix_identified, type = "response",
 field_comp <- bind_rows(field_comp1, field_comp2) %>%
   as_tibble()
 field_comp
-# no, this does not achieve what I want.
-
+# now we are there!!!
 
 field_comp %>%
   mutate(ptop = exp(P_top10 + 6.09)) %>%
@@ -358,7 +357,7 @@ field_comp %>%
              y = fct_reorder2(field, ptop, comparison, first2))) +
   geom_pointrange() +
   facet_wrap(vars(ptop)) +
-  labs(x = "Change in APC for 1sd change in P_top10")
+  labs(x = "% point change in APC for 1 unit change in P_top10")
 
 
 field_comp %>%
@@ -368,15 +367,12 @@ field_comp %>%
              colour = as.factor(ptop))) +
   geom_pointrange(position = position_dodge(width = .3)) +
   # facet_wrap(vars(ptop)) +
-  labs(x = "Change in APC for 1% change in P_top10")
-# this is good, but x should be on the link scale
-# however, this is not possible if we do not specify a dpar = mu
-# we cannot do this, since we want both mus together
-# therefore we are stuck again with the prediction
-#
-# maybe we can back-transform by dividing through the predicted value at those
-# points (500 and 2000), so we get ratios
-
+  labs(x = "% point change in APC for 1 unit change in P_top10")
+# this is the result of adjusting the eps so that it represents one unit change
+# across both conditions
+# BUT CHECK. is this really the right scale?
+# I think it is, given that it now fits the scale of the coefficients from
+# `summary`, but we need to be sure here.
 
 field_pred <- predictions(
   mix_identified,
