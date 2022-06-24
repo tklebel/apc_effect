@@ -53,11 +53,7 @@ base %>%
 
 # prepare var
 base <- base %>%
-  mutate(P_top10 = scale(log(P_top10)))
-# base <- base %>%
-#   mutate(P_top10 = log(P_top10),
-#          P_top10_log_mean = mean(P_top10),
-#          P_top10 = P_top10 - P_top10_log_mean)
+  mutate(P_top10 = scale(log(P_top10), scale = FALSE, center = TRUE))
 
 subsample_countries <- c("United States", "Turkey", "Brazil", "Germany")
 subsample_fields <- c("Biology", "Physics", "Sociology", "Medicine")
@@ -95,6 +91,15 @@ priors_wide <- c(
   prior(lkj(2), class = cor)
 )
 
+priors_very_wide <- c(
+  prior(normal(7.5, 2), class = Intercept),
+  prior(normal(0, .1), class = b),
+  prior(normal(0, .1), class = b, dpar = hu),
+  prior(normal(0, 1), class = sd),
+  prior(normal(0, 1), class = sigma),
+  prior(lkj(2), class = cor)
+)
+
 hm0 <- brm(model_formula,
            family = hurdle_lognormal(),
            prior = priors,
@@ -117,11 +122,25 @@ hm1 <- update(hm0, sample_prior = "no", file = "bayes_model/final_models/hm1")
 summary(hm1)
 pp_check(hm1)
 
-hm2 <- update(hm0, sample_prior = "no", newdata = base, file_refit = "never",
+hm2 <- brm(model_formula,
+              family = hurdle_lognormal(),
+              sample_prior = "yes", data = base,
+           file_refit = "always",
+              prior = priors_wide, seed = BAYES_SEED,
               iter = 2000, warmup = 1000, file = "bayes_model/final_models/hm2")
 # 83 minutes
+# second run: 78 minutes
 pp_check(hm2)
 summary(hm2)
+
+hm3 <- brm(model_formula,
+           family = hurdle_lognormal(),
+           sample_prior = "yes", data = base,
+           file_refit = "always",
+           prior = priors_very_wide, seed = BAYES_SEED,
+           iter = 2000, warmup = 1000, file = "bayes_model/final_models/hm3")
+pp_check(hm3)
+summary(hm3)
 
 # other tries: censored model does not change anything (looic is actually worse)
 # and we do not have a censoring mechanism.
@@ -141,15 +160,15 @@ newdata <- expand_grid(country = c("China", "Germany", "United States", "Turkey"
                        P_top10 = seq(-3, 3, by = .1),
                        field = c("Physics", "Biology", "Psychology", "Sociology",
                                  "Medicine", "Engineering"))
-posterior_epred(hm2, newdata = newdata) %>% head()
-tidy_epred <- hm2 %>%
+posterior_epred(hm3, newdata = newdata) %>% head()
+tidy_epred <- hm3 %>%
   epred_draws(newdata = newdata)
 tidy_epred
 
 ptop_offset <- attributes(base$P_top10)$`scaled:center`
-ptop_scale <- attributes(base$P_top10)$`scaled:scale`
+# ptop_scale <- attributes(base$P_top10)$`scaled:scale`
 tidy_epred <- tidy_epred %>%
-  mutate(ptop_rescaled = exp(P_top10 * ptop_scale + ptop_offset))
+  mutate(ptop_rescaled = exp(P_top10 + ptop_offset))
 
 tidy_epred %>%
   ggplot(aes(.epred, fill = country)) +
@@ -337,14 +356,13 @@ plotly::ggplotly(p)
 
 hm2 %>%
   marginaleffects(newdata = datagrid(P_top10 = seq(-3, 3, .1),
-                                     field = "Biology",
+                                     field = NA,
                                      country = unique(base$country)),
                   eps = 0.001) %>%
   ggplot(aes(x = P_top10, y = dydx)) +
   geom_ribbon(aes(ymin = conf.low, ymax = conf.high), alpha = 0.1, fill = clrs[1]) +
   geom_line(size = 1, color = clrs[1]) +
-  facet_wrap(vars(country)) +
-  coord_cartesian(ylim = c(0, 1000))
+  facet_wrap(vars(country))
 
 all_effects <- hm2 %>%
   marginaleffects(newdata = datagrid(P_top10 = seq(-3, 3, .1),
@@ -354,3 +372,12 @@ all_effects <- hm2 %>%
 hm2 %>%
   marginaleffects() %>%
   summary()
+
+plot_cap(hm2, condition = "P_top10")
+plot_cap(hm2, condition = c("P_top10", "field"), re_formula = NULL) -> p
+p
+plotly::ggplotly(p)
+plot_cap(hm2, condition = c("P_top10", "country"), re_formula = NULL)
+plot_cap(hm2, condition = c("P_top10", "country"), re_formula = NULL, dpar = "hu")
+
+plot_cap(hm2, condition = "P_top10", dpar = "hu")
