@@ -373,6 +373,8 @@ field_comp %>%
 # BUT CHECK. is this really the right scale?
 # I think it is, given that it now fits the scale of the coefficients from
 # `summary`, but we need to be sure here.
+# check by inspecting the mu and hu parts separately, using the transformations
+# vignette
 
 field_pred <- predictions(
   mix_identified,
