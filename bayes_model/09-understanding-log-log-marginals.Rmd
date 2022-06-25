@@ -1,0 +1,249 @@
+---
+title: "Understanding log/log marginal effects"
+author: "Thomas Klebel"
+date: '2022-06-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(marginaleffects)
+library(brms)
+
+theme_set(theme_bw())
+```
+
+We start out by simulating an exponential x.
+```{r}
+n <- 100
+set.seed(298374)
+
+df <- tibble(x = rnorm(n, mean = 2, sd = .5) %>% exp())
+```
+
+This is the kind of distribution that I work with as an independent variable.
+```{r}
+df %>% 
+  ggplot(aes(x)) +
+  geom_density()
+```
+
+If we take the log of it, it looks almost gaussian.
+
+```{r}
+df %>% 
+  mutate(x = log(x)) %>% 
+  ggplot(aes(x)) +
+  geom_density()
+```
+
+Now we simulate an y that depends on x, using the model we have in mind: a 
+log-log model.
+
+```{r}
+e <- rnorm(n, sd = .5)
+
+df <- df %>% 
+  mutate(y = exp(2 + .3*x + e))
+```
+
+This is of course also an exponential distribution.
+
+```{r}
+df %>% 
+  ggplot(aes(y)) +
+  geom_density()
+```
+The relationship is not linear at all.
+```{r}
+p <- df %>% 
+  ggplot(aes(x, y)) +
+  geom_point() +
+  geom_smooth()
+p
+```
+But if we take both logs, it is fairly linear.
+```{r}
+p + 
+  scale_x_continuous(trans = "log") +
+  scale_y_continuous(trans = "log") +
+  geom_smooth()
+```
+
+# Modelling the log log
+Let us model it now
+```{r}
+lm(log(y) ~ x, data = df)
+```
+```{r}
+summary(m1)
+```
+My code is thus still simulating a log model, but not log log.
+
+Try with multivariate first.
+
+```{r}
+n <- 500
+set.seed(987234)
+R <- matrix(c(1, 0.5,
+              0.5, 1), 
+            nrow = 2, ncol = 2, byrow = TRUE)
+            
+mu <- c(x = -1, y = 0)
+df2 <- MASS::mvrnorm(n, mu = mu, Sigma = R) %>% 
+  as_tibble()
+```
+
+```{r}
+df2 %>% 
+  ggplot(aes(x, y)) +
+  geom_point()
+```
+```{r}
+lm(y ~ x, data = df2)
+```
+
+
+```{r}
+df3 <- mutate(df2, across(everything(), exp))
+```
+
+```{r}
+df3 %>% 
+  ggplot(aes(x, y)) +
+  geom_point() +
+  geom_smooth(span = 1)
+```
+```{r}
+df3 %>% 
+  ggplot(aes(log(x), log(y))) +
+  geom_point() +
+  geom_smooth()
+```
+```{r}
+lm(y ~ x, data = df3)
+```
+```{r}
+m3 <- lm(log(y) ~ log(x), data = df3)
+m3
+```
+Now we are back at the parameter.
+
+
+```{r}
+comparisons(
+  m3, 
+  newdata = datagrid(x = c(1, 3, 5))
+)
+```
+
+```{r}
+df4 <- df3 %>% 
+  mutate(x = log(x))
+m4 <- brm(y ~ x, family = lognormal(), data = df4,
+          chains = 1, iter = 200, warmup = 100)
+```
+```{r}
+m4
+```
+
+```{r}
+comparisons(
+  m4, 
+  newdata = datagrid(x = c(1, 3, 5)),
+  type = "link"
+)
+```
+On the link scale, this is correct: a 1% increase in x yields a 0.52% increase 
+in y.
+
+```{r}
+comparisons(
+  m4, 
+  newdata = datagrid(x = c(1, 3, 5)),
+  type = "response"
+)
+```
+This obviously makes big differences, when we are on the response scale.
+
+What does this now mean for our model?
+
+It means that we have here the change in y (absolute) for 1% change in x.
+
+This makes sense, and is informative as well, I think. For our purposes of 
+comparing fields, however, it might be less useful: fields have different levels.
+So having the absolute changes robs us from the relative changes, which would be
+more interesting here.
+
+todo here: check with the blog post from andrew heiss: what are we actually 
+getting in the case of the hurdle? Or better: simulate here.
+
+make hurdle data
+```{r}
+df_hurdle <- df4 %>% 
+  mutate(z = x + rnorm(length(x), sd = .2),
+         y = case_when(runif(n) < rethinking::inv_logit(z) ~ 0,
+                       TRUE ~ y + 2))
+```
+
+```{r}
+ggplot(df_hurdle, aes(y)) +
+  geom_density()
+```
+```{r}
+hm <- brm(bf(y ~ x,
+             hu ~ z),
+          family = hurdle_lognormal(), data = df_hurdle,
+          chains = 1, iter = 300, warmup = 150)
+```
+
+```{r}
+hm
+```
+
+```{r}
+comparisons(
+  hm, 
+  newdata = datagrid(x = c(1, 3, 5),
+                     z = 0),
+  type = "link"
+)
+```
+Apparently without the mixture we really can get the link response. So in the
+mixture model, this might be an issue?
+
+```{r}
+comparisons(
+  hm, 
+  variables = list(x = log(150/100)),
+  newdata = datagrid(x = c(1, 3, 5),
+                     z = 0),
+  type = "link"
+)
+```
+This is stable across all x, as expected. It just now shows the change in y for 
+a 50% change ine x.
+No, it does not.
+this would be
+```{r}
+exp(log(150/100) * 0.14028749 )
+```
+= 5.8%, according to the file from benoit that was linked here: https://darrendahly.github.io/post/loglog/
+
+
+What do these changes again look like on the response?
+```{r}
+comparisons(
+  hm, 
+  newdata = datagrid(x = c(1, 3, 5),
+                     z = 0),
+  type = "response"
+)
+```
+
+The issue that different levels of variables would lead to different outcomes
+on the response scale, and thus make comparing effects meaningless, could be
+visualised by simulation: take approach on multilevel simulation from 
+solomon, and exponentiate, plus add hurdle. add hurdle by making it dependent of
+group, deleting randomly more or less. Then model it simply with group intercept.
