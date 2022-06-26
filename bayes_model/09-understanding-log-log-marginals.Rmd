@@ -250,6 +250,10 @@ fixef(hm)
 exp(log(101/(100) * 0.4284994))
 ```
 
+It should be interpreted as "1% change in x leads to .42% change in y. This is 
+exactly as we specified in the simulation at the start (with some error attached
+due to simulating).
+
 We can also visualise it
 
 ```{r}
