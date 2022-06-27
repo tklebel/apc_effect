@@ -36,8 +36,14 @@ spark_read_parquet(
 works <- tbl(sc, "works")
 
 works <- works %>% 
-  mutate(country_code = case_when(country_code == "UK" ~ "GB",
-                                  TRUE ~ country_code))
+  mutate(
+    # on miscoding when matching institutions
+    country_code = case_when(country_code == "UK" ~ "GB",
+                                  TRUE ~ country_code),
+    # rerunning the data pipeline introduced a hiccup regarding decimal precision
+    # this is unlikely of substantive concern, since all values are present,
+    # and no missing values are introduced through the below command
+    work_frac = as.numeric(work_frac))
 
 message("Successfully read all datasets!")
 
@@ -47,8 +53,86 @@ wdi <- WDI_data$country %>% as_tibble() %>%
 theme_set(theme_bw())
 ```
 
+# Sample description 
+## Institutions per country
+```{r}
+universities_per_country <- works %>% 
+  distinct(country, University) %>% 
+  count(country, name = "n_universities") %>% 
+  arrange(desc(n_universities)) %>% 
+  collect()
 
-# Distribution across topics
+universities_per_country %>% 
+  knitr::kable()
+```
+
+```{r}
+# papers per country
+papers_per_country <- works %>% 
+  distinct(country, country_code, id, work_frac, author_position, institution_id) %>% # this is not correct yet, need to identify individual contributions correctly to count them correctly. might need to keep institution id as an identifier
+  group_by(country, country_code) %>% 
+  summarise(sum_fractional_works = sum(work_frac) %>% round(digits = 1)) %>% 
+  arrange(desc(sum_fractional_works)) %>% 
+  collect()
+
+papers_per_country %>% 
+  select(-country_code)
+  knitr::kable()
+```
+
+```{r}
+# this is also unfinished!!!!
+# average apc
+average_apc <- works %>%
+  # first get rid of duplicates from concepts
+  distinct(id, work_frac, APC_in_dollar, University, country) %>% 
+  group_by(country) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(country, sum_frac) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
+            fractional_works = sum(work_frac))
+```
+
+```{r}
+# average APC over time
+```
+
+
+both joined
+```{r}
+universities_per_country %>% 
+  left_join(papers_per_country, by = "country") %>% 
+  select(Country = country, `n universities` = n_universities,
+         `n fractional publications` = sum_fractional_works) %>% 
+  knitr::kable()
+```
+
+
+## Papers per continent
+```{r papers-p-continent, fig.width=9, fig.height=3.5}
+# needs to be rechecked once the figures are correct!!!!!!
+plot_data <- papers_per_country %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  group_by(region) %>% 
+  summarise(sum_fractional_works = sum(sum_fractional_works)) %>% 
+  mutate(prop = sum_fractional_works / sum(sum_fractional_works),
+         label = glue::glue(
+           "{scales::comma(sum_fractional_works)} ({scales::percent(prop, accuracy = .1)})"
+         )
+  )
+
+plot_data %>% 
+  ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
+  geom_col(width = .5) +
+  geom_text(aes(label = label), nudge_x = 10000, hjust = "left") +
+  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
+                     labels = scales::comma) +
+  labs(x = "Number of fractional publications", y = NULL) 
+```
+
+
+## Distribution across topics
 How many papers do we have, which also have a topic?
 ```{r}
 works %>% 
@@ -70,13 +154,22 @@ frac_concept_papers <- works %>%
 ```
 
 
-```{r concept-overview}
-frac_concept_papers %>% 
+```{r concept-overview, fig.height=8, fig.width=8}
+plot_data <- frac_concept_papers %>% 
   drop_na() %>% 
-  ggplot(aes(frac_papers, fct_reorder(field, frac_papers))) +
-  geom_col(width = .7) +
-  scale_x_continuous(labels = scales::comma) +
-  labs(y = NULL, x = "Fractional papers")
+  mutate(prop = frac_papers / sum(frac_papers),
+         label = glue::glue(
+           "{scales::comma(frac_papers)} ({scales::percent(prop, accuracy = .1)})"
+         )
+  )
+
+plot_data %>% 
+  ggplot(aes(frac_papers, fct_reorder(field, prop))) +
+  geom_col(width = .5) +
+  geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
+  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
+                     labels = scales::comma) +
+  labs(x = "Number of fractional publications", y = NULL) 
 ```
 
 # Association between P_top10 and APC
@@ -87,8 +180,6 @@ get_mean_apc_by_author_position <- function(df) {
     distinct(id, author_position, work_frac, APC_in_dollar, University, country,
              publication_year, P_top10) %>% 
     group_by(University, publication_year, country, P_top10) %>%
-    # spark is unhappy for some reason, so coerce again to numeric
-    mutate(work_frac = as.numeric(work_frac)) %>% 
     # compute the average APC using fractional authorships as weights
     mutate(sum_frac = sum(work_frac)) %>%
     group_by(University, publication_year, country, P_top10, sum_frac,
