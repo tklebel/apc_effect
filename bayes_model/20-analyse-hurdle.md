@@ -1,7 +1,7 @@
 ---
 title: "Analyse Hurdle model"
 author: "Thomas Klebel"
-date: "21 Juni, 2022"
+date: "22 Juni, 2022"
 output: 
   html_document:
     keep_md: true
@@ -11,14 +11,14 @@ output:
 
 
 ```r
-hm3 <- brm(file = "final_models/hm3.rds", file_refit = "never")
+hm3 <- brm(file = "final_models/hm_final.rds", file_refit = "never")
 ```
 
 # Posterior predictive check
 
 
 ```r
-pp_check(hm3, ndraws = 50)
+pp_check(hm3, ndraws = 10)
 ```
 
 ![](20-analyse-hurdle_files/figure-html/pp_check-1.png)<!-- -->
@@ -44,7 +44,7 @@ pred_vis <- function(df, model, country_selection, alpha = 1, ndraws = 1000) {
          color = "Credible interval") +
     # theme_minimal(base_family = "Hind") +
     theme_clean() +
-    theme(legend.position = "bottom")
+    theme(legend.position = "bottom", panel.grid.minor = element_blank())
 }
 ```
 
@@ -61,6 +61,12 @@ pred_vis(base, hm3, "Brazil", alpha = .4)
 ```
 
 ![](20-analyse-hurdle_files/figure-html/pp_brazil-1.png)<!-- -->
+The bad predictions for Brazil reflect what we can see in the posterior 
+predictive check: the model expects more mass in the lower regions of APC (up 
+to something like 1500$), and does not account for the larger spike around 
+2000-3000$. What does this tell us for estimates in Brazil?
+
+And what is the reason for this? The lognormal distribution?
 
 
 ```r
@@ -95,53 +101,53 @@ summary(hm3)
 ##   Links: mu = identity; sigma = identity; hu = logit 
 ## Formula: APC_in_dollar | weights(total_weight) ~ 1 + P_top10 + (1 + P_top10 | country) + (1 + P_top10 | field) 
 ##          hu ~ 1 + P_top10 + (1 + P_top10 | country) + (1 + P_top10 | field)
-##    Data: base (Number of observations: 23656) 
+##    Data: base (Number of observations: 116912) 
 ##   Draws: 4 chains, each with iter = 2000; warmup = 1000; thin = 1;
 ##          total post-warmup draws = 4000
 ## 
 ## Group-Level Effects: 
-## ~country (Number of levels: 68) 
+## ~country (Number of levels: 69) 
 ##                              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)                    0.29      0.03     0.23     0.36 1.00     1680
-## sd(P_top10)                      0.08      0.02     0.05     0.13 1.00     1313
-## sd(hu_Intercept)                 1.06      0.15     0.81     1.38 1.00     1200
-## sd(hu_P_top10)                   0.10      0.07     0.00     0.27 1.01     1277
-## cor(Intercept,P_top10)          -0.73      0.17    -0.96    -0.33 1.00     1412
-## cor(hu_Intercept,hu_P_top10)    -0.27      0.39    -0.86     0.61 1.00     4780
+## sd(Intercept)                    0.25      0.03     0.21     0.31 1.00     1485
+## sd(P_top10)                      0.09      0.02     0.06     0.14 1.00      656
+## sd(hu_Intercept)                 1.03      0.11     0.82     1.28 1.00     1085
+## sd(hu_P_top10)                   0.17      0.09     0.01     0.34 1.01      418
+## cor(Intercept,P_top10)          -0.61      0.17    -0.91    -0.24 1.00      699
+## cor(hu_Intercept,hu_P_top10)    -0.06      0.28    -0.59     0.51 1.00     2980
 ##                              Tail_ESS
-## sd(Intercept)                    2534
-## sd(P_top10)                      1450
-## sd(hu_Intercept)                 2413
-## sd(hu_P_top10)                   1437
-## cor(Intercept,P_top10)           2156
-## cor(hu_Intercept,hu_P_top10)     3177
+## sd(Intercept)                    2220
+## sd(P_top10)                      1387
+## sd(hu_Intercept)                 1868
+## sd(hu_P_top10)                    795
+## cor(Intercept,P_top10)           1105
+## cor(hu_Intercept,hu_P_top10)     1900
 ## 
 ## ~field (Number of levels: 19) 
 ##                              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS
-## sd(Intercept)                    0.31      0.07     0.20     0.47 1.00     1178
-## sd(P_top10)                      0.05      0.02     0.01     0.11 1.00     1520
-## sd(hu_Intercept)                 1.44      0.27     1.02     2.06 1.00     1154
-## sd(hu_P_top10)                   0.09      0.06     0.00     0.22 1.00     2003
-## cor(Intercept,P_top10)          -0.27      0.35    -0.81     0.47 1.00     5300
-## cor(hu_Intercept,hu_P_top10)     0.24      0.40    -0.61     0.87 1.00     5137
+## sd(Intercept)                    0.35      0.07     0.24     0.51 1.00     1144
+## sd(P_top10)                      0.08      0.02     0.04     0.13 1.00     1270
+## sd(hu_Intercept)                 1.61      0.28     1.17     2.26 1.00     1104
+## sd(hu_P_top10)                   0.19      0.05     0.11     0.31 1.00     1839
+## cor(Intercept,P_top10)          -0.25      0.30    -0.76     0.39 1.00     2230
+## cor(hu_Intercept,hu_P_top10)     0.40      0.23    -0.12     0.77 1.00     3710
 ##                              Tail_ESS
-## sd(Intercept)                    1813
-## sd(P_top10)                      1934
-## sd(hu_Intercept)                 1924
-## sd(hu_P_top10)                   2072
-## cor(Intercept,P_top10)           3086
-## cor(hu_Intercept,hu_P_top10)     2776
+## sd(Intercept)                    1655
+## sd(P_top10)                      1997
+## sd(hu_Intercept)                 2001
+## sd(hu_P_top10)                   2739
+## cor(Intercept,P_top10)           2633
+## cor(hu_Intercept,hu_P_top10)     2958
 ## 
 ## Population-Level Effects: 
 ##              Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## Intercept        7.18      0.09     7.00     7.36 1.00     1011     1669
-## hu_Intercept    -0.11      0.36    -0.81     0.60 1.01      909     1490
-## P_top10          0.11      0.03     0.05     0.16 1.00     2728     2484
-## hu_P_top10      -0.05      0.06    -0.17     0.07 1.00     4055     3056
+## Intercept        7.14      0.09     6.96     7.33 1.00      714     1411
+## hu_Intercept    -0.17      0.37    -0.90     0.56 1.00      671     1074
+## P_top10          0.12      0.03     0.07     0.18 1.00     1941     2324
+## hu_P_top10      -0.01      0.07    -0.14     0.13 1.00     1848     2771
 ## 
 ## Family Specific Parameters: 
 ##       Estimate Est.Error l-95% CI u-95% CI Rhat Bulk_ESS Tail_ESS
-## sigma     0.61      0.01     0.59     0.62 1.00     8314     2891
+## sigma     0.62      0.00     0.61     0.62 1.00     8531     2420
 ## 
 ## Draws were sampled using sample(hmc). For each parameter, Bulk_ESS
 ## and Tail_ESS are effective sample size measures, and Rhat is the potential
@@ -216,6 +222,7 @@ hm3 %>%
   filter(term == "P_top10") %>%
   mutate(total_effect = b_P_top10 + r_field) %>%
   ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
   stat_halfeye() + 
   scale_x_continuous(labels = percent) +
   labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
@@ -231,6 +238,7 @@ hm3 %>%
   filter(term == "P_top10") %>%
   mutate(total_effect = b_P_top10 + r_country) %>%
   ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
   stat_halfeye() + 
   scale_x_continuous(labels = percent) +
   labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
@@ -239,9 +247,11 @@ hm3 %>%
 
 ![](20-analyse-hurdle_files/figure-html/mu-effect-country-1.png)<!-- -->
 
+Important question: is the above misfit for lower level APCs influencing these
+estimates? 
+
 
 ## Effect on hurdle
-I'm not entirely certain about the interpretation of the below coefficients.
 
 ```r
 hm3 %>%
@@ -249,14 +259,24 @@ hm3 %>%
   filter(term == "P_top10") %>%
   mutate(total_effect = b_hu_P_top10 + r_field__hu) %>%
   ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
   stat_halfeye() + 
   scale_x_continuous(labels = percent) +
-  labs(x = "Change in probability of no APC for 1% increase in P_top10", 
+  labs(x = "Change in probability of no APC for 1 unit increase in log(P_top10)", 
        y = NULL) +
-  theme_clean()
+  theme_clean() +
+  coord_cartesian(xlim = c(-.5, .5))
 ```
 
 ![](20-analyse-hurdle_files/figure-html/hu-effect-field-1.png)<!-- -->
+
+Interpretation: For fields like mathematics or physics, an increase in P_top10
+is associated with an increase in zero APCs, whereas in fields like 
+enivornmental science, psychology or biology, it is associated with a decrease.
+But is the %/% interpretation correct here? This seems like a strong effect.
+
+This is the change in probability of no APC for an increase of "1" on the logged
+P_top10 scale, so roughly one standard deviation. 
 
 
 ```r
@@ -265,12 +285,15 @@ hm3 %>%
   filter(term == "P_top10") %>%
   mutate(total_effect = b_hu_P_top10 + r_country__hu) %>%
   ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
+  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
   stat_halfeye() + 
   scale_x_continuous(labels = percent) +
   labs(x = "Change in probability of no APC for 1% increase in P_top10", 
        y = NULL) +
-  coord_cartesian(xlim = c(-.8, .8)) +
-  theme_clean()
+  labs(x = "Change in probability of no APC for 1 unit increase in log(P_top10)", 
+       y = NULL) +
+  theme_clean() +
+  coord_cartesian(xlim = c(-.75, .75))
 ```
 
 ![](20-analyse-hurdle_files/figure-html/hu-effect-country-1.png)<!-- -->

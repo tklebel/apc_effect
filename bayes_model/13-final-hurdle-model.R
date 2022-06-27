@@ -41,3 +41,4 @@ hm_final <- brm(model_formula,
                 data = base,
                 seed = 1234,
                 file = "bayes_model/final_models/hm_final")
+# 801 minutes (13.3 hours), but with short breaks of computation
