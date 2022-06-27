@@ -39,12 +39,23 @@ works %>%
 
 
 # assign works to institutions and do fractional counting -----
+author_counts <- works_authorships %>%
+  distinct(work_id, author_id) %>%
+  count(work_id) %>%
+  mutate(author_frac = 1/n)
+
 fractional_authorships <- works_authorships %>%
-  count(work_id, name = "n_authors") %>%
-  left_join(works_authorships)
+  left_join(author_counts) %>%
+  group_by(work_id) %>%
+  # find multiple affiliations
+  add_count(work_id, author_id, name = "n_institutions") %>%
+  mutate(work_frac = author_frac / n_institutions)
+
+# three works that can be used to validate the approach:
+# c("https://openalex.org/W2056304178", "https://openalex.org/W2048244903",
+#   "https://openalex.org/W2045612926")
 
 fractional_authorships <- fractional_authorships %>%
-  mutate(work_frac = 1/n_authors) %>%
   filter(author_position != "middle",
          !is.na(institution_id)) %>%
   select(work_id, author_position, institution_id, work_frac)
