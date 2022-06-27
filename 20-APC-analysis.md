@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "20 June, 2022"
+date: "27 June, 2022"
 output: 
   html_document:
     keep_md: true
@@ -59,8 +59,10 @@ get_mean_apc_by_author_position <- function(df) {
     distinct(id, author_position, work_frac, APC_in_dollar, University, country,
              publication_year, P_top10) %>% 
     group_by(University, publication_year, country, P_top10) %>%
+    # spark is unhappy for some reason, so coerce again to numeric
+    mutate(work_frac = as.numeric(work_frac)) %>% 
     # compute the average APC using fractional authorships as weights
-    mutate(sum_frac = sum(work_frac)) %>%
+    mutate(sum_frac = sum(work_frac)) %>% 
     group_by(University, publication_year, country, P_top10, sum_frac,
              author_position) %>%
     summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
@@ -104,7 +106,7 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
-  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) +
+  ggplot(aes(P_top10, mean_apc, colour = sum_frac)) +
   geom_point(aes(), alpha = .5) +
   scale_colour_viridis_c(option = "B", trans = "log10") +
   geom_smooth(colour = "grey30") +
@@ -151,6 +153,8 @@ get_mean_apc_by_concept <- function(df) {
     distinct(id, University, publication_year, P_top10, field, work_frac, 
              APC_in_dollar, author_position) %>% 
     group_by(University, publication_year, P_top10, field) %>%
+    # spark is unhappy for some reason, so coerce again to numeric
+    mutate(work_frac = as.numeric(work_frac)) %>% 
     # compute the average APC using fractional authorships as weights
     mutate(sum_frac = sum(work_frac)) %>%
     group_by(University, publication_year, P_top10, sum_frac,
@@ -217,7 +221,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve3b5b3419aad81e5d
+preserveadacdaaa3b1d4819
 
 
 
@@ -272,6 +276,8 @@ mean_apc_country_16_19 <- works %>%
   filter(first_year_of_period == 2016) %>% 
   # first get rid of duplicates from concepts
   distinct(id, work_frac, APC_in_dollar, University, country, P_top10, country_code) %>% 
+  # spark is unhappy for some reason, so coerce again to numeric
+  mutate(work_frac = as.numeric(work_frac)) %>% 
   group_by(University, country, P_top10) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
