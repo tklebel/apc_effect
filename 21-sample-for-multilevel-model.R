@@ -72,27 +72,27 @@ the_sample %>%
   summarise(n = sum(concept_frac)) %>%
   arrange(desc(n))
 # # A tibble: 19 × 2
-#   field                       n
-#   <chr>                   <dbl>
-#  1 Medicine              15362.
-#  2 Biology                8252.
-#  3 Chemistry              4949.
-#  4 Computer science       4560.
-#  5 Materials science      4090.
-#  6 Psychology             2918.
-#  7 Physics                1582.
-#  8 Environmental science  1445.
-#  9 Political science      1209.
-# 10 Geography              1036.
-# 11 Sociology               915.
-# 12 Art                     773.
-# 13 Business                743.
-# 14 Mathematics             605.
-# 15 Geology                 503.
-# 16 Philosophy              349.
-# 17 Economics               186.
-# 18 Engineering             110.
-# 19 History                  96.2
+#    field                      n
+#    <chr>                  <dbl>
+#  1 Medicine              15252.
+#  2 Biology                8185.
+#  3 Chemistry              4864.
+#  4 Computer science       4600.
+#  5 Materials science      4166.
+#  6 Psychology             2907.
+#  7 Physics                1609.
+#  8 Environmental science  1520.
+#  9 Political science      1191.
+# 10 Geography              1066.
+# 11 Sociology               947.
+# 12 Art                     786.
+# 13 Business                750.
+# 14 Mathematics             567.
+# 15 Geology                 517.
+# 16 Philosophy              358.
+# 17 Economics               189.
+# 18 History                 109.
+# 19 Engineering             101.
 
 # this conforms in general to the overall pattern, but the ordinal ranking is
 # not identical (expected given this is a sample and some differences are small)
@@ -103,18 +103,18 @@ the_sample %>%
   distinct(id, country) %>%
   count(country, sort = TRUE)
 # # A tibble: 69 × 2
-#   country            n
-#   <chr>          <int>
-#  1 China           9936
-#  2 United States   8780
-#  3 Brazil          4325
-#  4 United Kingdom  2800
-#  5 Germany         2216
-#  6 Spain           1932
-#  7 Japan           1793
-#  8 Canada          1760
-#  9 South Korea     1758
-# 10 Australia       1669
+#    country            n
+#    <chr>          <int>
+#  1 China           9879
+#  2 United States   8594
+#  3 Brazil          4415
+#  4 United Kingdom  2850
+#  5 Germany         2201
+#  6 Spain           1974
+#  7 Japan           1837
+#  8 South Korea     1743
+#  9 Canada          1731
+# 10 Australia       1667
 # # … with 59 more rows
 
 
