@@ -243,7 +243,7 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
-  ggplot(aes(P_top10, mean_apc, colour = sum_frac)) + # using here the total fractional per university, not dividing by author
+  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
   geom_point(aes(), alpha = .5) +
   scale_colour_viridis_c(option = "B", trans = "log10") +
   geom_smooth(colour = "grey30") +
