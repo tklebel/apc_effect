@@ -426,7 +426,8 @@ mean_apc_country_16_19_local %>%
   scale_y_continuous(labels = dollar) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
   labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
-  theme(legend.position = "top")
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(override.aes = list(alpha = 0)))
 ```
 
 
