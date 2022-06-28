@@ -131,6 +131,7 @@ All three joined
 universities_per_country %>% 
   left_join(papers_per_country, by = "country") %>% 
   left_join(average_apc, by = "country") %>% 
+  arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
   select(Country = country, `n universities` = n_universities,
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
