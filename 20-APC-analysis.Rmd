@@ -17,6 +17,8 @@ library(tidyverse)
 library(arrow)
 library(scales)
 library(WDI)
+library(ggrepel)
+library(colorspace)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
@@ -115,7 +117,7 @@ average_apc_time %>%
   left_join(wdi, by = c("country_code" = "iso2c")) %>% 
   ggplot(aes(publication_year, mean_apc)) +
   geom_line(aes(group = country), alpha = .3) +
-  geom_smooth(se = FALSE) +
+  geom_smooth(se = FALSE, colour = "#007FA8") +
   facet_wrap(vars(region)) +
   scale_x_continuous(breaks = scales::pretty_breaks(6)) +
   coord_cartesian(ylim = c(0, 3000)) +
@@ -245,7 +247,7 @@ mean_apc_16_19_local %>%
                                   last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
   geom_point(aes(), alpha = .5) +
-  scale_colour_viridis_c(option = "B", trans = "log10") +
+  scale_colour_continuous_sequential(palette = "Mako", trans = "log10") +
   geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
@@ -253,7 +255,8 @@ mean_apc_16_19_local %>%
   labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
        colour = "Number of papers per institution",
        x = expression(P["top 10%"])) +
-  theme(legend.position = "top")
+  theme(legend.position = "top",
+        legend.key.width = unit(1, 'cm'))
 ```
 
 ```{r apc-first-last-time, fig.height=4, fig.width=8}
@@ -269,6 +272,7 @@ mean_apcs_local %>%
   facet_wrap(vars(author_position)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   scale_y_continuous(labels = dollar) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -326,6 +330,28 @@ plotly::ggplotly(p)
 ```
 
 
+Using ggrepel
+```{r field-selection, fig.width=10, fig.height=4.5}
+field_selection <- mean_apc_concept_16_19_local %>%
+  drop_na(field) %>% 
+  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
+                      "Materials science", "Physics"))
+  
+mean_apc_concept_16_19_local %>% 
+  anti_join(field_selection) %>% 
+  ggplot(aes(P_top10, mean_apc, group = field)) +
+  geom_smooth(alpha = .3, colour = "grey80", fill = "grey90") +
+  geom_smooth(aes(colour = field), data = field_selection) +
+  facet_wrap(vars(author_position), nrow = 1) +
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) + 
+  scale_color_discrete_qualitative(palette = "Dark 3") +
+  labs(caption = "2016-2019", y = "Mean APC", colour = NULL,
+       x = expression(P["top 10%"])) +
+  # theme(legend.position = "top") +
+  guides(colour = guide_legend(override.aes = list(alpha = 0)))
+```
+
 
 ## Over time - first-authors
 ```{r apc-time-concept-first, fig.width=10, fig.height=8}
@@ -341,6 +367,7 @@ mean_apc_concept_local %>%
   geom_line() +
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -360,6 +387,7 @@ mean_apc_concept_local %>%
   geom_line() +
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -395,6 +423,7 @@ mean_apc_country_16_19_local %>%
   geom_smooth(alpha = .3) +
   scale_x_log10() +
   scale_y_continuous(labels = dollar) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
   theme(legend.position = "top")
 ```
