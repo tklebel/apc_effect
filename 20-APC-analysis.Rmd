@@ -17,6 +17,8 @@ library(tidyverse)
 library(arrow)
 library(scales)
 library(WDI)
+library(ggrepel)
+library(colorspace)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
@@ -69,42 +71,71 @@ universities_per_country %>%
 ```{r}
 # papers per country
 papers_per_country <- works %>% 
-  distinct(country, country_code, id, work_frac, author_position, institution_id) %>% # this is not correct yet, need to identify individual contributions correctly to count them correctly. might need to keep institution id as an identifier
+  distinct(country, country_code, id, work_frac, author_position, institution_id) %>% 
   group_by(country, country_code) %>% 
   summarise(sum_fractional_works = sum(work_frac) %>% round(digits = 1)) %>% 
   arrange(desc(sum_fractional_works)) %>% 
   collect()
+```
 
+```{r}
 papers_per_country %>% 
-  select(-country_code)
+  select(-country_code) %>% 
   knitr::kable()
 ```
 
 ```{r}
-# this is also unfinished!!!!
 # average apc
 average_apc <- works %>%
   # first get rid of duplicates from concepts
-  distinct(id, work_frac, APC_in_dollar, University, country) %>% 
+  distinct(country, country_code, id, work_frac, author_position, institution_id,
+           APC_in_dollar) %>% 
   group_by(country) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
   group_by(country, sum_frac) %>%
-  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
-            fractional_works = sum(work_frac))
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac) %>% 
+  collect()
 ```
 
 ```{r}
 # average APC over time
+average_apc_time <- works %>%
+  # first get rid of duplicates from concepts
+  distinct(country, country_code, id, work_frac, author_position, institution_id,
+           APC_in_dollar, publication_year) %>% 
+  group_by(country, country_code, publication_year) %>%
+  # compute the average APC using fractional authorships as weights
+  mutate(sum_frac = sum(work_frac)) %>%
+  group_by(country, country_code, sum_frac, publication_year) %>%
+  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac) %>% 
+  collect()
+```
+
+```{r apc-region-time, fig.width=10, fig.height=6}
+average_apc_time %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  ggplot(aes(publication_year, mean_apc)) +
+  geom_line(aes(group = country), alpha = .3) +
+  geom_smooth(se = FALSE, colour = "#007FA8") +
+  facet_wrap(vars(region)) +
+  scale_x_continuous(breaks = scales::pretty_breaks(6)) +
+  coord_cartesian(ylim = c(0, 3000)) +
+  labs(x = NULL, y = "Mean APC")
 ```
 
 
-both joined
+
+All three joined
 ```{r}
 universities_per_country %>% 
   left_join(papers_per_country, by = "country") %>% 
+  left_join(average_apc, by = "country") %>% 
+  arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
+  mutate(mean_apc = round(mean_apc, digits = 1)) %>% 
   select(Country = country, `n universities` = n_universities,
-         `n fractional publications` = sum_fractional_works) %>% 
+         `n fractional publications` = sum_fractional_works, 
+         `Mean APC` = mean_apc) %>% 
   knitr::kable()
 ```
 
@@ -125,10 +156,12 @@ plot_data <- papers_per_country %>%
 plot_data %>% 
   ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
   geom_col(width = .5) +
-  geom_text(aes(label = label), nudge_x = 10000, hjust = "left") +
+  geom_text(aes(label = label), nudge_x = 2000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
-  labs(x = "Number of fractional publications", y = NULL) 
+  labs(x = "Number of fractional publications", y = NULL) +
+  theme(panel.grid = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey92"))
 ```
 
 
@@ -169,7 +202,9 @@ plot_data %>%
   geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
-  labs(x = "Number of fractional publications", y = NULL) 
+  labs(x = "Number of fractional publications", y = NULL) +
+  theme(panel.grid = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey92"))
 ```
 
 # Association between P_top10 and APC
@@ -212,9 +247,9 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
-  ggplot(aes(P_top10, mean_apc, colour = sum_frac)) +
+  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
   geom_point(aes(), alpha = .5) +
-  scale_colour_viridis_c(option = "B", trans = "log10") +
+  scale_colour_continuous_sequential(palette = "Mako", trans = "log10") +
   geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
@@ -222,7 +257,8 @@ mean_apc_16_19_local %>%
   labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
        colour = "Number of papers per institution",
        x = expression(P["top 10%"])) +
-  theme(legend.position = "top")
+  theme(legend.position = "top",
+        legend.key.width = unit(1, 'cm'))
 ```
 
 ```{r apc-first-last-time, fig.height=4, fig.width=8}
@@ -238,6 +274,7 @@ mean_apcs_local %>%
   facet_wrap(vars(author_position)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   scale_y_continuous(labels = dollar) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -269,7 +306,7 @@ mean_apc_concept_16_19 <- works %>%
   filter(first_year_of_period == 2016) %>% 
   get_mean_apc_by_concept()
 
-mean_apc__concept_16_19_local <- mean_apc_concept_16_19 %>% 
+mean_apc_concept_16_19_local <- mean_apc_concept_16_19 %>% 
   collect()
 ```
 
@@ -277,7 +314,8 @@ mean_apc__concept_16_19_local <- mean_apc_concept_16_19 %>%
 
 ```{r apc-concepts, fig.height=6, fig.width=13}
 # plot for 2016-2019
-p <- mean_apc_concept_16_19 %>%
+p <- mean_apc_concept_16_19_local %>%
+  drop_na(field) %>% 
   ggplot(aes(P_top10, mean_apc, colour = field)) +
   geom_smooth(alpha = .15) +
   facet_wrap(vars(author_position), nrow = 1) +
@@ -294,6 +332,28 @@ plotly::ggplotly(p)
 ```
 
 
+Using ggrepel
+```{r field-selection, fig.width=10, fig.height=4.5}
+field_selection <- mean_apc_concept_16_19_local %>%
+  drop_na(field) %>% 
+  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
+                      "Materials science", "Physics"))
+  
+mean_apc_concept_16_19_local %>% 
+  anti_join(field_selection) %>% 
+  ggplot(aes(P_top10, mean_apc, group = field)) +
+  geom_smooth(alpha = .3, colour = "grey80", fill = "grey90") +
+  geom_smooth(aes(colour = field), data = field_selection) +
+  facet_wrap(vars(author_position), nrow = 1) +
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) + 
+  scale_color_discrete_qualitative(palette = "Dark 3") +
+  labs(caption = "2016-2019", y = "Mean APC", colour = NULL,
+       x = expression(P["top 10%"])) +
+  # theme(legend.position = "top") +
+  guides(colour = guide_legend(override.aes = list(alpha = 0)))
+```
+
 
 ## Over time - first-authors
 ```{r apc-time-concept-first, fig.width=10, fig.height=8}
@@ -309,6 +369,7 @@ mean_apc_concept_local %>%
   geom_line() +
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -328,6 +389,7 @@ mean_apc_concept_local %>%
   geom_line() +
   facet_wrap(vars(field)) +
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
@@ -363,8 +425,10 @@ mean_apc_country_16_19_local %>%
   geom_smooth(alpha = .3) +
   scale_x_log10() +
   scale_y_continuous(labels = dollar) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
   labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
-  theme(legend.position = "top")
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(override.aes = list(alpha = 0)))
 ```
 
 
