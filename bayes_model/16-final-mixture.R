@@ -33,7 +33,7 @@ model_formula  <- bf(
 
 # priors
 priors_narrower <- c(
-  prior(normal(5, 5.), class = Intercept, dpar = "mu1"),
+  prior(normal(5, .5), class = Intercept, dpar = "mu1"),
   prior(normal(7.5, .2), class = Intercept, dpar = "mu2"),
   prior(normal(.5, .2), class = Intercept, dpar = "theta1"),
   prior(normal(0, 1), class = Intercept, dpar = "hu1"),
