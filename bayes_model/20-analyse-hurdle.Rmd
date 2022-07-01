@@ -8,13 +8,14 @@ output:
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = TRUE, dpi = 300)
 
 library(tidyverse)
 library(brms)
 library(tidybayes)
 library(marginaleffects)
 library(scales)
+library(colorspace)
 library(modelr)
 
 # Use the Johnson color palette
@@ -40,9 +41,12 @@ wdi <- WDI::WDI_data$country %>%
   select(iso2c, region, income)
 
 base <- df %>%
+  # on miscoding when matching institutions
+  mutate(country_code = case_when(country_code == "UK" ~ "GB",
+                                  TRUE ~ country_code)) %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>%
   select(institution_id, University, country, region, author_position,
-         P_top10, field,
+         P_top10, field, country_code,
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
                                    TRUE ~ APC_in_dollar)) %>% 
@@ -56,24 +60,28 @@ hm <- brm(file = "final_models/mix_final_vienna.rds", file_refit = "never")
 # Posterior predictive check
 
 ```{r pp_check}
-pp_check(hm, ndraws = 10)
+pp_check(hm, ndraws = 10) +
+  coord_cartesian(xlim = c(0, 8000))
 ```
 
 ```{r}
-pred_vis <- function(df, model, country_selection, alpha = 1, ndraws = 1000) {
-  get_back <- function(df) mutate(df, P_top10 = exp(6.09 + P_top10))
+pred_vis <- function(df, model, country_selection,
+                     var_for_offset = base$P_top10, alpha = 1, ndraws = 1000) {
+  scale_offset <- attributes(var_for_offset)[["scaled:center"]]
+  get_back <- function(df) mutate(df, P_top10 = exp(scale_offset + P_top10))
   
   df %>%
     filter(country == country_selection) %>%
-    data_grid(P_top10, country, field) %>%
+    modelr::data_grid(P_top10, country, field) %>%
     add_predicted_draws(model, ndraws = ndraws, re_formula = NULL) %>%
     get_back() %>% 
     ggplot(aes(P_top10, .prediction)) +
     stat_interval() +
     scale_color_manual(values = colorspace::lighten(clrs[4], c(.8, .67, .42))) +
     scale_y_continuous(labels = dollar) +
-    geom_point(aes(y = APC_in_dollar), alpha = alpha,
-               data = filter(df, country == country_selection) %>% get_back()) +
+    geom_jitter(aes(y = APC_in_dollar), alpha = alpha, 
+                position = position_jitter(width = 5, height = 50),
+                data = filter(df, country == country_selection) %>% get_back()) +
     facet_wrap(vars(field)) +
     labs(y = "Predicted vs. actual APC", x = expression(P["top 10%"]),
          color = "Credible interval") +
@@ -84,11 +92,11 @@ pred_vis <- function(df, model, country_selection, alpha = 1, ndraws = 1000) {
 ```
 
 ```{r pp_austria, fig.width=10, fig.height=7}
-pred_vis(base, hm, "Austria")
+pred_vis(base, hm, "Austria", alpha = .5)
 ```
 
 ```{r pp_brazil, fig.width=10, fig.height=7}
-pred_vis(base, hm, "Brazil", alpha = .4)
+pred_vis(base, hm, "Brazil", alpha = .2)
 ```
 This updated model fares much better for Brazil. The predictions are still not
 ideal (underestimating higher APCs of ~2000), but overall much better than the
@@ -109,14 +117,14 @@ pred_vis(base, hm, "Turkey", alpha = .7)
 
 # Model variances and covariances
 ```{r}
-summary(hm)
+summary(hm) 
 ```
 
 
-# Marginal effects
+# "Marginal effects"
 Here we compute marginal effects manually, by making predictions for a given
 x (P_top10) and then the same x * 1.01, i.e., increasing x (on the original 
-scale) by 1%, and then comparing the predictions
+scale) by 1%, and then comparing the predictions.
 
 ## Fields
 ```{r}
@@ -140,7 +148,7 @@ contrast_recomputed <- contrast %>%
   mutate(contrast = step / base - 1)
 ```
 
-```{r fig.width=7, fig.height=8}
+```{r fields-brazil, fig.width=7, fig.height=8}
 contrast_recomputed %>% 
   ggplot(aes(contrast, fct_reorder(field, contrast))) +
   stat_halfeye() +
@@ -151,7 +159,7 @@ This is very sensitive to the respective country. Maybe we can recompute an
 average marginal effect after all?
 
 ```{r}
-average_over_fields <- function(model, orig_var, q = .5, 
+average_draws <- function(model, orig_var, q = .5, 
                                 var_for_offset = base$P_top10) {
   scale_offset <- attributes(var_for_offset)[["scaled:center"]]
   
@@ -168,15 +176,17 @@ average_over_fields <- function(model, orig_var, q = .5,
                        field = unique(base$field))) %>% 
     posteriordraws()
     
-  contrast_all_recomputed <- contrast_all %>% 
+  contrast_all %>% 
     mutate(x = factor(P_top10, labels = c("base", "step"))) %>% 
     pivot_wider(-c(predicted, conf.low, conf.high, P_top10, rowid), 
                 names_from = x, values_from = draw) %>% 
-    mutate(contrast = step / base - 1) %>% 
-    group_by(field, drawid) %>% 
+    mutate(contrast = step / base - 1)
+}
+
+summarise_by <- function(contrast_df, var = field) {
+  contrast_df %>% 
+    group_by({{ var }}, drawid) %>% 
     summarise(effect = mean(contrast))
-  
-  contrast_all_recomputed
 }
 ```
 
@@ -184,110 +194,93 @@ average_over_fields <- function(model, orig_var, q = .5,
 plot_effect <- function(contrast_df, location = "the median") {
   contrast_df %>% 
     ggplot(aes(effect, fct_reorder(field, effect))) +
-    stat_halfeye() +
+    stat_halfeye(.width = c(.5, .9)) +
     scale_x_continuous(labels = percent) +
     labs(
       y = NULL, 
-      x = glue::glue("% Change of APC for 1% change of P_top10% at {location}"),
+      x = glue::glue("% change of APC for 1% change of P_top10% at {location}"),
       caption = "Averaged predictions over all countries.") +
     theme_clean() +
     coord_cartesian(xlim = c(-0.005, 0.005))
 }
 ```
 
+```{r, cache=TRUE}
+contrast_20 <- average_draws(hm, df$P_top10, q = .2)
+contrast_50 <- average_draws(hm, df$P_top10, q = .5)
+contrast_80 <- average_draws(hm, df$P_top10, q = .8)
+```
 
 
 ```{r}
-scale_offset <- attributes(base$P_top10)[["scaled:center"]]
-x1_identity <- quantile(df$P_top10, .2)
-x2_identity <- x1_identity * 1.01
-x1_log <- log(x1_identity) - scale_offset
-x2_log <- log(x2_identity) - scale_offset
-
-
-contrast_all <- predictions(
-  hm,
-  newdata = datagrid(P_top10 = c(x1_log, x2_log),
-                     country = unique(base$country), 
-                     field = unique(base$field))) %>% 
-  posteriordraws()
-  
-contrast_all_recomputed <- contrast_all %>% 
-  mutate(x = factor(P_top10, labels = c("base", "step"))) %>% 
-  pivot_wider(-c(predicted, conf.low, conf.high, P_top10, rowid), 
-              names_from = x, values_from = draw) %>% 
-  mutate(contrast = step / base - 1) %>% 
-  group_by(field, drawid) %>% 
-  summarise(ame = mean(contrast))
+contrast_20_field <- summarise_by(contrast_20, field)
 ```
-```{r fig.width=7, fig.height=8}
-contrast_all_recomputed %>% 
-  rename(effect = ame) %>% 
-  plot_effect()
+```{r fields-20, fig.width=7, fig.height=8}
+contrast_20_field %>% 
+  plot_effect("the 20% quantile")
 ```
 
 This seems reasonable, but would need to further validate.
 
 At 50%
 ```{r}
-contrast_at_50 <- average_over_fields(hm, df$P_top10)
+contrast_50_field <- summarise_by(contrast_50, field)
 ```
-```{r fig.width=7, fig.height=8}
-contrast_at_50 %>% 
-  rename(effect = ame) %>% 
+
+```{r fields-50, fig.width=7, fig.height=8}
+contrast_50_field %>% 
   plot_effect()
 ```
 
 
 ```{r}
-contrast_at_80 <- average_over_fields(hm, orig_var =  df$P_top10,
-                                      q = .8)
+contrast_80_field <- summarise_by(contrast_80, field)
 ```
 
-```{r fig.width=7, fig.height=8}
-contrast_at_80 %>% 
-  rename(effect = ame) %>% 
-  plot_effect(location = "the 80% quantile")
+```{r fields-80, fig.width=7, fig.height=8}
+contrast_80_field %>% 
+  plot_effect()
 ```
 
 
 Compare all three
 ```{r}
 all_joined <- bind_rows(
-  rename(contrast_at_50, effect_50 = ame),
-  rename(contrast_at_80, effect_80 = ame),
-  rename(contrast_all_recomputed, effect_20 = ame)
+  rename(contrast_50_field, effect_50 = effect),
+  rename(contrast_80_field, effect_80 = effect),
+  rename(contrast_20_field, effect_20 = effect)
 )
 ```
 
-```{r fig.width=7, fig.height=10}
-
-
+```{r}
 p <- all_joined %>% 
   pivot_longer(contains("effect"), values_to = "effect") %>% 
   drop_na() %>% 
   ggplot(aes(effect, fct_reorder(field, effect), colour = name)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
-  stat_pointinterval(position = position_dodge(width = .5)) +
+  stat_pointinterval(position = position_dodge(width = .5),
+                     .width = c(.5, .9)) +
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
-    x = glue::glue("% Change of APC for 1% change of P_top10% at "),
+    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
     caption = "Averaged predictions over all countries.") +
   theme_clean() +
   coord_cartesian(xlim = c(-0.005, 0.005)) +
   guides(colour = guide_legend(reverse = TRUE))
+```
 
+```{r fields-combined-1, fig.width=7, fig.height=10}
 # not sure which version is better
 p + scale_color_manual(values = c(
     effect_20 = colorspace::lighten("#007FA8", .7),
     effect_50 = colorspace::lighten("#007FA8", .4),
     effect_80 = "#007FA8"
   ))
-
-
 ```
-```{r fig.width=7, fig.height=10}
+
+
+```{r fields-combined-2, fig.width=7, fig.height=10}
 custom_pal <- sequential_hcl(5, palette = "Mako") %>% 
   lighten(amount = .1)
 p + scale_color_manual(values = c(
@@ -297,131 +290,187 @@ p + scale_color_manual(values = c(
   ))
 ```
 
+Questions that arise:
+- why in some fields stronger/weaker effect for larger/smaller P_top10? Is this
+also associated with hurdle component?
+- Especially: why physics and mathematics negative? because of hurdle?
+
+- Effect is diminishing for all fields with sufficient data. 
+
+Need to put into context of overall averages: give average per field (from model
+or full set)
+
+
 ## Countries
+```{r}
+contrast_20_country <- summarise_by(contrast_20, country)
+contrast_50_country <- summarise_by(contrast_50, country)
+contrast_80_country <- summarise_by(contrast_80, country)
+```
+```{r}
+all_countries <- bind_rows(
+  rename(contrast_20_country, effect_20 = effect),
+  rename(contrast_50_country, effect_50 = effect),
+  rename(contrast_80_country, effect_80 = effect),
+) %>% 
+  pivot_longer(contains("effect"), values_to = "effect") %>% 
+  drop_na()
+```
 
-This guide seemed promising: https://vincentarelbundock.github.io/marginaleffects/articles/transformation.html#back-transform-lognormal-hurdle
-However, all of the marginal effects do not work, because we have a logged exposure.
-The slopes are correct for the logged exposure, but not correct when we
-rescale (exponentiate and un-center) the exposure. Don't know how to correctly
-compute those marginal effects in this instance.
-
-This is best shown in the below: the predicted values taper off, as P_top10
-increases. But the logged P_top10 has positive AMEs that increase.
 
 ```{r}
-eps <- .001
-predictions_data <- predictions(
-  hm,
-  newdata = datagrid(country = "Brazil",
-                     P_top10 = seq(-3, 3, .1),
-                     field = "Biology"),
-  dpar = "mu",
-  transform_post = exp
-) 
-predictions_data %>% 
-  mutate(P_top10 = exp(6 + P_top10)) %>% 
-  ggplot(aes(x = P_top10, y = predicted)) +
-  geom_line(size = 1)
-
-slopes_data <- comparisons(
-  hm,
-  dpar = "mu",
-  variables = list(P_top10 = eps),
-  newdata = datagrid(country = "Brazil",
-                     P_top10 = c(-2, 0, 2),
-                     field = "Biology"),
-  # rescale the elements of the slope
-  # (exp(40.001) - exp(40)) / exp(0.001)
-  transform_pre = function(hi, lo) ((exp(hi) - exp(lo)) / exp(eps)) / eps
-) %>% 
-  left_join(predictions_data, by = "P_top10") %>%
-  # Point-slope formula: (y - y1) = m(x - x1)
-  mutate(intercept = comparison * (-P_top10) + predicted)
-
-ggplot(predictions_data, aes(x = P_top10, y = predicted)) +
-  geom_line(size = 1) + 
-  geom_abline(data = slopes_data, aes(slope = comparison, intercept = intercept), 
-              size = 0.5, color = "red") +
-  geom_point(data = slopes_data) +
-  geom_label(data = slopes_data, aes(label = paste0("Slope: ", round(comparison, 1))),
-             nudge_x = -1, hjust = 1) +
-  theme_minimal()
-```
-
-
-## Revert back to directly plotting effects
-### Effect of ptop10 on APC
-THE SCALE IS OFF HERE: IT IS NOT A 25% CHANGE, BUT A .25% CHANGE!!
-```{r mu-effect-field, fig.width=7, fig.height=8}
-hm %>%
-  spread_draws(b_P_top10, r_field[field,term]) %>%
-  filter(term == "P_top10") %>%
-  mutate(total_effect = b_P_top10 + r_field) %>%
-  ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  stat_halfeye() + 
+p_country <- all_countries %>% 
+  ggplot(aes(effect, fct_reorder(country, effect), colour = name)) +
+  geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
+  stat_pointinterval(position = position_dodge(width = .5),
+                     .width = c(.5, .9)) +
   scale_x_continuous(labels = percent) +
-  labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
-  theme_clean()
-```
-
-```{r mu-effect-country, fig.width=7, fig.height=15}
-hm %>%
-  spread_draws(b_P_top10, r_country[country,term]) %>%
-  filter(term == "P_top10") %>%
-  mutate(total_effect = b_P_top10 + r_country) %>%
-  ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  stat_halfeye() + 
-  scale_x_continuous(labels = percent) +
-  labs(x = "Change in APC for 1% increase in P_top10", y = NULL) +
-  theme_clean()
-```
-
-Important question: is the above misfit for lower level APCs influencing these
-estimates? 
-
-
-## Effect on hurdle
-```{r hu-effect-field, fig.width=7, fig.height=8}
-hm %>%
-  spread_draws(b_hu_P_top10, r_field__hu[field,term]) %>%
-  filter(term == "P_top10") %>%
-  mutate(total_effect = b_hu_P_top10 + r_field__hu) %>%
-  ggplot(aes(x = total_effect, y = reorder(field, total_effect))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  stat_halfeye() + 
-  scale_x_continuous(labels = percent) +
-  labs(x = "Change in probability of no APC for 1 unit increase in log(P_top10)", 
-       y = NULL) +
+  labs(
+    y = NULL, 
+    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
+    caption = "Averaged predictions over all countries.") +
   theme_clean() +
-  coord_cartesian(xlim = c(-.5, .5))
+  coord_cartesian(xlim = c(-0.001, 0.005)) +
+  guides(colour = guide_legend(reverse = TRUE))
 ```
 
-Interpretation: For fields like mathematics or physics, an increase in P_top10
-is associated with an increase in zero APCs, whereas in fields like 
-enivornmental science, psychology or biology, it is associated with a decrease.
-But is the %/% interpretation correct here? This seems like a strong effect.
+```{r countries-all, fig.width=7, fig.height=15}
+# not sure which version is better
+p_country + scale_color_manual(values = c(
+    effect_20 = colorspace::lighten("#007FA8", .7),
+    effect_50 = colorspace::lighten("#007FA8", .4),
+    effect_80 = "#007FA8"
+  ))
+```
 
-This is the change in probability of no APC for an increase of "1" on the logged
-P_top10 scale, so roughly one standard deviation. 
+### Group by continent
+```{r}
+country_identifier <- base %>% 
+  distinct(country, region, country_code) %>% 
+  drop_na()
 
-```{r hu-effect-country, fig.width=7, fig.height=15}
-hm %>%
-  spread_draws(b_hu_P_top10, r_country__hu[country,term]) %>%
-  filter(term == "P_top10") %>%
-  mutate(total_effect = b_hu_P_top10 + r_country__hu) %>%
-  ggplot(aes(x = total_effect, y = reorder(country, total_effect))) +
-  geom_vline(xintercept = 0, linetype = 2, alpha = .5) +
-  stat_halfeye() + 
+all_countries_w_region <- all_countries %>% 
+  left_join(country_identifier)
+```
+
+```{r}
+p_country_region <- all_countries_w_region %>% 
+  mutate(color_label = recode(name, effect_20 = "Effect at 20% quantile",
+                              effect_50 = "Effect at 50% quantile",
+                              effect_80 = "Effect at 80% quantile")) %>% 
+  ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
+  geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
+  stat_pointinterval(position = position_dodge(width = .5),
+                     .width = c(.5, .9)) +
   scale_x_continuous(labels = percent) +
-  labs(x = "Change in probability of no APC for 1% increase in P_top10", 
-       y = NULL) +
-  labs(x = "Change in probability of no APC for 1 unit increase in log(P_top10)", 
-       y = NULL) +
+  labs(
+    y = NULL, 
+    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
+    caption = "Averaged predictions over all fields.",
+    colour = NULL) +
   theme_clean() +
-  coord_cartesian(xlim = c(-.75, .75))
+  facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
+  coord_cartesian(xlim = c(-0.001, 0.005)) +
+  guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
+  theme(legend.position = "top")
 ```
+
+```{r countries-region, fig.width=7, fig.height=17}
+p_country_region + scale_color_manual(values = c(
+    "Effect at 20% quantile" = colorspace::lighten("#007FA8", .7),
+    "Effect at 50% quantile" = colorspace::lighten("#007FA8", .4),
+    "Effect at 80% quantile" = "#007FA8"
+  ))
+
+```
+
+
+Relate to gdp
+```{r cache=TRUE}
+gdp <- WDI::WDI(start = 2019, end = 2019)
+
+country_effect_with_gdp <- all_countries_w_region %>% 
+  left_join(gdp, by = c("country_code" = "iso2c"))
+country_effect_with_gdp
+```
+
+```{r}
+p <- country_effect_with_gdp %>% 
+  filter(name == "effect_50") %>% 
+  group_by(country_code, country.x) %>% 
+  summarise(median_effect = median(effect),
+            ymin = quantile(effect, .25),
+            ymax = quantile(effect, .75),
+            gdp = unique(NY.GDP.PCAP.KD),
+            region = unique(region)) %>% 
+  ggplot(aes(gdp, median_effect, colour = region, label = country.x)) +
+  geom_pointrange(aes(ymin = ymin, ymax = ymax)) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::comma) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
+  labs(colour = NULL, x = "GDP per capita", 
+       y = "% increase in APC for 1% increase of P_top10 at the median") +
+  theme_clean() +
+  theme(legend.position = "top")  +
+  coord_cartesian(ylim = c(0, .003))
+```
+
+```{r countries-gdp}
+p
+```
+
+```{r, dpi = 100}
+plotly::ggplotly(p)
+```
+
+This could still be improved by adding number of universities (or papers) as 
+a size variable.
+
+```{r}
+unis_p_country <- df %>% 
+  distinct(country, University) %>% 
+  count(country, name = "n_universities") 
+```
+
+```{r countries-gdp-fancy, fig.width=8, fig.height=6}
+pdata <- country_effect_with_gdp %>% 
+  filter(name == "effect_50") %>% 
+  group_by(country_code, country.x) %>% 
+  summarise(median_effect = median(effect),
+            ymin = quantile(effect, .25),
+            ymax = quantile(effect, .75),
+            gdp = unique(NY.GDP.PCAP.KD),
+            region = unique(region)) %>% 
+  left_join(unis_p_country, by = c("country.x" = "country"))
+
+labels <- pdata %>% 
+  mutate(label = case_when(
+    country.x %in% c("China", "India", "Iran", "Germany", "United States",
+                      "Brazil", "Luxembourg", "Czech Republic") ~ country.x,
+    TRUE ~ ""))
+
+pdata %>% 
+  ggplot(aes(gdp, median_effect, colour = region, label = "")) +
+  geom_linerange(aes(ymin = ymin, ymax = ymax, alpha = n_universities)) +
+  geom_point(aes(alpha = n_universities), size = 2) +
+  ggrepel::geom_text_repel(data = labels, aes(label = label),
+                            show.legend = FALSE, max.overlaps = Inf,
+                           box.padding = 1, min.segment.length = 0) +
+  scale_y_continuous(labels = scales::percent) +
+  scale_x_continuous(labels = scales::comma) +
+  scale_color_discrete_qualitative(palette = "Dark 3") +
+  # scale_size_continuous(trans = "sqrt") +
+  scale_alpha_continuous(range = c(.2, 1), trans = "log10") +
+  labs(colour = "Region", x = "GDP per capita", alpha = "Number of universities",
+       y = "% increase in APC for 1% increase of P_top10 at the median") +
+  theme_clean() +
+  theme(legend.position = "top", legend.box = "vertical")  +
+  coord_cartesian(ylim = c(0, .003))
+```
+
+
+
+
 
 # Marginal effects for selected countries
 US, China, Brazil, Austria, France, India, South africa
