@@ -118,24 +118,186 @@ Here we compute marginal effects manually, by making predictions for a given
 x (P_top10) and then the same x * 1.01, i.e., increasing x (on the original 
 scale) by 1%, and then comparing the predictions
 
+## Fields
 ```{r}
 scale_offset <- attributes(base$P_top10)[["scaled:center"]]
-x1_identity <- 20
-x2_identity <- x1_identity * 1.01
-x1_log <- log(x1_identitiy) - scale_offset
+x1_identity <- 1500
+x2_identity <- x1_identity * 1.1
+x1_log <- log(x1_identity) - scale_offset
 x2_log <- log(x2_identity) - scale_offset
 
 
-contrast <- predictions(hm, 
-                        newdata = datagrid(log_x = c(2, log(exp(2)*1.01)),
-                                   z = 0)) %>% 
-  posteriordraws() %>% 
-  mutate(x = factor(log_x, labels = c("base", "step"))) %>% 
-  pivot_wider(-c(predicted, conf.low, conf.high, log_x, rowid), 
+contrast <- predictions(
+  hm,
+  newdata = datagrid(P_top10 = c(x1_log, x2_log),
+                     country = "Brazil", field = unique(base$field))) %>% 
+  posteriordraws()
+  
+contrast_recomputed <- contrast %>% 
+  mutate(x = factor(P_top10, labels = c("base", "step"))) %>% 
+  pivot_wider(-c(predicted, conf.low, conf.high, P_top10, rowid), 
               names_from = x, values_from = draw) %>% 
-  mutate(contrast = step / base)
-contrast
+  mutate(contrast = step / base - 1)
 ```
+
+```{r fig.width=7, fig.height=8}
+contrast_recomputed %>% 
+  ggplot(aes(contrast, fct_reorder(field, contrast))) +
+  stat_halfeye() +
+  scale_x_continuous(labels = percent)
+```
+
+This is very sensitive to the respective country. Maybe we can recompute an
+average marginal effect after all?
+
+```{r}
+average_over_fields <- function(model, orig_var, q = .5, 
+                                var_for_offset = base$P_top10) {
+  scale_offset <- attributes(var_for_offset)[["scaled:center"]]
+  
+  x1_identity <- quantile(orig_var, q)
+  x2_identity <- x1_identity * 1.01
+  x1_log <- log(x1_identity) - scale_offset
+  x2_log <- log(x2_identity) - scale_offset
+  
+  
+  contrast_all <- predictions(
+    model,
+    newdata = datagrid(P_top10 = c(x1_log, x2_log),
+                       country = unique(base$country), 
+                       field = unique(base$field))) %>% 
+    posteriordraws()
+    
+  contrast_all_recomputed <- contrast_all %>% 
+    mutate(x = factor(P_top10, labels = c("base", "step"))) %>% 
+    pivot_wider(-c(predicted, conf.low, conf.high, P_top10, rowid), 
+                names_from = x, values_from = draw) %>% 
+    mutate(contrast = step / base - 1) %>% 
+    group_by(field, drawid) %>% 
+    summarise(effect = mean(contrast))
+  
+  contrast_all_recomputed
+}
+```
+
+```{r}
+plot_effect <- function(contrast_df, location = "the median") {
+  contrast_df %>% 
+    ggplot(aes(effect, fct_reorder(field, effect))) +
+    stat_halfeye() +
+    scale_x_continuous(labels = percent) +
+    labs(
+      y = NULL, 
+      x = glue::glue("% Change of APC for 1% change of P_top10% at {location}"),
+      caption = "Averaged predictions over all countries.") +
+    theme_clean() +
+    coord_cartesian(xlim = c(-0.005, 0.005))
+}
+```
+
+
+
+```{r}
+scale_offset <- attributes(base$P_top10)[["scaled:center"]]
+x1_identity <- quantile(df$P_top10, .2)
+x2_identity <- x1_identity * 1.01
+x1_log <- log(x1_identity) - scale_offset
+x2_log <- log(x2_identity) - scale_offset
+
+
+contrast_all <- predictions(
+  hm,
+  newdata = datagrid(P_top10 = c(x1_log, x2_log),
+                     country = unique(base$country), 
+                     field = unique(base$field))) %>% 
+  posteriordraws()
+  
+contrast_all_recomputed <- contrast_all %>% 
+  mutate(x = factor(P_top10, labels = c("base", "step"))) %>% 
+  pivot_wider(-c(predicted, conf.low, conf.high, P_top10, rowid), 
+              names_from = x, values_from = draw) %>% 
+  mutate(contrast = step / base - 1) %>% 
+  group_by(field, drawid) %>% 
+  summarise(ame = mean(contrast))
+```
+```{r fig.width=7, fig.height=8}
+contrast_all_recomputed %>% 
+  rename(effect = ame) %>% 
+  plot_effect()
+```
+
+This seems reasonable, but would need to further validate.
+
+At 50%
+```{r}
+contrast_at_50 <- average_over_fields(hm, df$P_top10)
+```
+```{r fig.width=7, fig.height=8}
+contrast_at_50 %>% 
+  rename(effect = ame) %>% 
+  plot_effect()
+```
+
+
+```{r}
+contrast_at_80 <- average_over_fields(hm, orig_var =  df$P_top10,
+                                      q = .8)
+```
+
+```{r fig.width=7, fig.height=8}
+contrast_at_80 %>% 
+  rename(effect = ame) %>% 
+  plot_effect(location = "the 80% quantile")
+```
+
+
+Compare all three
+```{r}
+all_joined <- bind_rows(
+  rename(contrast_at_50, effect_50 = ame),
+  rename(contrast_at_80, effect_80 = ame),
+  rename(contrast_all_recomputed, effect_20 = ame)
+)
+```
+
+```{r fig.width=7, fig.height=10}
+
+
+p <- all_joined %>% 
+  pivot_longer(contains("effect"), values_to = "effect") %>% 
+  drop_na() %>% 
+  ggplot(aes(effect, fct_reorder(field, effect), colour = name)) +
+  geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
+  stat_pointinterval(position = position_dodge(width = .5)) +
+  scale_x_continuous(labels = percent) +
+  labs(
+    y = NULL, 
+    x = glue::glue("% Change of APC for 1% change of P_top10% at "),
+    caption = "Averaged predictions over all countries.") +
+  theme_clean() +
+  coord_cartesian(xlim = c(-0.005, 0.005)) +
+  guides(colour = guide_legend(reverse = TRUE))
+
+# not sure which version is better
+p + scale_color_manual(values = c(
+    effect_20 = colorspace::lighten("#007FA8", .7),
+    effect_50 = colorspace::lighten("#007FA8", .4),
+    effect_80 = "#007FA8"
+  ))
+
+
+```
+```{r fig.width=7, fig.height=10}
+custom_pal <- sequential_hcl(5, palette = "Mako") %>% 
+  lighten(amount = .1)
+p + scale_color_manual(values = c(
+    effect_20 = custom_pal[3],
+    effect_50 = custom_pal[3],
+    effect_80 = custom_pal[4]
+  ))
+```
+
+## Countries
 
 This guide seemed promising: https://vincentarelbundock.github.io/marginaleffects/articles/transformation.html#back-transform-lognormal-hurdle
 However, all of the marginal effects do not work, because we have a logged exposure.
