@@ -36,8 +36,8 @@ priors_narrower <- c(
   prior(normal(5, .5), class = Intercept, dpar = "mu1"),
   prior(normal(7.5, .2), class = Intercept, dpar = "mu2"),
   prior(normal(.5, .2), class = Intercept, dpar = "theta1"),
-  prior(normal(0, 1), class = Intercept, dpar = "hu1"),
-  prior(normal(0, 1), class = Intercept, dpar = "hu2"),
+  prior(normal(-.5, 1), class = Intercept, dpar = "hu1"),
+  prior(normal(.5, 1), class = Intercept, dpar = "hu2"),
   prior(normal(0, 1), class = b, dpar = "mu1"),
   prior(normal(0, 1), class = b, dpar = "mu2"),
   prior(normal(0, 1), class = b, dpar = "hu1"),
@@ -46,6 +46,7 @@ priors_narrower <- c(
   prior(normal(0, 1), class = sd, dpar = "mu2"),
   prior(normal(0, 1), class = sd, dpar = "hu1"),
   prior(normal(0, 1), class = sd, dpar = "hu2"),
+  prior(normal(0, 1), class = sd, dpar = "theta1"),
   prior(normal(0, 1), class = sigma1),
   prior(normal(0, 1), class = sigma2),
   prior(lkj(4), class = cor)
