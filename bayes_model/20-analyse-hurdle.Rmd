@@ -57,6 +57,33 @@ base <- df %>%
 hm <- brm(file = "final_models/mix_final_vienna.rds", file_refit = "never")
 ```
 
+```{r, include=FALSE, eval=FALSE}
+# code for analysing samples coming from cmdstan
+fit <- readRDS("bayes_model/final_models/17-try-1.rds")
+
+summary_obj <- fit$summary()
+
+
+fit$diagnostic_summary()
+
+stanfit <- rstan::read_stan_csv(fit$output_files())
+launch_shinystan(stanfit)
+
+# workflow for getting back parameters after fitting adapted model
+# adapted from https://github.com/paul-buerkner/brms/issues/745
+
+mix_identified <- brms::brm(model_formula,
+                      family = mix,
+                      prior = priors_narrower,
+                      data = base,
+                      empty = TRUE)
+mix_identified$fit <- stanfit
+mix_identified <- rename_pars(mix_identified)
+summary(mix_identified)
+# this seems to work well
+```
+
+
 # Posterior predictive check
 
 ```{r pp_check}
