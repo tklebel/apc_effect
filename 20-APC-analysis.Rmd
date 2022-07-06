@@ -52,7 +52,10 @@ message("Successfully read all datasets!")
 wdi <- WDI_data$country %>% as_tibble() %>% 
   select(iso2c, region, income)
 
-theme_set(theme_bw())
+theme_clean <- theme_bw() +
+  theme(panel.border = element_blank())
+
+theme_set(theme_clean)
 ```
 
 # Sample description 
@@ -128,15 +131,54 @@ average_apc_time %>%
 
 All three joined
 ```{r}
-universities_per_country %>% 
+all_three_descriptives <- universities_per_country %>% 
   left_join(papers_per_country, by = "country") %>% 
-  left_join(average_apc, by = "country") %>% 
+  left_join(average_apc, by = "country")
+
+all_three_descriptives %>% 
   arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
   mutate(mean_apc = round(mean_apc, digits = 1)) %>% 
   select(Country = country, `n universities` = n_universities,
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
   knitr::kable()
+```
+
+
+```{r}
+gdp <- WDI::WDI(start = 2019, end = 2019)
+
+# plot n papers against average apc
+p <- all_three_descriptives %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  ggplot(aes(sum_fractional_works, mean_apc, colour = region, label = country)) +
+  geom_point() +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(legend.position = "top") +
+  labs(y = NULL, colour = NULL, x = "Sum of fractional publications")
+p
+```
+
+```{r}
+plotly::ggplotly(p)
+```
+
+```{r}
+p <- all_three_descriptives %>% 
+  left_join(gdp, by = c("country_code" = "iso2c")) %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  ggplot(aes(NY.GDP.PCAP.KD, mean_apc, colour = region, label = country.x)) +
+  geom_point() +
+  scale_x_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(legend.position = "top") +
+  labs(y = NULL, colour = NULL, x = "GDP per capita")
+p
+```
+
+```{r}
+plotly::ggplotly(p)
 ```
 
 
@@ -206,6 +248,36 @@ plot_data %>%
   theme(panel.grid = element_blank(),
         panel.grid.major.x = element_line(colour = "grey92"))
 ```
+
+
+What is the average apc across topics?
+```{r}
+apc_field <- works %>% 
+  distinct(id, field, concept_frac, APC_in_dollar) %>% 
+  group_by(field) %>%
+  mutate(sum_frac = sum(concept_frac)) %>%
+  group_by(field, sum_frac) %>%
+  summarise(mean_apc = sum(concept_frac * APC_in_dollar) / sum_frac) %>% 
+  collect()
+```
+
+```{r apc-field-overall, fig.width=7, fig.height=5}
+apc_field %>% 
+  drop_na() %>% 
+  ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
+  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
+  geom_point() + 
+  geom_text(aes(label = scales::comma(round(mean_apc))), nudge_x = 30, 
+            hjust = "left") +
+  labs(y = NULL, x = "Average APC (in $)") +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border = element_blank()) +
+  scale_x_continuous(expand = expansion(mult = c(0, .1)),
+                     labels = scales::comma)
+```
+
 
 # Association between P_top10 and APC
 ```{r}
