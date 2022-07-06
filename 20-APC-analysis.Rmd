@@ -203,7 +203,6 @@ plotly::ggplotly(p)
 
 ## Papers per continent
 ```{r papers-p-continent, fig.width=9, fig.height=3.5}
-# needs to be rechecked once the figures are correct!!!!!!
 plot_data <- papers_per_country %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>% 
   group_by(region) %>% 
