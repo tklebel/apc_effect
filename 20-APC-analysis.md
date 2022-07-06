@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "28 June, 2022"
+date: "06 July, 2022"
 output: 
   html_document:
     keep_md: true
@@ -39,63 +39,63 @@ universities_per_country %>%
 |Iran                 |             36|
 |Australia            |             32|
 |Turkey               |             31|
-|Poland               |             31|
 |Brazil               |             31|
+|Poland               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Austria              |             12|
 |Sweden               |             12|
+|Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
 |Switzerland          |              8|
 |Egypt                |              8|
-|Israel               |              8|
 |Greece               |              8|
+|Israel               |              8|
 |Belgium              |              8|
-|Finland              |              7|
 |New Zealand          |              7|
 |Czech Republic       |              7|
-|Malaysia             |              6|
-|Thailand             |              6|
-|Norway               |              6|
-|Hungary              |              6|
+|Finland              |              7|
 |Ireland              |              6|
 |Mexico               |              6|
 |Portugal             |              6|
+|Thailand             |              6|
+|Norway               |              6|
+|Malaysia             |              6|
+|Hungary              |              6|
 |Pakistan             |              5|
-|Saudi Arabia         |              5|
 |Denmark              |              5|
-|Singapore            |              3|
+|Saudi Arabia         |              5|
 |Romania              |              3|
-|Colombia             |              3|
-|Argentina            |              3|
 |Serbia               |              3|
 |Chile                |              3|
 |Tunisia              |              3|
-|Jordan               |              2|
-|Slovenia             |              2|
+|Argentina            |              3|
+|Singapore            |              3|
+|Colombia             |              3|
 |Slovakia             |              2|
+|Slovenia             |              2|
 |Nigeria              |              2|
 |United Arab Emirates |              2|
+|Jordan               |              2|
 |Algeria              |              1|
-|Croatia              |              1|
-|Iceland              |              1|
-|Estonia              |              1|
-|Viet Nam             |              1|
 |Ghana                |              1|
-|Uruguay              |              1|
-|Kuwait               |              1|
-|Luxembourg           |              1|
-|Lithuania            |              1|
-|Morocco              |              1|
-|Oman                 |              1|
-|Uganda               |              1|
-|Qatar                |              1|
-|Ethiopia             |              1|
+|Croatia              |              1|
 |Cyprus               |              1|
+|Uruguay              |              1|
+|Viet Nam             |              1|
+|Lithuania            |              1|
+|Oman                 |              1|
+|Estonia              |              1|
+|Morocco              |              1|
+|Iceland              |              1|
+|Uganda               |              1|
+|Kuwait               |              1|
 |Lebanon              |              1|
+|Qatar                |              1|
+|Luxembourg           |              1|
+|Ethiopia             |              1|
 
 
 ```r
@@ -258,11 +258,14 @@ average_apc_time %>%
 All three joined
 
 ```r
-universities_per_country %>% 
+all_three_descriptives <- universities_per_country %>% 
   left_join(papers_per_country, by = "country") %>% 
-  left_join(average_apc, by = "country") %>% 
+  left_join(average_apc, by = "country")
+
+all_three_descriptives %>% 
   arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
-  mutate(mean_apc = round(mean_apc, digits = 1)) %>% 
+  mutate(mean_apc = round(mean_apc, digits = 1),
+         sum_fractional_works = scales::comma(sum_fractional_works)) %>% 
   select(Country = country, `n universities` = n_universities,
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
@@ -271,77 +274,142 @@ universities_per_country %>%
 
 
 
-|Country              | n universities| n fractional publications| Mean APC|
-|:--------------------|--------------:|-------------------------:|--------:|
-|China                |            215|                   97179.9|   1860.1|
-|United States        |            199|                  132628.9|   1924.8|
-|United Kingdom       |             60|                   38102.9|   1813.0|
-|Japan                |             55|                   20089.4|   1807.2|
-|Germany              |             54|                   30103.2|   1801.3|
-|South Korea          |             46|                   20156.7|   1705.1|
-|Spain                |             42|                   34201.0|    675.1|
-|Italy                |             41|                   18318.3|   1688.0|
-|India                |             38|                    8771.8|    952.2|
-|Iran                 |             36|                    8511.9|    774.7|
-|Australia            |             32|                   21986.6|   1779.0|
-|Brazil               |             31|                  103447.9|    251.7|
-|Poland               |             31|                   14124.0|    836.3|
-|Turkey               |             31|                    6554.0|    816.8|
-|Canada               |             30|                   27258.0|   1691.5|
-|France               |             28|                    7881.0|   1578.3|
-|Taiwan               |             21|                    9195.1|   1841.0|
-|Netherlands          |             13|                   11053.1|   1816.9|
-|Sweden               |             12|                   10646.7|   1835.1|
-|Austria              |             12|                    4549.8|   1690.3|
-|Russia               |             10|                    4289.4|    467.6|
-|South Africa         |              9|                   10701.6|    939.8|
-|Switzerland          |              8|                    7804.5|   2006.9|
-|Belgium              |              8|                    6295.9|   1707.9|
-|Israel               |              8|                    4829.3|   2009.7|
-|Egypt                |              8|                    3348.2|    925.9|
-|Greece               |              8|                    2643.7|   1496.4|
-|Finland              |              7|                    3449.6|   1570.5|
-|New Zealand          |              7|                    2945.4|   1672.9|
-|Czech Republic       |              7|                    2603.4|   1045.5|
-|Mexico               |              6|                    6637.2|    682.3|
-|Portugal             |              6|                    5963.7|    778.8|
-|Malaysia             |              6|                    5107.1|   1112.9|
-|Norway               |              6|                    4701.5|   1564.4|
-|Thailand             |              6|                    2659.1|   1521.5|
-|Ireland              |              6|                    2268.4|   1781.7|
-|Hungary              |              6|                    1641.8|   1415.6|
-|Denmark              |              5|                    5321.0|   1740.6|
-|Saudi Arabia         |              5|                    4037.6|   1432.9|
-|Pakistan             |              5|                    1188.1|   1040.9|
-|Colombia             |              3|                    4403.0|    237.3|
-|Argentina            |              3|                    4039.5|    294.2|
-|Chile                |              3|                    3713.8|    564.0|
-|Singapore            |              3|                    2847.1|   1999.8|
-|Serbia               |              3|                    1808.1|    568.3|
-|Romania              |              3|                     732.9|    881.5|
-|Tunisia              |              3|                     294.8|   1194.7|
-|Slovenia             |              2|                    1635.0|    856.7|
-|Nigeria              |              2|                     741.9|   1118.3|
-|Slovakia             |              2|                     498.1|    653.1|
-|Jordan               |              2|                     497.1|   1309.1|
-|United Arab Emirates |              2|                     415.1|   1776.7|
-|Croatia              |              1|                    1505.5|    385.3|
-|Uruguay              |              1|                     735.7|    382.9|
-|Estonia              |              1|                     589.6|   1005.0|
-|Lithuania            |              1|                     485.9|    793.8|
-|Oman                 |              1|                     404.2|    527.5|
-|Lebanon              |              1|                     367.5|   1694.5|
-|Ethiopia             |              1|                     343.1|   1664.7|
-|Uganda               |              1|                     335.7|   1784.9|
-|Ghana                |              1|                     330.2|   1564.3|
-|Kuwait               |              1|                     312.7|   1634.9|
-|Iceland              |              1|                     242.7|   1425.6|
-|Qatar                |              1|                     201.9|   1542.5|
-|Luxembourg           |              1|                     200.6|   1751.8|
-|Viet Nam             |              1|                     136.0|   1314.0|
-|Cyprus               |              1|                     135.6|   1552.3|
-|Morocco              |              1|                     129.3|    882.8|
-|Algeria              |              1|                      38.0|    732.7|
+|Country              | n universities|n fractional publications | Mean APC|
+|:--------------------|--------------:|:-------------------------|--------:|
+|China                |            215|97,179.90                 |   1860.1|
+|United States        |            199|132,628.90                |   1924.8|
+|United Kingdom       |             60|38,102.90                 |   1813.0|
+|Japan                |             55|20,089.40                 |   1807.2|
+|Germany              |             54|30,103.20                 |   1801.3|
+|South Korea          |             46|20,156.70                 |   1705.1|
+|Spain                |             42|34,201.00                 |    675.1|
+|Italy                |             41|18,318.30                 |   1688.0|
+|India                |             38|8,771.80                  |    952.2|
+|Iran                 |             36|8,511.90                  |    774.7|
+|Australia            |             32|21,986.60                 |   1779.0|
+|Brazil               |             31|103,447.90                |    251.7|
+|Poland               |             31|14,124.00                 |    836.3|
+|Turkey               |             31|6,554.00                  |    816.8|
+|Canada               |             30|27,258.00                 |   1691.5|
+|France               |             28|7,881.00                  |   1578.3|
+|Taiwan               |             21|9,195.10                  |   1841.0|
+|Netherlands          |             13|11,053.10                 |   1816.9|
+|Sweden               |             12|10,646.70                 |   1835.1|
+|Austria              |             12|4,549.80                  |   1690.3|
+|Russia               |             10|4,289.40                  |    467.6|
+|South Africa         |              9|10,701.60                 |    939.8|
+|Switzerland          |              8|7,804.50                  |   2006.9|
+|Belgium              |              8|6,295.90                  |   1707.9|
+|Israel               |              8|4,829.30                  |   2009.7|
+|Egypt                |              8|3,348.20                  |    925.9|
+|Greece               |              8|2,643.70                  |   1496.4|
+|Finland              |              7|3,449.60                  |   1570.5|
+|New Zealand          |              7|2,945.40                  |   1672.9|
+|Czech Republic       |              7|2,603.40                  |   1045.5|
+|Mexico               |              6|6,637.20                  |    682.3|
+|Portugal             |              6|5,963.70                  |    778.8|
+|Malaysia             |              6|5,107.10                  |   1112.9|
+|Norway               |              6|4,701.50                  |   1564.4|
+|Thailand             |              6|2,659.10                  |   1521.5|
+|Ireland              |              6|2,268.40                  |   1781.7|
+|Hungary              |              6|1,641.80                  |   1415.6|
+|Denmark              |              5|5,321.00                  |   1740.6|
+|Saudi Arabia         |              5|4,037.60                  |   1432.9|
+|Pakistan             |              5|1,188.10                  |   1040.9|
+|Colombia             |              3|4,403.00                  |    237.3|
+|Argentina            |              3|4,039.50                  |    294.2|
+|Chile                |              3|3,713.80                  |    564.0|
+|Singapore            |              3|2,847.10                  |   1999.8|
+|Serbia               |              3|1,808.10                  |    568.3|
+|Romania              |              3|732.90                    |    881.5|
+|Tunisia              |              3|294.80                    |   1194.7|
+|Slovenia             |              2|1,635.00                  |    856.7|
+|Nigeria              |              2|741.90                    |   1118.3|
+|Slovakia             |              2|498.10                    |    653.1|
+|Jordan               |              2|497.10                    |   1309.1|
+|United Arab Emirates |              2|415.10                    |   1776.7|
+|Croatia              |              1|1,505.50                  |    385.3|
+|Uruguay              |              1|735.70                    |    382.9|
+|Estonia              |              1|589.60                    |   1005.0|
+|Lithuania            |              1|485.90                    |    793.8|
+|Oman                 |              1|404.20                    |    527.5|
+|Lebanon              |              1|367.50                    |   1694.5|
+|Ethiopia             |              1|343.10                    |   1664.7|
+|Uganda               |              1|335.70                    |   1784.9|
+|Ghana                |              1|330.20                    |   1564.3|
+|Kuwait               |              1|312.70                    |   1634.9|
+|Iceland              |              1|242.70                    |   1425.6|
+|Qatar                |              1|201.90                    |   1542.5|
+|Luxembourg           |              1|200.60                    |   1751.8|
+|Viet Nam             |              1|136.00                    |   1314.0|
+|Cyprus               |              1|135.60                    |   1552.3|
+|Morocco              |              1|129.30                    |    882.8|
+|Algeria              |              1|38.00                     |    732.7|
+
+
+
+```r
+gdp <- WDI::WDI(start = 2019, end = 2019)
+
+# plot n papers against average apc
+p <- all_three_descriptives %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  ggplot(aes(sum_fractional_works, mean_apc, colour = region, label = country)) +
+  geom_point() +
+  scale_x_log10(labels = scales::comma) +
+  scale_y_continuous(labels = scales::comma) +
+  theme(legend.position = "top") +
+  labs(y = NULL, colour = NULL, x = "Sum of fractional publications")
+p
+```
+
+![](20-APC-analysis_files/figure-html/apc-vs-papers-1.png)<!-- -->
+
+
+```r
+plotly::ggplotly(p)
+```
+
+preserve7628dfcabc9acc4a
+
+
+```r
+pdata <- all_three_descriptives %>% 
+  left_join(gdp, by = c("country_code" = "iso2c")) %>% 
+  left_join(wdi, by = c("country_code" = "iso2c"))
+
+labels <- pdata %>% 
+  mutate(label = case_when(
+    country.x %in% c("China", "India", "Uganda", "United States",
+                      "Brazil", "Switzerland", "Israel", "Spain",
+                     "Saudi Arabia") ~ country.x,
+    TRUE ~ ""))
+
+p <- pdata %>% 
+  ggplot(aes(NY.GDP.PCAP.KD, mean_apc, colour = region, label = country.x)) +
+  geom_point(aes(alpha = sum_fractional_works)) +
+  ggrepel::geom_text_repel(data = labels, aes(label = label),
+                           show.legend = FALSE, max.overlaps = Inf,
+                           box.padding = 1, min.segment.length = 0) +
+  scale_x_continuous(labels = scales::dollar) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_alpha_continuous(trans = "log10", range = c(.1, 1),
+                         labels = scales::comma) +
+  scale_colour_discrete_qualitative(palette = "Dark 3") +
+  theme(legend.position = "top", legend.box = "vertical") +
+  labs(y = NULL, colour = NULL, x = "GDP per capita", 
+       alpha = "Number of fractional publications")
+p
+```
+
+![](20-APC-analysis_files/figure-html/apc-vs-gdp-1.png)<!-- -->
+
+
+```r
+plotly::ggplotly(p)
+```
+
+preserveba68b550412e3f51
 
 
 ## Papers per continent
@@ -422,6 +490,45 @@ plot_data %>%
 ```
 
 ![](20-APC-analysis_files/figure-html/concept-overview-1.png)<!-- -->
+
+
+What is the average apc across topics?
+
+```r
+apc_field <- works %>% 
+  distinct(id, field, concept_frac, APC_in_dollar) %>% 
+  group_by(field) %>%
+  mutate(sum_frac = sum(concept_frac)) %>%
+  group_by(field, sum_frac) %>%
+  summarise(mean_apc = sum(concept_frac * APC_in_dollar) / sum_frac) %>% 
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'field'. You can override using the
+## `.groups` argument.
+```
+
+
+```r
+apc_field %>% 
+  drop_na() %>% 
+  ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
+  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
+  geom_point() + 
+  geom_text(aes(label = scales::comma(round(mean_apc))), nudge_x = 30, 
+            hjust = "left") +
+  labs(y = NULL, x = "Average APC (in $)") +
+  theme(panel.grid.major.y = element_blank(),
+        panel.grid.minor.x = element_blank(),
+        axis.ticks = element_blank(),
+        panel.border = element_blank()) +
+  scale_x_continuous(expand = expansion(mult = c(0, .1)),
+                     labels = scales::comma)
+```
+
+![](20-APC-analysis_files/figure-html/apc-field-overall-1.png)<!-- -->
+
 
 # Association between P_top10 and APC
 
@@ -595,7 +702,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve263d5e282aa9ce0a
+preservea97feb0a1c37496a
 
 
 Using ggrepel
