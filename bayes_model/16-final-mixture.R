@@ -12,7 +12,7 @@ wdi <- WDI::WDI_data$country %>%
 
 base <- df %>%
   left_join(wdi, by = c("country_code" = "iso2c")) %>%
-  select(institution_id, University, country, region, author_position,
+  select(id, institution_id, University, country, region, author_position,
          P_top10, field,
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
@@ -34,10 +34,10 @@ model_formula  <- bf(
 # priors
 priors_narrower <- c(
   prior(normal(5, .5), class = Intercept, dpar = "mu1"),
-  prior(normal(7.5, .5), class = Intercept, dpar = "mu2"),
-  prior(normal(0, .5), class = Intercept, dpar = "theta1"),
-  prior(normal(0, 2), class = Intercept, dpar = "hu1"),
-  prior(normal(0, 2), class = Intercept, dpar = "hu2"),
+  prior(normal(7.5, .2), class = Intercept, dpar = "mu2"),
+  prior(normal(.5, .2), class = Intercept, dpar = "theta1"),
+  prior(normal(-.5, 1), class = Intercept, dpar = "hu1"),
+  prior(normal(.5, 1), class = Intercept, dpar = "hu2"),
   prior(normal(0, 1), class = b, dpar = "mu1"),
   prior(normal(0, 1), class = b, dpar = "mu2"),
   prior(normal(0, 1), class = b, dpar = "hu1"),
@@ -46,9 +46,10 @@ priors_narrower <- c(
   prior(normal(0, 1), class = sd, dpar = "mu2"),
   prior(normal(0, 1), class = sd, dpar = "hu1"),
   prior(normal(0, 1), class = sd, dpar = "hu2"),
+  prior(normal(0, 1), class = sd, dpar = "theta1"),
   prior(normal(0, 1), class = sigma1),
   prior(normal(0, 1), class = sigma2),
-  prior(lkj(2), class = cor)
+  prior(lkj(4), class = cor)
 )
 
 mix_identified <- brm(model_formula,
@@ -56,7 +57,8 @@ mix_identified <- brm(model_formula,
                       prior = priors_narrower,
                       data = base,
                       seed = 1234,
-                      control = list(adapt_delta = .85),
+                      control = list(adapt_delta = .8),
                       init = 0,
                       file = "bayes_model/final_models/mix_final")
-# started fr, 18:55, expected end so 9:00
+
+

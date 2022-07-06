@@ -137,7 +137,8 @@ all_three_descriptives <- universities_per_country %>%
 
 all_three_descriptives %>% 
   arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
-  mutate(mean_apc = round(mean_apc, digits = 1)) %>% 
+  mutate(mean_apc = round(mean_apc, digits = 1),
+         sum_fractional_works = scales::comma(sum_fractional_works)) %>% 
   select(Country = country, `n universities` = n_universities,
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
