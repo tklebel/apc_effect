@@ -53,7 +53,9 @@ wdi <- WDI_data$country %>% as_tibble() %>%
   select(iso2c, region, income)
 
 theme_clean <- theme_bw() +
-  theme(panel.border = element_blank())
+  theme(panel.border = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(size = rel(1)))
 
 theme_set(theme_clean)
 ```
