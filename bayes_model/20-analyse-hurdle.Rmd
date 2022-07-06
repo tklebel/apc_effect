@@ -329,6 +329,22 @@ Need to put into context of overall averages: give average per field (from model
 or full set)
 
 
+
+### Intercept at median
+```{r field-intercept, fig.width=7, fig.height=7}
+contrast_50 %>% 
+  group_by(field, drawid) %>% 
+  summarise(intercept = mean(base)) %>% 
+  ggplot(aes(intercept, fct_reorder(field, intercept))) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  scale_x_continuous(labels = scales::dollar) +
+  theme_clean() +
+  labs(y = NULL, x = expression(paste("Estimated APC at median of ",
+                                      P["top 10%"])))
+```
+
+
+
 ## Countries
 ```{r}
 contrast_20_country <- summarise_by(contrast_20, country)
@@ -497,9 +513,21 @@ pdata %>%
 ```
 
 
+```{r country-intercept, fig.width=7, fig.height=15}
+contrast_50 %>% 
+  group_by(country, drawid) %>% 
+  summarise(intercept = mean(base)) %>% 
+  ggplot(aes(intercept, fct_reorder(country, intercept))) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  scale_x_continuous(labels = scales::dollar) +
+  theme_clean() +
+  labs(y = NULL, x = expression(paste("Estimated APC at median of ",
+                                      P["top 10%"])))
+```
+Not sure whether this is helpful. What we show is quite abstract (APC at 
+hypothetical level of P_top10, averaged across all fields (weighting equally). 
 
-
-
+The same would apply to the field intercepts above.
 # Marginal effects for selected countries
 US, China, Brazil, Austria, France, India, South africa
 show the lines here
