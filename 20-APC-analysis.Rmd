@@ -167,7 +167,7 @@ p
 plotly::ggplotly(p)
 ```
 
-```{r apc-vs-gdp, fig.width=9, fig.height=6}
+```{r apc-vs-gdp, fig.width=8, fig.height=5}
 pdata <- all_three_descriptives %>% 
   left_join(gdp, by = c("country_code" = "iso2c")) %>% 
   left_join(wdi, by = c("country_code" = "iso2c"))
@@ -191,7 +191,7 @@ p <- pdata %>%
                          labels = scales::comma) +
   scale_colour_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top", legend.box = "vertical") +
-  labs(y = NULL, colour = NULL, x = "GDP per capita", 
+  labs(y = "Average APC", colour = NULL, x = "GDP per capita", 
        alpha = "Number of fractional publications")
 p
 ```
