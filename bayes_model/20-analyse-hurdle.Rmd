@@ -86,10 +86,11 @@ summary(mix_identified)
 
 # Posterior predictive check
 
-```{r pp_check}
+```{r pp_check, eval=FALSE}
 pp_check(hm, ndraws = 10) +
   coord_cartesian(xlim = c(0, 8000))
 ```
+![](20-analyse-hurdle_files/figure-html/pp_check-1.png)
 
 ```{r}
 pred_vis <- function(df, model, country_selection,
