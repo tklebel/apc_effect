@@ -146,7 +146,7 @@ all_three_descriptives %>%
 ```
 
 
-```{r}
+```{r apc-vs-papers}
 gdp <- WDI::WDI(start = 2019, end = 2019)
 
 # plot n papers against average apc
@@ -165,7 +165,7 @@ p
 plotly::ggplotly(p)
 ```
 
-```{r}
+```{r apc-vs-gdp}
 p <- all_three_descriptives %>% 
   left_join(gdp, by = c("country_code" = "iso2c")) %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>% 
