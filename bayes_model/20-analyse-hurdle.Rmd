@@ -528,6 +528,3 @@ Not sure whether this is helpful. What we show is quite abstract (APC at
 hypothetical level of P_top10, averaged across all fields (weighting equally). 
 
 The same would apply to the field intercepts above.
-# Marginal effects for selected countries
-US, China, Brazil, Austria, France, India, South africa
-show the lines here
