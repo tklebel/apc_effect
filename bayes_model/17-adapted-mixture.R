@@ -33,7 +33,7 @@ model_formula  <- bf(
 priors_narrower <- c(
   prior(normal(5, .5), class = Intercept, dpar = "mu1"),
   prior(normal(7.5, .2), class = Intercept, dpar = "mu2"),
-  prior(normal(.5, .2), class = Intercept, dpar = "theta1"),
+  prior(normal(0, 1), class = Intercept, dpar = "theta1"),
   prior(normal(-.5, 1), class = Intercept, dpar = "hu1"),
   prior(normal(.5, 1), class = Intercept, dpar = "hu2"),
   prior(normal(0, 1), class = b, dpar = "mu1"),
@@ -53,7 +53,8 @@ priors_narrower <- c(
 fitting_data <- make_standata(model_formula,
                               data = base,
                               family = mix,
-                              prior = priors_narrower)
+                              prior = priors_narrower,
+                              internal = TRUE)
 
 message("Compiling model code.")
 mod <- cmdstan_model(stan_file = "bayes_model/17-adapted-mixture.stan")
@@ -72,5 +73,19 @@ fit <- mod$sample(
 
 message("Saving model to file.")
 fit$save_object(file = "bayes_model/final_models/17-vienna-1.rds")
+fit$save_output_files(dir = "bayes_model/output_files/")
 message("File saved.")
 
+fit <- readRDS("bayes_model/final_models/17-vienna-1.rds")
+fit$save_output_files("bayes_model/output_files")
+stanfit <- rstan::read_stan_csv(fit$output_files())
+
+# several diagnostics: theta is causing issues, so maybe change the prior
+# (to be less restrictive)
+# also, these parameters have high rhats:
+# r_7_hu2_1[55]
+# r_9_theta1_1[15]
+
+# so definitely a country (number 55), and potentially another one or a field
+attributes(fitting_data)$levels$country[c(15, 55)]
+attributes(fitting_data)$levels$field[c(15, 19)]
