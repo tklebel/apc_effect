@@ -289,7 +289,7 @@ transformed parameters {
   lprior += normal_lpdf(sigma2 | 0, 1) - 1 * normal_lccdf(0 | 0, 1);
   lprior += normal_lpdf(b_hu2 | 0, 1);
   lprior += normal_lpdf(Intercept_hu2 | 0.5, 1);
-  lprior += normal_lpdf(Intercept_theta1 | 0.5, 0.2);
+  lprior += normal_lpdf(Intercept_theta1 | 0, 1);
   lprior += normal_lpdf(sd_1 | 0, 1) - 2 * normal_lccdf(0 | 0, 1);
   lprior += lkj_corr_cholesky_lpdf(L_1 | 4);
   lprior += normal_lpdf(sd_2 | 0, 1) - 2 * normal_lccdf(0 | 0, 1);
