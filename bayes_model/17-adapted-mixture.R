@@ -50,8 +50,14 @@ priors_narrower <- c(
   prior(lkj(4), class = cor)
 )
 
+set.seed(2342)
+subsample <- base %>%
+  distinct(id) %>%
+  slice_sample(n = 6000) %>%
+  left_join(base)
+
 fitting_data <- make_standata(model_formula,
-                              data = base,
+                              data = subsample,
                               family = mix,
                               prior = priors_narrower,
                               internal = TRUE)
