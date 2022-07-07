@@ -83,16 +83,16 @@ fit$save_object(file = "bayes_model/final_models/17-vienna-1.rds")
 fit$save_output_files(dir = "bayes_model/output_files/")
 message("File saved.")
 
-fit <- readRDS("bayes_model/final_models/17-vienna-1.rds")
-fit$save_output_files("bayes_model/output_files")
-stanfit <- rstan::read_stan_csv(fit$output_files())
-
-# several diagnostics: theta is causing issues, so maybe change the prior
-# (to be less restrictive)
-# also, these parameters have high rhats:
-# r_7_hu2_1[55]
-# r_9_theta1_1[15]
-
-# so definitely a country (number 55), and potentially another one or a field
-attributes(fitting_data)$levels$country[c(15, 55)]
-attributes(fitting_data)$levels$field[c(15, 19)]
+# fit <- readRDS("bayes_model/final_models/17-vienna-1.rds")
+# fit$save_output_files("bayes_model/output_files")
+# stanfit <- rstan::read_stan_csv(fit$output_files())
+#
+# # several diagnostics: theta is causing issues, so maybe change the prior
+# # (to be less restrictive)
+# # also, these parameters have high rhats:
+# # r_7_hu2_1[55]
+# # r_9_theta1_1[15]
+#
+# # so definitely a country (number 55), and potentially another one or a field
+# attributes(fitting_data)$levels$country[c(15, 55)]
+# attributes(fitting_data)$levels$field[c(15, 19)]
