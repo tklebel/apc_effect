@@ -79,7 +79,7 @@ fit <- mod$sample(
 )
 
 message("Saving model to file.")
-fit$save_object(file = "bayes_model/final_models/17-vienna-1.rds")
+fit$save_object(file = "bayes_model/final_models/17-vienna-2.rds")
 fit$save_output_files(dir = "bayes_model/output_files/")
 message("File saved.")
 
