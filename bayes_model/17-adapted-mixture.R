@@ -68,7 +68,8 @@ fit <- mod$sample(
   iter_warmup = 1000,
   iter_sampling = 1000,
   refresh = 20,
-  init = 0
+  init = 0,
+  adapt_delta = .9
 )
 
 message("Saving model to file.")
