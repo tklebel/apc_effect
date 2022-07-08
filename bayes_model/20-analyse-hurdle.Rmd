@@ -54,6 +54,29 @@ base <- df %>%
 ```
 
 ```{r}
+# function for fixing legend
+make_nice_effect_quantiles <- function(df, invar, outvar) {
+  mutate(
+    df,
+    {{ outvar }} := recode({{ invar }}, 
+                           effect_20 = "Effect at 20% quantile",
+                            effect_50 = "Effect at 50% quantile",
+                            effect_80 = "Effect at 80% quantile")
+    )
+}
+
+effect_scale <- list(
+  scale_color_manual(values = c(
+    "Effect at 20% quantile" = colorspace::lighten("#007FA8", .7),
+    "Effect at 50% quantile" = colorspace::lighten("#007FA8", .4),
+    "Effect at 80% quantile" = "#007FA8"
+  ))
+)
+
+```
+
+
+```{r}
 hm <- brm(file = "final_models/mix_final_vienna.rds", file_refit = "never")
 ```
 
@@ -284,6 +307,7 @@ all_joined <- bind_rows(
 p <- all_joined %>% 
   pivot_longer(contains("effect"), values_to = "effect") %>% 
   drop_na() %>% 
+  make_nice_effect_quantiles(name, name) %>% 
   ggplot(aes(effect, fct_reorder(field, effect), colour = name)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
@@ -291,20 +315,19 @@ p <- all_joined %>%
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
-    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
+    x = expression(paste("% Change of APC for 1% change of ", P["top 10%"], 
+                         " at given quantiles")),
     caption = "Averaged predictions over all countries.") +
   theme_clean() +
   coord_cartesian(xlim = c(-0.005, 0.005)) +
-  guides(colour = guide_legend(reverse = TRUE))
+  guides(colour = guide_legend(reverse = FALSE))
 ```
 
 ```{r fields-combined-1, fig.width=7, fig.height=10}
-# not sure which version is better
-p + scale_color_manual(values = c(
-    effect_20 = colorspace::lighten("#007FA8", .7),
-    effect_50 = colorspace::lighten("#007FA8", .4),
-    effect_80 = "#007FA8"
-  ))
+p + 
+  effect_scale +
+  theme(legend.position = "top") + 
+  labs(colour = NULL)
 ```
 
 
@@ -399,9 +422,7 @@ all_countries_w_region <- all_countries %>%
 
 ```{r}
 p_country_region <- all_countries_w_region %>% 
-  mutate(color_label = recode(name, effect_20 = "Effect at 20% quantile",
-                              effect_50 = "Effect at 50% quantile",
-                              effect_80 = "Effect at 80% quantile")) %>% 
+  make_nice_effect_quantiles(name, color_label) %>% 
   ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
@@ -420,12 +441,8 @@ p_country_region <- all_countries_w_region %>%
 ```
 
 ```{r countries-region, fig.width=7, fig.height=17}
-p_country_region + scale_color_manual(values = c(
-    "Effect at 20% quantile" = colorspace::lighten("#007FA8", .7),
-    "Effect at 50% quantile" = colorspace::lighten("#007FA8", .4),
-    "Effect at 80% quantile" = "#007FA8"
-  ))
-
+p_country_region + 
+  effect_scale
 ```
 
 
