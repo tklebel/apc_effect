@@ -52,16 +52,10 @@ priors_narrower <- c(
   prior(lkj(4), class = cor)
 )
 
-set.seed(6547)
-subsample <- base %>%
-  distinct(id) %>%
-  slice_sample(n = 7000) %>%
-  left_join(base)
-
 mix_identified <- brm(model_formula,
                       family = mix,
                       prior = priors_narrower,
-                      data = subsample,
+                      data = base,
                       seed = 1234,
                       control = list(adapt_delta = .9),
                       init = 0,
