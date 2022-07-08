@@ -222,7 +222,7 @@ summarise_by <- function(contrast_df, var = field) {
 plot_effect <- function(contrast_df, location = "the median") {
   contrast_df %>% 
     ggplot(aes(effect, fct_reorder(field, effect))) +
-    stat_halfeye(.width = c(.5, .9)) +
+    stat_halfeye(.width = c(.5, .9), point_interval = "median_hdi") +
     scale_x_continuous(labels = percent) +
     labs(
       y = NULL, 
@@ -336,7 +336,8 @@ contrast_50 %>%
   group_by(field, drawid) %>% 
   summarise(intercept = mean(base)) %>% 
   ggplot(aes(intercept, fct_reorder(field, intercept))) +
-  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8"),
+               point_interval = "median_hdi") +
   scale_x_continuous(labels = scales::dollar) +
   theme_clean() +
   labs(y = NULL, x = expression(paste("Estimated APC at median of ",
@@ -367,7 +368,7 @@ p_country <- all_countries %>%
   ggplot(aes(effect, fct_reorder(country, effect), colour = name)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
-                     .width = c(.5, .9)) +
+                     .width = c(.5, .9), point_interval = "median_hdi") +
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
@@ -379,7 +380,6 @@ p_country <- all_countries %>%
 ```
 
 ```{r countries-all, fig.width=7, fig.height=15}
-# not sure which version is better
 p_country + scale_color_manual(values = c(
     effect_20 = colorspace::lighten("#007FA8", .7),
     effect_50 = colorspace::lighten("#007FA8", .4),
@@ -405,7 +405,7 @@ p_country_region <- all_countries_w_region %>%
   ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
-                     .width = c(.5, .9)) +
+                     .width = c(.5, .9), point_interval = "median_hdi") +
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
@@ -441,14 +441,11 @@ country_effect_with_gdp
 ```{r}
 p <- country_effect_with_gdp %>% 
   filter(name == "effect_50") %>% 
-  group_by(country_code, country.x) %>% 
-  summarise(median_effect = median(effect),
-            ymin = quantile(effect, .25),
-            ymax = quantile(effect, .75),
-            gdp = unique(NY.GDP.PCAP.KD),
-            region = unique(region)) %>% 
-  ggplot(aes(gdp, median_effect, colour = region, label = country.x)) +
-  geom_pointrange(aes(ymin = ymin, ymax = ymax)) +
+  rename(gdp = NY.GDP.PCAP.KD) %>% 
+  group_by(country_code, country.x, gdp, region) %>% 
+  point_interval(effect, .width = .5, .point = median, .interval = hdi) %>% 
+  ggplot(aes(gdp, effect, colour = region, label = country.x)) +
+  geom_pointrange(aes(ymin = .lower, ymax = .upper)) +
   scale_y_continuous(labels = scales::percent) +
   scale_x_continuous(labels = scales::comma) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
@@ -479,12 +476,9 @@ unis_p_country <- df %>%
 ```{r countries-gdp-fancy, fig.width=8, fig.height=6}
 pdata <- country_effect_with_gdp %>% 
   filter(name == "effect_50") %>% 
-  group_by(country_code, country.x) %>% 
-  summarise(median_effect = median(effect),
-            ymin = quantile(effect, .25),
-            ymax = quantile(effect, .75),
-            gdp = unique(NY.GDP.PCAP.KD),
-            region = unique(region)) %>% 
+  rename(gdp = NY.GDP.PCAP.KD) %>% 
+  group_by(country_code, country.x, gdp, region) %>% 
+  point_interval(effect, .width = .5, .point = median, .interval = hdi) %>% 
   left_join(unis_p_country, by = c("country.x" = "country"))
 
 labels <- pdata %>% 
@@ -494,8 +488,8 @@ labels <- pdata %>%
     TRUE ~ ""))
 
 pdata %>% 
-  ggplot(aes(gdp, median_effect, colour = region, label = "")) +
-  geom_linerange(aes(ymin = ymin, ymax = ymax, alpha = n_universities)) +
+  ggplot(aes(gdp, effect, colour = region, label = "")) +
+  geom_linerange(aes(ymin = .lower, ymax = .upper, alpha = n_universities)) +
   geom_point(aes(alpha = n_universities), size = 2) +
   ggrepel::geom_text_repel(data = labels, aes(label = label),
                             show.legend = FALSE, max.overlaps = Inf,
@@ -518,7 +512,8 @@ contrast_50 %>%
   group_by(country, drawid) %>% 
   summarise(intercept = mean(base)) %>% 
   ggplot(aes(intercept, fct_reorder(country, intercept))) +
-  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8"),
+               point_interval = "median_hdi") +
   scale_x_continuous(labels = scales::dollar) +
   theme_clean() +
   labs(y = NULL, x = expression(paste("Estimated APC at median of ",
