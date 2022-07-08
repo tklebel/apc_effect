@@ -315,9 +315,9 @@ p <- all_joined %>%
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
-    x = expression(paste("% Change of APC for 1% change of ", P["top 10%"], 
+    x = expression(paste("% change of APC for 1% change of ", P["top 10%"], 
                          " at given quantiles")),
-    caption = "Averaged predictions over all countries.") +
+    caption = "Predictions averaged over all countries.") +
   theme_clean() +
   coord_cartesian(xlim = c(-0.005, 0.005)) +
   guides(colour = guide_legend(reverse = FALSE))
@@ -421,29 +421,44 @@ all_countries_w_region <- all_countries %>%
 ```
 
 ```{r}
-p_country_region <- all_countries_w_region %>% 
-  make_nice_effect_quantiles(name, color_label) %>% 
-  ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
-  geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
-  stat_pointinterval(position = position_dodge(width = .5),
-                     .width = c(.5, .9), point_interval = "median_hdi") +
-  scale_x_continuous(labels = percent) +
-  labs(
-    y = NULL, 
-    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
-    caption = "Averaged predictions over all fields.",
-    colour = NULL) +
-  theme_clean() +
-  facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
-  coord_cartesian(xlim = c(-0.001, 0.005)) +
-  guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
-  theme(legend.position = "top")
+plot_countries_by_region <- function(df) {
+  df %>% 
+    make_nice_effect_quantiles(name, color_label) %>% 
+    ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
+    geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
+    stat_pointinterval(position = position_dodge(width = .5),
+                       .width = c(.5, .9), point_interval = "median_hdi") +
+    scale_x_continuous(labels = percent) +
+    labs(
+      y = NULL, 
+      x = expression(paste("% Change of APC for 1% change of ", P["top 10%"], 
+                         " at given quantiles")),
+      caption = "Predictions averaged over all fields.",
+      colour = NULL) +
+    theme_clean() +
+    facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
+    coord_cartesian(xlim = c(-0.001, 0.005)) +
+    guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
+    theme(legend.position = "top") +
+    effect_scale
+}
+
+p_europe_subsahara <- all_countries_w_region %>% 
+  filter(str_detect(region, "Europe|Sahara")) %>% 
+  plot_countries_by_region()
+
+p_rest <- all_countries_w_region %>% 
+  filter(!str_detect(region, "Europe|Sahara")) %>% 
+  plot_countries_by_region()
 ```
 
-```{r countries-region, fig.width=7, fig.height=17}
-p_country_region + 
-  effect_scale
+```{r countries-region-europe-subsahara, fig.width=7, fig.height=10}
+p_europe_subsahara
 ```
+```{r countries-region-non-europe-subsahara, fig.width=7, fig.height=10}
+p_rest
+```
+
 
 
 Relate to gdp
