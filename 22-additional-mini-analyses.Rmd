@@ -24,7 +24,7 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 10 # this can go up to 27, depending on RAM
+config$spark.executor.instances <- 20 # this can go up to 27, depending on RAM
 config$spark.executor.memory <- "10G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "mini-analyses")
@@ -99,6 +99,28 @@ pdata %>%
   coord_cartesian(clip = "off") +
   labs(y = NULL, x = "APC in dollar") 
 ```
+
+# What are the levels of P top 10% in India?
+```{r}
+institutions <- works %>% 
+  filter(publication_year == 2019) %>% 
+  distinct(country, institution_id, P_top10) %>% 
+  collect()
+  
+institutions %>% 
+  summarise(q20 = quantile(P_top10, .2),
+            q80 = quantile(P_top10, .8))
+```
+
+
+```{r}
+institutions %>% 
+  filter(country == "India") %>% 
+  summarise(min = min(P_top10),
+            max = max(P_top10))
+```
+
+
 
 ```{r}
 spark_disconnect(sc)
