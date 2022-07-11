@@ -54,6 +54,29 @@ base <- df %>%
 ```
 
 ```{r}
+# function for fixing legend
+make_nice_effect_quantiles <- function(df, invar, outvar) {
+  mutate(
+    df,
+    {{ outvar }} := recode({{ invar }}, 
+                           effect_20 = "Effect at 20% quantile",
+                            effect_50 = "Effect at 50% quantile",
+                            effect_80 = "Effect at 80% quantile")
+    )
+}
+
+effect_scale <- list(
+  scale_color_manual(values = c(
+    "Effect at 20% quantile" = colorspace::lighten("#007FA8", .7),
+    "Effect at 50% quantile" = colorspace::lighten("#007FA8", .4),
+    "Effect at 80% quantile" = "#007FA8"
+  ))
+)
+
+```
+
+
+```{r}
 hm <- brm(file = "final_models/mix_final_vienna.rds", file_refit = "never")
 ```
 
@@ -222,7 +245,7 @@ summarise_by <- function(contrast_df, var = field) {
 plot_effect <- function(contrast_df, location = "the median") {
   contrast_df %>% 
     ggplot(aes(effect, fct_reorder(field, effect))) +
-    stat_halfeye(.width = c(.5, .9)) +
+    stat_halfeye(.width = c(.5, .9), point_interval = "median_hdi") +
     scale_x_continuous(labels = percent) +
     labs(
       y = NULL, 
@@ -284,6 +307,7 @@ all_joined <- bind_rows(
 p <- all_joined %>% 
   pivot_longer(contains("effect"), values_to = "effect") %>% 
   drop_na() %>% 
+  make_nice_effect_quantiles(name, name) %>% 
   ggplot(aes(effect, fct_reorder(field, effect), colour = name)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
@@ -291,20 +315,19 @@ p <- all_joined %>%
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
-    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
-    caption = "Averaged predictions over all countries.") +
+    x = expression(paste("% change of APC for 1% change of ", P["top 10%"], 
+                         " at given quantiles")),
+    caption = "Predictions averaged over all countries.") +
   theme_clean() +
   coord_cartesian(xlim = c(-0.005, 0.005)) +
-  guides(colour = guide_legend(reverse = TRUE))
+  guides(colour = guide_legend(reverse = FALSE))
 ```
 
 ```{r fields-combined-1, fig.width=7, fig.height=10}
-# not sure which version is better
-p + scale_color_manual(values = c(
-    effect_20 = colorspace::lighten("#007FA8", .7),
-    effect_50 = colorspace::lighten("#007FA8", .4),
-    effect_80 = "#007FA8"
-  ))
+p + 
+  effect_scale +
+  theme(legend.position = "top") + 
+  labs(colour = NULL)
 ```
 
 
@@ -336,7 +359,8 @@ contrast_50 %>%
   group_by(field, drawid) %>% 
   summarise(intercept = mean(base)) %>% 
   ggplot(aes(intercept, fct_reorder(field, intercept))) +
-  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8"),
+               point_interval = "median_hdi") +
   scale_x_continuous(labels = scales::dollar) +
   theme_clean() +
   labs(y = NULL, x = expression(paste("Estimated APC at median of ",
@@ -367,7 +391,7 @@ p_country <- all_countries %>%
   ggplot(aes(effect, fct_reorder(country, effect), colour = name)) +
   geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
   stat_pointinterval(position = position_dodge(width = .5),
-                     .width = c(.5, .9)) +
+                     .width = c(.5, .9), point_interval = "median_hdi") +
   scale_x_continuous(labels = percent) +
   labs(
     y = NULL, 
@@ -379,7 +403,6 @@ p_country <- all_countries %>%
 ```
 
 ```{r countries-all, fig.width=7, fig.height=15}
-# not sure which version is better
 p_country + scale_color_manual(values = c(
     effect_20 = colorspace::lighten("#007FA8", .7),
     effect_50 = colorspace::lighten("#007FA8", .4),
@@ -398,35 +421,44 @@ all_countries_w_region <- all_countries %>%
 ```
 
 ```{r}
-p_country_region <- all_countries_w_region %>% 
-  mutate(color_label = recode(name, effect_20 = "Effect at 20% quantile",
-                              effect_50 = "Effect at 50% quantile",
-                              effect_80 = "Effect at 80% quantile")) %>% 
-  ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
-  geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
-  stat_pointinterval(position = position_dodge(width = .5),
-                     .width = c(.5, .9)) +
-  scale_x_continuous(labels = percent) +
-  labs(
-    y = NULL, 
-    x = glue::glue("% Change of APC for 1% change of P_top10% at given quantiles"),
-    caption = "Averaged predictions over all fields.",
-    colour = NULL) +
-  theme_clean() +
-  facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
-  coord_cartesian(xlim = c(-0.001, 0.005)) +
-  guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
-  theme(legend.position = "top")
+plot_countries_by_region <- function(df) {
+  df %>% 
+    make_nice_effect_quantiles(name, color_label) %>% 
+    ggplot(aes(effect, fct_reorder(country, effect), colour = color_label)) +
+    geom_vline(xintercept = 0, colour = "grey55", linetype = 2) +
+    stat_pointinterval(position = position_dodge(width = .5),
+                       .width = c(.5, .9), point_interval = "median_hdi") +
+    scale_x_continuous(labels = percent) +
+    labs(
+      y = NULL, 
+      x = expression(paste("% Change of APC for 1% change of ", P["top 10%"], 
+                         " at given quantiles")),
+      caption = "Predictions averaged over all fields.",
+      colour = NULL) +
+    theme_clean() +
+    facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
+    coord_cartesian(xlim = c(-0.001, 0.005)) +
+    guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
+    theme(legend.position = "top") +
+    effect_scale
+}
+
+p_europe_subsahara <- all_countries_w_region %>% 
+  filter(str_detect(region, "Europe|Sahara")) %>% 
+  plot_countries_by_region()
+
+p_rest <- all_countries_w_region %>% 
+  filter(!str_detect(region, "Europe|Sahara")) %>% 
+  plot_countries_by_region()
 ```
 
-```{r countries-region, fig.width=7, fig.height=17}
-p_country_region + scale_color_manual(values = c(
-    "Effect at 20% quantile" = colorspace::lighten("#007FA8", .7),
-    "Effect at 50% quantile" = colorspace::lighten("#007FA8", .4),
-    "Effect at 80% quantile" = "#007FA8"
-  ))
-
+```{r countries-region-europe-subsahara, fig.width=7, fig.height=10}
+p_europe_subsahara
 ```
+```{r countries-region-non-europe-subsahara, fig.width=7, fig.height=10}
+p_rest
+```
+
 
 
 Relate to gdp
@@ -441,14 +473,11 @@ country_effect_with_gdp
 ```{r}
 p <- country_effect_with_gdp %>% 
   filter(name == "effect_50") %>% 
-  group_by(country_code, country.x) %>% 
-  summarise(median_effect = median(effect),
-            ymin = quantile(effect, .25),
-            ymax = quantile(effect, .75),
-            gdp = unique(NY.GDP.PCAP.KD),
-            region = unique(region)) %>% 
-  ggplot(aes(gdp, median_effect, colour = region, label = country.x)) +
-  geom_pointrange(aes(ymin = ymin, ymax = ymax)) +
+  rename(gdp = NY.GDP.PCAP.KD) %>% 
+  group_by(country_code, country.x, gdp, region) %>% 
+  point_interval(effect, .width = .5, .point = median, .interval = hdi) %>% 
+  ggplot(aes(gdp, effect, colour = region, label = country.x)) +
+  geom_pointrange(aes(ymin = .lower, ymax = .upper)) +
   scale_y_continuous(labels = scales::percent) +
   scale_x_continuous(labels = scales::comma) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
@@ -479,12 +508,9 @@ unis_p_country <- df %>%
 ```{r countries-gdp-fancy, fig.width=8, fig.height=6}
 pdata <- country_effect_with_gdp %>% 
   filter(name == "effect_50") %>% 
-  group_by(country_code, country.x) %>% 
-  summarise(median_effect = median(effect),
-            ymin = quantile(effect, .25),
-            ymax = quantile(effect, .75),
-            gdp = unique(NY.GDP.PCAP.KD),
-            region = unique(region)) %>% 
+  rename(gdp = NY.GDP.PCAP.KD) %>% 
+  group_by(country_code, country.x, gdp, region) %>% 
+  point_interval(effect, .width = .5, .point = median, .interval = hdi) %>% 
   left_join(unis_p_country, by = c("country.x" = "country"))
 
 labels <- pdata %>% 
@@ -494,8 +520,8 @@ labels <- pdata %>%
     TRUE ~ ""))
 
 pdata %>% 
-  ggplot(aes(gdp, median_effect, colour = region, label = "")) +
-  geom_linerange(aes(ymin = ymin, ymax = ymax, alpha = n_universities)) +
+  ggplot(aes(gdp, effect, colour = region, label = "")) +
+  geom_linerange(aes(ymin = .lower, ymax = .upper, alpha = n_universities)) +
   geom_point(aes(alpha = n_universities), size = 2) +
   ggrepel::geom_text_repel(data = labels, aes(label = label),
                             show.legend = FALSE, max.overlaps = Inf,
@@ -518,7 +544,8 @@ contrast_50 %>%
   group_by(country, drawid) %>% 
   summarise(intercept = mean(base)) %>% 
   ggplot(aes(intercept, fct_reorder(country, intercept))) +
-  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8")) +
+  stat_halfeye(.width = c(.5, .9), fill = colorspace::lighten("#007FA8"),
+               point_interval = "median_hdi") +
   scale_x_continuous(labels = scales::dollar) +
   theme_clean() +
   labs(y = NULL, x = expression(paste("Estimated APC at median of ",

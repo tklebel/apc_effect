@@ -35,7 +35,7 @@ model_formula  <- bf(
 priors_narrower <- c(
   prior(normal(5, .5), class = Intercept, dpar = "mu1"),
   prior(normal(7.5, .2), class = Intercept, dpar = "mu2"),
-  prior(normal(.5, .2), class = Intercept, dpar = "theta1"),
+  prior(normal(0, 1), class = Intercept, dpar = "theta1"),
   prior(normal(-.5, 1), class = Intercept, dpar = "hu1"),
   prior(normal(.5, 1), class = Intercept, dpar = "hu2"),
   prior(normal(0, 1), class = b, dpar = "mu1"),
@@ -57,7 +57,7 @@ mix_identified <- brm(model_formula,
                       prior = priors_narrower,
                       data = base,
                       seed = 1234,
-                      control = list(adapt_delta = .8),
+                      control = list(adapt_delta = .9),
                       init = 0,
                       file = "bayes_model/final_models/mix_final")
 
