@@ -1,0 +1,105 @@
+---
+title: "Additional mini analyses"
+author: "Thomas Klebel"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: 
+  html_document:
+    keep_md: true
+---
+
+```{r setup, include=FALSE, message=FALSE, warning=FALSE}
+knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 300)
+
+# setup -----
+Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
+library(sparklyr)
+library(tidyverse)
+library(arrow)
+library(dbplot)
+library(ggridges)
+library(colorspace)
+source(here::here("R/helpers.R"))
+
+message("Connecting to spark...")
+
+config <- spark_config()
+config$spark.executor.cores <- 5 # this should always stay the same
+config$spark.executor.instances <- 10 # this can go up to 27, depending on RAM
+config$spark.executor.memory <- "10G"
+sc <- spark_connect(master = "yarn-client", config = config,
+                    app_name = "mini-analyses")
+message("Connection to Spark successful!")
+
+spark_read_parquet(
+  sc, "works", "/user/tklebel/apc_paper/papers_with_concepts.parquet",
+  memory = TRUE
+)
+works <- tbl(sc, "works")
+
+works <- works %>% 
+  mutate(
+    # on miscoding when matching institutions
+    country_code = case_when(country_code == "UK" ~ "GB",
+                                  TRUE ~ country_code),
+    # rerunning the data pipeline introduced a hiccup regarding decimal precision
+    # this is unlikely of substantive concern, since all values are present,
+    # and no missing values are introduced through the below command
+    work_frac = as.numeric(work_frac))
+
+
+doaj <- read_csv("data/processed/doaj_cleaned.csv")
+
+multilevel_sample <- read_csv("data/processed/multilevel_sample.csv")
+
+message("Successfully read all datasets!")
+
+
+theme_clean <- theme_bw() +
+  theme(panel.border = element_blank(),
+        axis.ticks = element_blank(),
+        axis.text = element_text(size = rel(1)))
+
+theme_set(theme_clean)
+```
+
+
+# How many of the journals in DOAJ charge APCs?
+```{r}
+doaj %>% 
+  count(APC) %>% 
+  mutate(prop = n/sum(n))
+```
+
+# Multimodal distribution of APC across fields
+```{r}
+apcs <- works %>% 
+  select(id, APC_in_dollar)
+
+field_apcs <- works %>% 
+  distinct(id, field) %>% 
+  left_join(apcs)
+```
+
+
+```{r}
+pdata <- multilevel_sample %>% 
+  # remove duplicates from multiple institutions for single papers 
+  distinct(id, field, APC_in_dollar) %>% 
+  drop_na() # remove null APCs
+```
+
+```{r apc-by-field, fig.height=8, fig.width=8}
+pdata %>% 
+  ggplot(aes(APC_in_dollar, fct_reorder(field, APC_in_dollar), fill = stat(x))) +
+  geom_density_ridges_gradient(rel_min_height = .01, scale = 1.3, alpha = .7,
+                               show.legend = FALSE) + 
+  scale_fill_continuous_sequential(palette = "Mako") +
+  theme_clean +
+  coord_cartesian(clip = "off") +
+  labs(y = NULL, x = "APC in dollar") 
+```
+
+```{r}
+spark_disconnect(sc)
+```
+
