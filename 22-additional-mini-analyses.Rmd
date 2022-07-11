@@ -94,6 +94,7 @@ pdata %>%
   geom_density_ridges_gradient(rel_min_height = .01, scale = 1.3, alpha = .7,
                                show.legend = FALSE) + 
   scale_fill_continuous_sequential(palette = "Mako") +
+  scale_x_continuous(labels = scales::comma) +
   theme_clean +
   coord_cartesian(clip = "off") +
   labs(y = NULL, x = "APC in dollar") 
