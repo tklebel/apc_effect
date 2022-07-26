@@ -4,7 +4,7 @@ library(cmdstanr)
 
 options(mc.cores = 4)
 
-df <- read_csv("data/processed/multilevel_sample.csv")
+df <- read_csv("data/processed/multilevel_sample_large.csv")
 wdi <- WDI::WDI_data$country %>%
   as_tibble() %>%
   select(iso2c, region, income)
@@ -59,6 +59,12 @@ fitting_data <- make_standata(model_formula,
                               prior = priors_narrower,
                               internal = TRUE)
 
+empty_mod <- brm(model_formula,
+                 family = mix,
+                 prior = priors_narrower,
+                 data = subsample,
+                 empty = TRUE)
+
 message("Compiling model code.")
 mod <- cmdstan_model(stan_file = "bayes_model/17-adapted-mixture.stan")
 
@@ -78,18 +84,12 @@ fit <- mod$sample(
 message("Saving model to file.")
 fit$save_object(file = "bayes_model/final_models/17-wo-south-africa.rds")
 fit$save_output_files(dir = "bayes_model/output_files/")
+
+# saving to brm model directly
+stanfit <- rstan::read_stan_csv(fit$output_files())
+empty_mod$fit <- stanfit
+wo_sa_brm <- rename_pars(empty_mod)
+write_rds(wo_sa_brm,
+          "bayes_model/final_models/17-wo-south-africa_brm-large-sample.rds")
 message("File saved.")
 
-# fit <- readRDS("bayes_model/final_models/17-vienna-1.rds")
-# fit$save_output_files("bayes_model/output_files")
-# stanfit <- rstan::read_stan_csv(fit$output_files())
-#
-# # several diagnostics: theta is causing issues, so maybe change the prior
-# # (to be less restrictive)
-# # also, these parameters have high rhats:
-# # r_7_hu2_1[55]
-# # r_9_theta1_1[15]
-#
-# # so definitely a country (number 55), and potentially another one or a field
-# attributes(fitting_data)$levels$country[c(15, 55)]
-# attributes(fitting_data)$levels$field[c(15, 19)]
