@@ -50,8 +50,11 @@ priors_narrower <- c(
   prior(lkj(4), class = cor)
 )
 
+subsample <- base %>%
+  filter(country != "South Africa")
+
 fitting_data <- make_standata(model_formula,
-                              data = base,
+                              data = subsample,
                               family = mix,
                               prior = priors_narrower,
                               internal = TRUE)
@@ -73,7 +76,7 @@ fit <- mod$sample(
 )
 
 message("Saving model to file.")
-fit$save_object(file = "bayes_model/final_models/17-kcs-1.rds")
+fit$save_object(file = "bayes_model/final_models/17-wo-south-africa.rds")
 fit$save_output_files(dir = "bayes_model/output_files/")
 message("File saved.")
 
