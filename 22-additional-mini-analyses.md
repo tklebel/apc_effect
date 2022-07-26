@@ -69,6 +69,44 @@ pdata %>%
 
 ![](22-additional-mini-analyses_files/figure-html/apc-by-field-1.png)<!-- -->
 
+# What are the levels of P top 10% in India?
+
+```r
+institutions <- works %>% 
+  filter(publication_year == 2019) %>% 
+  distinct(country, institution_id, P_top10) %>% 
+  collect()
+  
+institutions %>% 
+  summarise(q20 = quantile(P_top10, .2),
+            q80 = quantile(P_top10, .8))
+```
+
+```
+## # A tibble: 1 × 2
+##     q20   q80
+##   <dbl> <dbl>
+## 1  86.3  541.
+```
+
+
+
+```r
+institutions %>% 
+  filter(country == "India") %>% 
+  summarise(min = min(P_top10),
+            max = max(P_top10))
+```
+
+```
+## # A tibble: 1 × 2
+##     min   max
+##   <dbl> <dbl>
+## 1  43.0  372.
+```
+
+
+
 
 ```r
 spark_disconnect(sc)
