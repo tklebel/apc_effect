@@ -38,64 +38,64 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
+|Turkey               |             31|
 |Poland               |             31|
 |Brazil               |             31|
-|Turkey               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Austria              |             12|
 |Sweden               |             12|
+|Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
 |Greece               |              8|
 |Belgium              |              8|
-|Switzerland          |              8|
 |Israel               |              8|
 |Egypt                |              8|
-|Czech Republic       |              7|
-|Finland              |              7|
+|Switzerland          |              8|
 |New Zealand          |              7|
-|Ireland              |              6|
-|Mexico               |              6|
-|Hungary              |              6|
+|Finland              |              7|
+|Czech Republic       |              7|
 |Norway               |              6|
-|Malaysia             |              6|
-|Thailand             |              6|
 |Portugal             |              6|
+|Mexico               |              6|
+|Malaysia             |              6|
+|Hungary              |              6|
+|Ireland              |              6|
+|Thailand             |              6|
 |Denmark              |              5|
-|Pakistan             |              5|
 |Saudi Arabia         |              5|
-|Argentina            |              3|
-|Tunisia              |              3|
-|Colombia             |              3|
-|Chile                |              3|
+|Pakistan             |              5|
 |Serbia               |              3|
-|Romania              |              3|
+|Colombia             |              3|
 |Singapore            |              3|
+|Argentina            |              3|
+|Chile                |              3|
+|Tunisia              |              3|
+|Romania              |              3|
+|Jordan               |              2|
 |Slovakia             |              2|
 |Nigeria              |              2|
 |United Arab Emirates |              2|
-|Jordan               |              2|
 |Slovenia             |              2|
-|Croatia              |              1|
 |Lithuania            |              1|
+|Morocco              |              1|
+|Oman                 |              1|
 |Cyprus               |              1|
 |Viet Nam             |              1|
+|Uganda               |              1|
+|Lebanon              |              1|
+|Algeria              |              1|
+|Croatia              |              1|
+|Estonia              |              1|
 |Qatar                |              1|
 |Ghana                |              1|
-|Uruguay              |              1|
-|Algeria              |              1|
-|Estonia              |              1|
-|Lebanon              |              1|
-|Morocco              |              1|
-|Luxembourg           |              1|
-|Iceland              |              1|
-|Oman                 |              1|
-|Ethiopia             |              1|
 |Kuwait               |              1|
-|Uganda               |              1|
+|Iceland              |              1|
+|Uruguay              |              1|
+|Ethiopia             |              1|
+|Luxembourg           |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve6b03d104e2745b4c
+preserve6b8b87105e2472a8
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve003b2f5e2d294c58
+preserve6661389dacbcdcf9
 
 
 ## Papers per continent
@@ -510,20 +510,21 @@ apc_field <- works %>%
 
 
 ```r
-apc_field %>% 
+p_apc_field <- apc_field %>% 
   drop_na() %>% 
   ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
   geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
   geom_point() + 
   geom_text(aes(label = scales::comma(round(mean_apc))), nudge_x = 30, 
             hjust = "left") +
-  labs(y = NULL, x = "Average APC (in $)") +
+  labs(y = NULL, x = "Mean APC (in $)") +
   theme(panel.grid.major.y = element_blank(),
         panel.grid.minor.x = element_blank(),
         axis.ticks = element_blank(),
         panel.border = element_blank()) +
   scale_x_continuous(expand = expansion(mult = c(0, .1)),
                      labels = scales::comma)
+p_apc_field
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-field-overall-1.png)<!-- -->
@@ -633,7 +634,8 @@ p2
 
 ```r
 p1 / p2 +
-  plot_layout(heights = c(4.5, 4))
+  plot_layout(heights = c(4.5, 4)) +
+  plot_annotation(tag_levels = "A")
 ```
 
 ```
@@ -685,6 +687,12 @@ mean_apc_concept_16_19_local <- mean_apc_concept_16_19 %>%
 ## 'sum_frac', 'author_position'. You can override using the `.groups` argument.
 ```
 
+```r
+mean_apc_concept_16_19_local <- mean_apc_concept_16_19_local %>% 
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors"))
+```
+
 
 
 
@@ -718,7 +726,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservecda0b0e0244cf005
+preservecd95c30b1d5a2d5e
 
 
 Using ggrepel
@@ -729,7 +737,7 @@ field_selection <- mean_apc_concept_16_19_local %>%
   filter(field %in% c("Medicine", "History", "Sociology", "Biology",
                       "Materials science", "Physics"))
   
-mean_apc_concept_16_19_local %>% 
+final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 
   anti_join(field_selection) %>% 
   ggplot(aes(P_top10, mean_apc, group = field)) +
   geom_smooth(alpha = .3, colour = "grey80", fill = "grey90") +
@@ -740,18 +748,44 @@ mean_apc_concept_16_19_local %>%
   scale_color_discrete_qualitative(palette = "Dark 3") +
   labs(caption = "2016-2019", y = "Mean APC", colour = NULL,
        x = expression(P["top 10%"])) +
-  # theme(legend.position = "top") +
-  guides(colour = guide_legend(override.aes = list(alpha = 0)))
+  theme(legend.position = "top") +
+  guides(colour = guide_legend(override.aes = list(alpha = 0),
+                               nrow = 1))
 ```
 
 ```
 ## Joining, by = c("University", "publication_year", "P_top10", "sum_frac",
 ## "author_position", "field", "mean_apc")
+```
+
+```r
+final_ptop_apc_field
+```
+
+```
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
 ![](20-APC-analysis_files/figure-html/field-selection-1.png)<!-- -->
+
+
+
+```r
+(final_ptop_apc_field + 
+   # https://stackoverflow.com/a/65946462/3149349
+   theme(axis.title.y = element_text(margin = margin(r = -120, unit = "pt")))
+   ) / p_apc_field +
+  plot_layout(heights = c(4, 5)) +
+  plot_annotation(tag_levels = "A")
+```
+
+```
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+```
+
+![](20-APC-analysis_files/figure-html/composite-field-1.png)<!-- -->
 
 
 ## Over time - first-authors
