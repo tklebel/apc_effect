@@ -355,6 +355,8 @@ p1
 
 ```{r apc-first-last-time, fig.height=4, fig.width=8}
 p2 <- mean_apcs_local %>%
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors")) %>% 
   group_by(publication_year, author_position) %>%
   mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
   group_by(ptop10_quantiles, publication_year, author_position) %>%
