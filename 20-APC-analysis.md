@@ -38,63 +38,63 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Turkey               |             31|
 |Poland               |             31|
+|Turkey               |             31|
 |Brazil               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Sweden               |             12|
 |Austria              |             12|
+|Sweden               |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Greece               |              8|
 |Belgium              |              8|
-|Israel               |              8|
-|Egypt                |              8|
 |Switzerland          |              8|
-|New Zealand          |              7|
+|Egypt                |              8|
+|Greece               |              8|
+|Israel               |              8|
 |Finland              |              7|
 |Czech Republic       |              7|
-|Norway               |              6|
-|Portugal             |              6|
-|Mexico               |              6|
-|Malaysia             |              6|
-|Hungary              |              6|
-|Ireland              |              6|
+|New Zealand          |              7|
 |Thailand             |              6|
-|Denmark              |              5|
+|Hungary              |              6|
+|Malaysia             |              6|
+|Norway               |              6|
+|Mexico               |              6|
+|Ireland              |              6|
+|Portugal             |              6|
 |Saudi Arabia         |              5|
+|Denmark              |              5|
 |Pakistan             |              5|
-|Serbia               |              3|
-|Colombia             |              3|
-|Singapore            |              3|
 |Argentina            |              3|
-|Chile                |              3|
+|Colombia             |              3|
 |Tunisia              |              3|
+|Singapore            |              3|
+|Chile                |              3|
+|Serbia               |              3|
 |Romania              |              3|
+|United Arab Emirates |              2|
+|Slovenia             |              2|
 |Jordan               |              2|
 |Slovakia             |              2|
 |Nigeria              |              2|
-|United Arab Emirates |              2|
-|Slovenia             |              2|
+|Qatar                |              1|
 |Lithuania            |              1|
 |Morocco              |              1|
 |Oman                 |              1|
 |Cyprus               |              1|
-|Viet Nam             |              1|
-|Uganda               |              1|
-|Lebanon              |              1|
-|Algeria              |              1|
-|Croatia              |              1|
 |Estonia              |              1|
-|Qatar                |              1|
-|Ghana                |              1|
-|Kuwait               |              1|
+|Croatia              |              1|
 |Iceland              |              1|
-|Uruguay              |              1|
+|Algeria              |              1|
+|Ghana                |              1|
+|Uganda               |              1|
 |Ethiopia             |              1|
+|Kuwait               |              1|
+|Lebanon              |              1|
+|Uruguay              |              1|
+|Viet Nam             |              1|
 |Luxembourg           |              1|
 
 
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve6b8b87105e2472a8
+preservec885fc11a0544f20
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve6661389dacbcdcf9
+preserve41152de7dafa01ba
 
 
 ## Papers per continent
@@ -726,7 +726,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservecd95c30b1d5a2d5e
+preservef8cb37c26cd353e2
 
 
 Using ggrepel
@@ -746,7 +746,7 @@ final_ptop_apc_field <- mean_apc_concept_16_19_local %>%
   scale_x_log10() +
   scale_y_continuous(labels = dollar) + 
   scale_color_discrete_qualitative(palette = "Dark 3") +
-  labs(caption = "2016-2019", y = "Mean APC", colour = NULL,
+  labs(caption = "Time period: 2016-2019", y = "Mean APC", colour = NULL,
        x = expression(P["top 10%"])) +
   theme(legend.position = "top") +
   guides(colour = guide_legend(override.aes = list(alpha = 0),
