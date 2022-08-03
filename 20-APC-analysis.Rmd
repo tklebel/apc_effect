@@ -455,7 +455,7 @@ final_ptop_apc_field <- mean_apc_concept_16_19_local %>%
   scale_x_log10() +
   scale_y_continuous(labels = dollar) + 
   scale_color_discrete_qualitative(palette = "Dark 3") +
-  labs(caption = "2016-2019", y = "Mean APC", colour = NULL,
+  labs(caption = "Time period: 2016-2019", y = "Mean APC", colour = NULL,
        x = expression(P["top 10%"])) +
   theme(legend.position = "top") +
   guides(colour = guide_legend(override.aes = list(alpha = 0),
