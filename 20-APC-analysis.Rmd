@@ -19,6 +19,7 @@ library(scales)
 library(WDI)
 library(ggrepel)
 library(colorspace)
+library(patchwork)
 source(here::here("R/helpers.R"))
 
 message("Connecting to spark...")
@@ -334,7 +335,7 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 # taking out the correlation, because they are incorrect given that the figure
 # shows a non-linear relationship (x-axis logged), but the correlation is linear
 # (and quite unsuitable to the skewed P_top10)
-mean_apc_16_19_local %>%
+p1 <- mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
@@ -349,10 +350,11 @@ mean_apc_16_19_local %>%
        x = expression(P["top 10%"])) +
   theme(legend.position = "top",
         legend.key.width = unit(1, 'cm'))
+p1
 ```
 
 ```{r apc-first-last-time, fig.height=4, fig.width=8}
-mean_apcs_local %>%
+p2 <- mean_apcs_local %>%
   group_by(publication_year, author_position) %>%
   mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
   group_by(ptop10_quantiles, publication_year, author_position) %>%
@@ -368,6 +370,12 @@ mean_apcs_local %>%
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
+p2
+```
+
+```{r apc-composite, fig.height=8.5, fig.width=8}
+p1 / p2 +
+  plot_layout(heights = c(4.5, 4))
 ```
 
 ```{r}
