@@ -281,7 +281,7 @@ apc_field <- works %>%
 ```
 
 ```{r apc-field-overall, fig.width=7, fig.height=5}
-apc_field %>% 
+p_apc_field <- apc_field %>% 
   drop_na() %>% 
   ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
   geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
@@ -295,6 +295,7 @@ apc_field %>%
         panel.border = element_blank()) +
   scale_x_continuous(expand = expansion(mult = c(0, .1)),
                      labels = scales::comma)
+p_apc_field
 ```
 
 
@@ -440,7 +441,7 @@ field_selection <- mean_apc_concept_16_19_local %>%
   filter(field %in% c("Medicine", "History", "Sociology", "Biology",
                       "Materials science", "Physics"))
   
-mean_apc_concept_16_19_local %>% 
+final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 
   anti_join(field_selection) %>% 
   ggplot(aes(P_top10, mean_apc, group = field)) +
   geom_smooth(alpha = .3, colour = "grey80", fill = "grey90") +
@@ -453,6 +454,13 @@ mean_apc_concept_16_19_local %>%
        x = expression(P["top 10%"])) +
   # theme(legend.position = "top") +
   guides(colour = guide_legend(override.aes = list(alpha = 0)))
+final_ptop_apc_field
+```
+
+
+```{r composite-field, fig.height=9.5, fig.width=8}
+final_ptop_apc_field / p_apc_field +
+  plot_layout(heights = c(4.5, 5))
 ```
 
 
