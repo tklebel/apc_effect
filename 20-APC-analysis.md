@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "06 July, 2022"
+date: "03 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -38,9 +38,9 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Turkey               |             31|
-|Brazil               |             31|
 |Poland               |             31|
+|Brazil               |             31|
+|Turkey               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
@@ -49,53 +49,53 @@ universities_per_country %>%
 |Sweden               |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Egypt                |              8|
-|Israel               |              8|
+|Greece               |              8|
 |Belgium              |              8|
 |Switzerland          |              8|
-|Greece               |              8|
+|Israel               |              8|
+|Egypt                |              8|
 |Czech Republic       |              7|
 |Finland              |              7|
 |New Zealand          |              7|
-|Malaysia             |              6|
-|Norway               |              6|
-|Hungary              |              6|
 |Ireland              |              6|
 |Mexico               |              6|
-|Portugal             |              6|
+|Hungary              |              6|
+|Norway               |              6|
+|Malaysia             |              6|
 |Thailand             |              6|
+|Portugal             |              6|
 |Denmark              |              5|
 |Pakistan             |              5|
 |Saudi Arabia         |              5|
-|Chile                |              3|
-|Romania              |              3|
-|Colombia             |              3|
 |Argentina            |              3|
-|Singapore            |              3|
-|Serbia               |              3|
 |Tunisia              |              3|
-|Jordan               |              2|
-|Slovenia             |              2|
-|United Arab Emirates |              2|
+|Colombia             |              3|
+|Chile                |              3|
+|Serbia               |              3|
+|Romania              |              3|
+|Singapore            |              3|
 |Slovakia             |              2|
 |Nigeria              |              2|
-|Algeria              |              1|
-|Qatar                |              1|
+|United Arab Emirates |              2|
+|Jordan               |              2|
+|Slovenia             |              2|
 |Croatia              |              1|
+|Lithuania            |              1|
 |Cyprus               |              1|
 |Viet Nam             |              1|
+|Qatar                |              1|
 |Ghana                |              1|
-|Uganda               |              1|
-|Lithuania            |              1|
-|Ethiopia             |              1|
 |Uruguay              |              1|
-|Morocco              |              1|
+|Algeria              |              1|
 |Estonia              |              1|
-|Oman                 |              1|
-|Luxembourg           |              1|
 |Lebanon              |              1|
-|Kuwait               |              1|
+|Morocco              |              1|
+|Luxembourg           |              1|
 |Iceland              |              1|
+|Oman                 |              1|
+|Ethiopia             |              1|
+|Kuwait               |              1|
+|Uganda               |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve017dc243c216b1e0
+preserve6b03d104e2745b4c
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve8cd10bafc6710262
+preserve003b2f5e2d294c58
 
 
 ## Papers per continent
@@ -580,12 +580,13 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
 # taking out the correlation, because they are incorrect given that the figure
 # shows a non-linear relationship (x-axis logged), but the correlation is linear
 # (and quite unsuitable to the skewed P_top10)
-mean_apc_16_19_local %>%
+p1 <- mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
   ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
   geom_point(aes(), alpha = .5) +
-  scale_colour_continuous_sequential(palette = "Mako", trans = "log10") +
+  scale_colour_continuous_sequential(palette = "Mako", trans = "log10",
+                                     labels = comma) +
   geom_smooth(colour = "grey30") +
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
@@ -594,7 +595,8 @@ mean_apc_16_19_local %>%
        colour = "Number of papers per institution",
        x = expression(P["top 10%"])) +
   theme(legend.position = "top",
-        legend.key.width = unit(1, 'cm'))
+        legend.key.width = unit(1.5, 'cm'))
+p1
 ```
 
 ```
@@ -605,7 +607,9 @@ mean_apc_16_19_local %>%
 
 
 ```r
-mean_apcs_local %>%
+p2 <- mean_apcs_local %>%
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors")) %>% 
   group_by(publication_year, author_position) %>%
   mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
   group_by(ptop10_quantiles, publication_year, author_position) %>%
@@ -621,9 +625,22 @@ mean_apcs_local %>%
   theme(legend.position = "top") +
   labs(caption = "Fractional counting", y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
+p2
 ```
 
 ![](20-APC-analysis_files/figure-html/apc-first-last-time-1.png)<!-- -->
+
+
+```r
+p1 / p2 +
+  plot_layout(heights = c(4.5, 4))
+```
+
+```
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+```
+
+![](20-APC-analysis_files/figure-html/apc-composite-1.png)<!-- -->
 
 
 ```r
@@ -701,7 +718,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve59d9b4651b4baad0
+preservecda0b0e0244cf005
 
 
 Using ggrepel
