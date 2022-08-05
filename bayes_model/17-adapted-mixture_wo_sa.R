@@ -83,14 +83,12 @@ fit <- mod$sample(
 )
 
 message("Saving model to file.")
-fit$save_object(file = "bayes_model/final_models/17-wo-south-africa.rds")
-fit$save_output_files(dir = "bayes_model/output_files/")
 
 # saving to brm model directly
 stanfit <- rstan::read_stan_csv(fit$output_files())
 empty_mod$fit <- stanfit
 wo_sa_brm <- rename_pars(empty_mod)
 write_rds(wo_sa_brm,
-          "bayes_model/final_models/17-wo-south-africa_brm-large-sample.rds")
+          "bayes_model/final_models/17-wo-south-africa_brm-large-sample-4.rds")
 message("File saved.")
 
