@@ -58,6 +58,12 @@ joined %>%
   filter(is.na(display_name))
 # 179 unmatched
 
+# how many did we match in first step?
+joined %>%
+  filter(!is.na(display_name)) %>%
+  n_distinct(.$University)
+# 1068, but this includes duplicates, see below.
+
 # need to glance over the matched ones as well
 joined %>%
   filter(!is.na(display_name)) %>%
@@ -81,7 +87,7 @@ View(multiple_matches)
 # sometimes there is more than one university of the same name. However,
 # this can be resolved by taking the country into account: all but one cases
 # (see below) can be explained by a country mismatch. Googling a handful of
-# these revealed that this approach is seems valid: OpenAlex simply has more
+# these revealed that this approach is valid: OpenAlex simply has more
 # institutions, but we can trust the matching if the country also matches.
 
 # only work with those that worked for now
@@ -102,11 +108,6 @@ success %>%
 #
 # for medical university of lodz, also both should be kept: https://openalex.org/I4210122071
 # https://openalex.org/I866987647
-#
-# continue for now building the pipeline, fix matching issues later
-# issues:
-# - remaining unmatched ~180 instutions
-# - checking whether the matched institutions are correct (via eye)
 
 # add the two in, and remove the wrong chinese one
 keepers <- joined %>%
