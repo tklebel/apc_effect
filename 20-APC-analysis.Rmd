@@ -469,7 +469,7 @@ final_ptop_apc_field
    # https://stackoverflow.com/a/65946462/3149349
    theme(axis.title.y = element_text(margin = margin(r = -120, unit = "pt")))
    ) / p_apc_field +
-  plot_layout(heights = c(4, 5)) +
+  plot_layout(heights = c(3.5, 5)) +
   plot_annotation(tag_levels = "A")
 ```
 

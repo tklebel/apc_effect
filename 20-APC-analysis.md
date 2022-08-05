@@ -38,64 +38,64 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Poland               |             31|
 |Turkey               |             31|
+|Poland               |             31|
 |Brazil               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Austria              |             12|
 |Sweden               |             12|
+|Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
+|Greece               |              8|
+|Israel               |              8|
 |Belgium              |              8|
 |Switzerland          |              8|
 |Egypt                |              8|
-|Greece               |              8|
-|Israel               |              8|
 |Finland              |              7|
-|Czech Republic       |              7|
 |New Zealand          |              7|
-|Thailand             |              6|
-|Hungary              |              6|
+|Czech Republic       |              7|
 |Malaysia             |              6|
 |Norway               |              6|
 |Mexico               |              6|
-|Ireland              |              6|
 |Portugal             |              6|
+|Ireland              |              6|
+|Thailand             |              6|
+|Hungary              |              6|
 |Saudi Arabia         |              5|
-|Denmark              |              5|
 |Pakistan             |              5|
-|Argentina            |              3|
-|Colombia             |              3|
-|Tunisia              |              3|
+|Denmark              |              5|
 |Singapore            |              3|
-|Chile                |              3|
+|Argentina            |              3|
+|Tunisia              |              3|
 |Serbia               |              3|
+|Colombia             |              3|
+|Chile                |              3|
 |Romania              |              3|
-|United Arab Emirates |              2|
+|Nigeria              |              2|
 |Slovenia             |              2|
 |Jordan               |              2|
 |Slovakia             |              2|
-|Nigeria              |              2|
+|United Arab Emirates |              2|
 |Qatar                |              1|
-|Lithuania            |              1|
-|Morocco              |              1|
-|Oman                 |              1|
-|Cyprus               |              1|
-|Estonia              |              1|
-|Croatia              |              1|
-|Iceland              |              1|
-|Algeria              |              1|
-|Ghana                |              1|
-|Uganda               |              1|
-|Ethiopia             |              1|
 |Kuwait               |              1|
+|Cyprus               |              1|
 |Lebanon              |              1|
-|Uruguay              |              1|
+|Algeria              |              1|
+|Morocco              |              1|
+|Croatia              |              1|
+|Ghana                |              1|
+|Ethiopia             |              1|
+|Iceland              |              1|
+|Lithuania            |              1|
 |Viet Nam             |              1|
+|Oman                 |              1|
+|Uganda               |              1|
 |Luxembourg           |              1|
+|Uruguay              |              1|
+|Estonia              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preservec885fc11a0544f20
+preserved563f312688497cf
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve41152de7dafa01ba
+preserveef66d4e1aa92a208
 
 
 ## Papers per continent
@@ -726,7 +726,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservef8cb37c26cd353e2
+preserved5f1b7eb673e3f9e
 
 
 Using ggrepel
@@ -776,7 +776,7 @@ final_ptop_apc_field
    # https://stackoverflow.com/a/65946462/3149349
    theme(axis.title.y = element_text(margin = margin(r = -120, unit = "pt")))
    ) / p_apc_field +
-  plot_layout(heights = c(4, 5)) +
+  plot_layout(heights = c(3.5, 5)) +
   plot_annotation(tag_levels = "A")
 ```
 
