@@ -96,10 +96,11 @@ venues_in_doaj %>% count(is_in_doaj)
 # 3 NA          1110
 
 # check them out wheter those are mistakes
-venues_in_doaj %>%
+openalex_errors <- venues_in_doaj %>%
   filter(!is_in_doaj | is.na(is_in_doaj)) %>%
   select(id, issn_l, issn, pissn, eissn, display_name, journal_title, publisher.x,
-         publisher.y) %>%
+         publisher.y)
+openalex_errors %>%
   View()
 # this seems to be an error on the side of OpenAlex. Most have exact identical
 # names. where this is not the case, sometimes it is just the difference of
@@ -107,6 +108,8 @@ venues_in_doaj %>%
 # of the same name (but checked that they are identical, and in these cases
 # both DOAJ and OpenAlex point e.g. to the same website)
 # should report this to OpenAlex at some point
+openalex_errors %>%
+  write_csv("data/processed/openalex_doaj_errors.csv")
 
 venues_in_doaj %>%
   write_csv("data/processed/venues_in_doaj.csv")
