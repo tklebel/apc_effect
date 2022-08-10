@@ -1,7 +1,7 @@
 ---
 title: "Additional mini analyses"
 author: "Thomas Klebel"
-date: "11 July, 2022"
+date: "10 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -106,6 +106,69 @@ institutions %>%
 ```
 
 
+# Compare effect of Ptop10% on APC between India and China
+
+```r
+get_mean_apc_by_author_position <- function(df) {
+  df %>%
+    # first get rid of duplicates from concepts
+    distinct(id, author_position, work_frac, APC_in_dollar, University, country,
+             publication_year, P_top10) %>% 
+    group_by(University, publication_year, country, P_top10) %>%
+    # compute the average APC using fractional authorships as weights
+    mutate(sum_frac = sum(work_frac)) %>%
+    group_by(University, publication_year, country, P_top10, sum_frac,
+             author_position) %>%
+    summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
+              fractional_works = sum(work_frac))
+}
+
+mean_apc_16_19 <- works %>% 
+  filter(first_year_of_period == 2016,
+         country %in% c("India", "China")) %>% 
+  get_mean_apc_by_author_position()
+
+mean_apc_16_19_local <- mean_apc_16_19 %>% 
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'University', 'publication_year', 'country',
+## 'P_top10', 'sum_frac'. You can override using the `.groups` argument.
+```
+
+
+```r
+p1 <- mean_apc_16_19_local %>%
+  mutate(author_position = recode(author_position, first = "First authors", 
+                                  last = "Last authors")) %>% 
+  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
+  geom_point(aes(), alpha = .5) +
+  scale_colour_continuous_sequential(palette = "Mako", trans = "log10",
+                                     labels = comma) +
+  geom_smooth(colour = "grey30") +
+  facet_wrap(vars(country)) +
+  scale_x_log10() +
+  scale_y_continuous(labels = dollar) +
+  labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
+       colour = "Number of papers per institution",
+       x = expression(P["top 10%"])) +
+  theme(legend.position = "top",
+        legend.key.width = unit(1.5, 'cm'))
+p1
+```
+
+```
+## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
+```
+
+![](22-additional-mini-analyses_files/figure-html/effect-india-china-1.png)<!-- -->
+
+This comparison demonstrates that there is only a very weak effect in China,
+and a much stronger effect in India. However, in India there is also more going
+on, with a slight structural break at a little over 100 $P_{top\ 10\%}$.
+Additionally, it should be noted that the above effects are potentially 
+confounded by field effects.
 
 
 ```r
