@@ -532,7 +532,10 @@ pdata %>%
   # scale_size_continuous(trans = "sqrt") +
   scale_alpha_continuous(range = c(.2, 1), trans = "log10") +
   labs(colour = "Region", x = "GDP per capita", alpha = "Number of universities",
-       y = "% increase in APC for 1% increase of P_top10 at the median") +
+       y = expression(
+         paste("% increase in APC for 1% increase of ", P["top 10%"], 
+               " at the median")
+         )) +
   theme_clean() +
   theme(legend.position = "top", legend.box = "vertical")  +
   coord_cartesian(ylim = c(0, .003))
