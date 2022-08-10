@@ -39,7 +39,7 @@ works_from_journals %>%
 # join and filter works
 selected_works <- works %>%
   inner_join(works_from_journals, by = c("id" = "work_id")) %>%
-  filter(publication_year >= 2000 & publication_year < 2022,
+  filter(publication_year >= 2009 & publication_year < 2020,
          type == "journal-article",
          publication_date > date_added_to_doaj)
 
