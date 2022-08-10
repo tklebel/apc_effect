@@ -14,6 +14,7 @@ knitr::opts_chunk$set(echo = TRUE, warning = FALSE, dpi = 300)
 Sys.setenv(SPARK_HOME = "/usr/hdp/current/spark2-client")
 library(sparklyr)
 library(tidyverse)
+library(scales)
 library(arrow)
 library(dbplot)
 library(ggridges)
@@ -146,7 +147,7 @@ mean_apc_16_19_local <- mean_apc_16_19 %>%
   collect()
 ```
 
-```{r effect-india-china}
+```{r effect-india-china, fig.width=7, fig.height=4}
 p1 <- mean_apc_16_19_local %>%
   mutate(author_position = recode(author_position, first = "First authors", 
                                   last = "Last authors")) %>% 
@@ -168,7 +169,9 @@ p1
 
 This comparison demonstrates that there is only a very weak effect in China,
 and a much stronger effect in India. However, in India there is also more going
-on, with a slight structural break at a little over 100 $P_{top 10%}$.
+on, with a slight structural break at a little over 100 $P_{top\ 10\%}$.
+Additionally, it should be noted that the above effects are potentially 
+confounded by field effects.
 
 ```{r}
 spark_disconnect(sc)
