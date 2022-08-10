@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "03 August, 2022"
+date: "10 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -49,53 +49,53 @@ universities_per_country %>%
 |Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
+|Egypt                |              8|
 |Greece               |              8|
 |Israel               |              8|
 |Belgium              |              8|
 |Switzerland          |              8|
-|Egypt                |              8|
-|Finland              |              7|
 |New Zealand          |              7|
+|Finland              |              7|
 |Czech Republic       |              7|
-|Malaysia             |              6|
+|Ireland              |              6|
+|Portugal             |              6|
 |Norway               |              6|
 |Mexico               |              6|
-|Portugal             |              6|
-|Ireland              |              6|
+|Malaysia             |              6|
 |Thailand             |              6|
 |Hungary              |              6|
+|Denmark              |              5|
 |Saudi Arabia         |              5|
 |Pakistan             |              5|
-|Denmark              |              5|
-|Singapore            |              3|
 |Argentina            |              3|
 |Tunisia              |              3|
-|Serbia               |              3|
+|Singapore            |              3|
 |Colombia             |              3|
-|Chile                |              3|
 |Romania              |              3|
-|Nigeria              |              2|
-|Slovenia             |              2|
+|Chile                |              3|
+|Serbia               |              3|
 |Jordan               |              2|
+|Nigeria              |              2|
 |Slovakia             |              2|
 |United Arab Emirates |              2|
+|Slovenia             |              2|
+|Lithuania            |              1|
+|Morocco              |              1|
+|Cyprus               |              1|
+|Uganda               |              1|
+|Algeria              |              1|
+|Croatia              |              1|
 |Qatar                |              1|
 |Kuwait               |              1|
-|Cyprus               |              1|
-|Lebanon              |              1|
-|Algeria              |              1|
-|Morocco              |              1|
-|Croatia              |              1|
 |Ghana                |              1|
-|Ethiopia             |              1|
 |Iceland              |              1|
-|Lithuania            |              1|
-|Viet Nam             |              1|
-|Oman                 |              1|
-|Uganda               |              1|
 |Luxembourg           |              1|
 |Uruguay              |              1|
 |Estonia              |              1|
+|Oman                 |              1|
+|Ethiopia             |              1|
+|Viet Nam             |              1|
+|Lebanon              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserved563f312688497cf
+preserve0fdd8d71f4c67043
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserveef66d4e1aa92a208
+preserve98746f2493437a2e
 
 
 ## Papers per continent
@@ -507,6 +507,39 @@ apc_field <- works %>%
 ## `summarise()` has grouped output by 'field'. You can override using the
 ## `.groups` argument.
 ```
+
+
+```r
+plot_data %>% 
+  mutate(frac_papers = scales::comma(frac_papers),
+         prop = scales::percent(prop, accuracy = .1)) %>% 
+  knitr::kable()
+```
+
+
+
+|field                 |frac_papers |prop  |label           |
+|:---------------------|:-----------|:-----|:---------------|
+|Medicine              |499,459     |30.6% |499,459 (30.6%) |
+|Biology               |305,941     |18.7% |305,941 (18.7%) |
+|Chemistry             |170,704     |10.4% |170,704 (10.4%) |
+|Computer science      |144,403     |8.8%  |144,403 (8.8%)  |
+|Materials science     |108,084     |6.6%  |108,084 (6.6%)  |
+|Psychology            |101,600     |6.2%  |101,600 (6.2%)  |
+|Environmental science |48,891      |3.0%  |48,891 (3.0%)   |
+|Physics               |46,246      |2.8%  |46,246 (2.8%)   |
+|Political science     |37,799      |2.3%  |37,799 (2.3%)   |
+|Geography             |33,072      |2.0%  |33,072 (2.0%)   |
+|Sociology             |30,663      |1.9%  |30,663 (1.9%)   |
+|Mathematics           |25,304      |1.5%  |25,304 (1.5%)   |
+|Art                   |22,394      |1.4%  |22,394 (1.4%)   |
+|Business              |21,461      |1.3%  |21,461 (1.3%)   |
+|Geology               |14,389      |0.9%  |14,389 (0.9%)   |
+|Philosophy            |11,034      |0.7%  |11,034 (0.7%)   |
+|Economics             |5,848       |0.4%  |5,848 (0.4%)    |
+|History               |3,462       |0.2%  |3,462 (0.2%)    |
+|Engineering           |2,799       |0.2%  |2,799 (0.2%)    |
+
 
 
 ```r
@@ -726,7 +759,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserved5f1b7eb673e3f9e
+preserve5f6fb48ae90e4252
 
 
 Using ggrepel
