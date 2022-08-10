@@ -282,6 +282,8 @@ apc_field <- works %>%
 
 ```{r}
 plot_data %>% 
+  mutate(frac_papers = scales::comma(frac_papers),
+         prop = scales::percent(prop, accuracy = .1)) %>% 
   knitr::kable()
 ```
 
