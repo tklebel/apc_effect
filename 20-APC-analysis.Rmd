@@ -280,6 +280,12 @@ apc_field <- works %>%
   collect()
 ```
 
+```{r}
+plot_data %>% 
+  knitr::kable()
+```
+
+
 ```{r apc-field-overall, fig.width=7, fig.height=5}
 p_apc_field <- apc_field %>% 
   drop_na() %>% 
