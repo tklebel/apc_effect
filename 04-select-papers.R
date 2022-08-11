@@ -40,6 +40,8 @@ works_from_journals %>%
 selected_works <- works %>%
   inner_join(works_from_journals, by = c("id" = "work_id")) %>%
   filter(publication_year >= 2009 & publication_year < 2020,
+         # only keep journal articles to remove some stray items like
+         # peer-reviews
          type == "journal-article",
          publication_date > date_added_to_doaj)
 
@@ -53,24 +55,6 @@ spark_write_parquet(selected_works,
                     "/user/tklebel/apc_paper/selected_works.parquet",
                     partition_by = "publication_year",
                     mode = "overwrite")
-
-# the above code removes a couple of items which are not journal articles
-# (the numbers below are from an earlier version, where we had matched DOAJ
-# without the linking ISSN information)
-# # Source:     spark<?> [?? x 2]
-# # Ordered by: desc(n)
-# type                      n
-# <chr>                   <int>
-# 1 journal-article     8134270
-# 2 NA                    32044
-# 3 component             31959
-# 4 posted-content        27285
-# 5 peer-review           20059
-# 6 proceedings-article   13679
-# 7 book-chapter           3752
-# 8 journal                3403
-# 9 journal-issue          3301
-# 10 dissertation           388
 
 spark_disconnect(sc)
 
