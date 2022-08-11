@@ -37,15 +37,6 @@ leiden <- tbl(sc, "leiden") %>%
          !is.na(P_top10)) %>%
   select(University, Period, Frac_counting, P_top10)
 
-# hm, this has issues. first, we included NA author positions
-# second, there are works which are not OA, like https://explore.openalex.org/works/W2258570746
-# This comes because some DOAJ journals were not OA before some date X.
-# in the above example, the paper is from 2006, but the journal turned OA in 2013
-# however, OpenAlex has the publication year at 2020.
-# furthermore, in the "works_authorships" there is actually a first middle and
-# last author designation, but it did not get transferred into our above data
-# # ah, the join was the wrong way around
-
 # the single remaining issue seems to be: some journals only become OA later
 # so we should filter out those articles where the publication year is smaller
 # than the year the journal got into DOAJ
