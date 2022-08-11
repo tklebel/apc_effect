@@ -139,11 +139,12 @@ additions <- remaining_matches %>%
 # this should be two short of the full list
 full_matched <- intermediate_success %>%
   bind_rows(additions)
-# now it is on par, but we seem to have dupliates (but is fine, see below)
+# now it is on par, but we seem to have duplicates (but is fine, see below)
 
 leiden_small %>%
   anti_join(full_matched)
-# tampere and jilin are on purpose
+# tampere is on purpose because we could not match with certainty (see comment
+# in /data/processed/leiden_matching_table.csv)
 
 full_matched %>%
   count(University) %>%

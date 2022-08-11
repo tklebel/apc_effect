@@ -35,7 +35,7 @@ works %>%
 works %>%
   summarise(min_date = min(publication_year),
             max_date = max(publication_year))
-# this is as it should be, minimum is 2002. DOAJ was launched in 2003.
+# this is as it should be, from 2009-2019
 
 
 # assign works to institutions and do fractional counting -----

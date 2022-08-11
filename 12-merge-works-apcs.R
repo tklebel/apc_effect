@@ -62,7 +62,7 @@ fractional_works %>% count(is_oa)
 # date.
 # those that are NA might be those that are simply not covered by Unpaywall.
 # we only keep those that are OA, which is done in the next script
-# get journal for work -> get APC value and PPtop_10
+# get journal for work -> get APC value and Ptop_10
 joined <- fractional_works %>%
   left_join(venues_apcs, by = c("venue_id" = "id")) %>%
   left_join(leiden_key, by = c("institution_id" = "id")) %>%
