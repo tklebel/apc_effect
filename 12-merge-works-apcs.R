@@ -54,9 +54,9 @@ fractional_works %>% count(is_oa)
 # # Source: spark<?> [?? x 2]
 #   is_oa       n
 #   <lgl>   <int>
-# 1 TRUE  7287081
-# 2 NA     421665
-# 3 FALSE   44476
+# 1 NA     211780
+# 2 TRUE  4499346
+# 3 FALSE    9405
 
 # those that are not OA might be errors in OpenAlex data in terms of publication
 # date.
@@ -75,7 +75,7 @@ joined %>%
 # # Source: spark<?> [?? x 1]
 #           n
 #       <int>
-#   1 4052353
+#   1 2499446
 
 # need to filter so the publication year fits to the leiden data year -> this
 # is done in the next script
