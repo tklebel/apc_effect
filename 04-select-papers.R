@@ -57,5 +57,3 @@ spark_write_parquet(selected_works,
                     mode = "overwrite")
 
 spark_disconnect(sc)
-
-
