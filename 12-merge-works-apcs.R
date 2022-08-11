@@ -18,8 +18,6 @@ spark_read_parquet(sc, "/user/tklebel/apc_paper/fractional_works.parquet",
                    name = "fractional_works", memory = TRUE)
 fractional_works <- tbl(sc, "fractional_works")
 
-fractional_works
-
 csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues_in_doaj")
 venues_in_doaj <- tbl(sc, "venues_in_doaj")
 
@@ -32,6 +30,7 @@ leiden_key <- tbl(sc, "leiden_key")
 
 spark_read_csv(sc, "leiden", "/user/tklebel/apc_paper/leiden_2021.csv",
                memory = TRUE, null_value = "NA")
+
 leiden <- tbl(sc, "leiden") %>%
   filter(Field == "All sciences", Frac_counting == 1,
          !is.na(P_top10)) %>%
@@ -70,7 +69,6 @@ joined %>%
 
 # need to filter so the publication year fits to the leiden data year -> this
 # is done in the next script
-
 
 spark_write_parquet(joined, "/user/tklebel/apc_paper/all_papers_merged.parquet",
                     partition_by = "publication_year",
