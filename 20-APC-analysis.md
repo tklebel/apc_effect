@@ -39,8 +39,8 @@ universities_per_country %>%
 |Iran                 |             36|
 |Australia            |             32|
 |Poland               |             31|
-|Brazil               |             31|
 |Turkey               |             31|
+|Brazil               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
@@ -50,52 +50,52 @@ universities_per_country %>%
 |Russia               |             10|
 |South Africa         |              9|
 |Belgium              |              8|
-|Switzerland          |              8|
-|Egypt                |              8|
 |Israel               |              8|
+|Egypt                |              8|
+|Switzerland          |              8|
 |Greece               |              8|
 |Czech Republic       |              7|
-|Finland              |              7|
 |New Zealand          |              7|
+|Finland              |              7|
+|Malaysia             |              6|
+|Ireland              |              6|
+|Norway               |              6|
+|Mexico               |              6|
 |Portugal             |              6|
 |Thailand             |              6|
-|Malaysia             |              6|
 |Hungary              |              6|
-|Ireland              |              6|
-|Mexico               |              6|
-|Norway               |              6|
 |Saudi Arabia         |              5|
-|Pakistan             |              5|
 |Denmark              |              5|
-|Chile                |              3|
-|Tunisia              |              3|
-|Colombia             |              3|
+|Pakistan             |              5|
 |Argentina            |              3|
+|Chile                |              3|
+|Colombia             |              3|
+|Singapore            |              3|
 |Serbia               |              3|
 |Romania              |              3|
-|Singapore            |              3|
-|Nigeria              |              2|
-|Slovakia             |              2|
+|Tunisia              |              3|
 |Jordan               |              2|
-|Slovenia             |              2|
 |United Arab Emirates |              2|
-|Qatar                |              1|
-|Ghana                |              1|
-|Croatia              |              1|
-|Uruguay              |              1|
-|Uganda               |              1|
-|Ethiopia             |              1|
-|Estonia              |              1|
-|Morocco              |              1|
-|Oman                 |              1|
-|Iceland              |              1|
-|Viet Nam             |              1|
-|Lebanon              |              1|
-|Luxembourg           |              1|
+|Slovakia             |              2|
+|Nigeria              |              2|
+|Slovenia             |              2|
 |Algeria              |              1|
+|Ghana                |              1|
+|Uruguay              |              1|
+|Estonia              |              1|
+|Lebanon              |              1|
+|Morocco              |              1|
+|Luxembourg           |              1|
 |Cyprus               |              1|
+|Iceland              |              1|
+|Qatar                |              1|
 |Kuwait               |              1|
 |Lithuania            |              1|
+|Uganda               |              1|
+|Viet Nam             |              1|
+|Croatia              |              1|
+|Oman                 |              1|
+|Ethiopia             |              1|
 
 
 ```r
@@ -124,75 +124,75 @@ papers_per_country %>%
 
 |country              | sum_fractional_works|
 |:--------------------|--------------------:|
-|United States        |             126649.1|
-|China                |              95704.2|
-|Brazil               |              92967.9|
-|United Kingdom       |              36360.4|
-|Spain                |              33455.8|
-|Germany              |              28814.3|
-|Canada               |              26074.3|
-|Australia            |              21265.2|
-|South Korea          |              19925.4|
-|Japan                |              19429.2|
-|Italy                |              17786.0|
-|Poland               |              14022.5|
-|Netherlands          |              10614.5|
-|South Africa         |              10503.3|
-|Sweden               |              10154.2|
-|Taiwan               |               9017.7|
-|India                |               8475.4|
-|Iran                 |               8343.7|
-|France               |               7658.9|
-|Switzerland          |               7505.9|
-|Mexico               |               6463.6|
-|Turkey               |               6290.1|
-|Belgium              |               6114.8|
-|Portugal             |               5818.6|
-|Denmark              |               5131.1|
-|Malaysia             |               4952.6|
-|Israel               |               4594.3|
-|Norway               |               4443.6|
-|Austria              |               4415.1|
-|Colombia             |               4280.9|
-|Russia               |               4257.7|
-|Saudi Arabia         |               4004.0|
-|Argentina            |               3937.7|
-|Chile                |               3444.5|
-|Finland              |               3317.4|
-|Egypt                |               3309.9|
-|New Zealand          |               2830.9|
-|Singapore            |               2771.1|
-|Thailand             |               2594.2|
-|Czech Republic       |               2524.9|
-|Greece               |               2443.1|
-|Ireland              |               2168.4|
-|Serbia               |               1791.8|
-|Hungary              |               1608.7|
-|Slovenia             |               1606.2|
-|Croatia              |               1435.8|
-|Pakistan             |               1167.5|
-|Nigeria              |                719.3|
-|Romania              |                718.1|
-|Uruguay              |                710.9|
-|Estonia              |                570.7|
-|Slovakia             |                489.8|
-|Jordan               |                482.6|
-|Lithuania            |                477.4|
-|United Arab Emirates |                406.4|
+|United States        |             125334.6|
+|China                |              95237.8|
+|Brazil               |              88014.2|
+|United Kingdom       |              35912.8|
+|Spain                |              32073.9|
+|Germany              |              28500.1|
+|Canada               |              25745.8|
+|Australia            |              21045.8|
+|South Korea          |              19847.4|
+|Japan                |              19303.5|
+|Italy                |              17540.0|
+|Poland               |              13594.0|
+|Netherlands          |              10488.8|
+|South Africa         |              10264.7|
+|Sweden               |              10052.5|
+|Taiwan               |               8989.2|
+|India                |               8434.9|
+|Iran                 |               8281.1|
+|France               |               7500.7|
+|Switzerland          |               7427.1|
+|Mexico               |               6230.1|
+|Turkey               |               6126.6|
+|Belgium              |               6023.9|
+|Portugal             |               5591.3|
+|Denmark              |               5011.5|
+|Malaysia             |               4901.4|
+|Israel               |               4540.2|
+|Austria              |               4339.3|
+|Norway               |               4298.4|
+|Russia               |               4104.9|
+|Colombia             |               4057.8|
+|Saudi Arabia         |               3992.1|
+|Argentina            |               3765.4|
+|Chile                |               3329.1|
+|Egypt                |               3296.5|
+|Finland              |               3241.3|
+|New Zealand          |               2795.6|
+|Singapore            |               2753.1|
+|Thailand             |               2580.2|
+|Czech Republic       |               2481.3|
+|Greece               |               2421.1|
+|Ireland              |               2146.9|
+|Serbia               |               1756.1|
+|Hungary              |               1574.1|
+|Slovenia             |               1563.7|
+|Croatia              |               1327.4|
+|Pakistan             |               1156.7|
+|Nigeria              |                715.8|
+|Romania              |                702.2|
+|Uruguay              |                668.6|
+|Estonia              |                513.3|
+|Jordan               |                481.2|
+|Slovakia             |                481.2|
+|Lithuania            |                450.2|
+|United Arab Emirates |                404.1|
 |Oman                 |                398.5|
-|Lebanon              |                361.6|
-|Ethiopia             |                334.1|
-|Ghana                |                328.9|
-|Uganda               |                324.7|
-|Kuwait               |                304.2|
-|Tunisia              |                292.3|
-|Iceland              |                237.5|
-|Qatar                |                201.9|
-|Luxembourg           |                197.1|
+|Lebanon              |                359.1|
+|Ethiopia             |                331.9|
+|Ghana                |                327.3|
+|Uganda               |                324.0|
+|Kuwait               |                303.2|
+|Tunisia              |                291.1|
+|Iceland              |                229.0|
+|Qatar                |                200.4|
+|Luxembourg           |                192.1|
 |Viet Nam             |                136.0|
-|Cyprus               |                130.2|
-|Morocco              |                129.3|
-|Algeria              |                 37.9|
+|Cyprus               |                129.0|
+|Morocco              |                127.4|
+|Algeria              |                 37.0|
 
 
 ```r
@@ -276,75 +276,75 @@ all_three_descriptives %>%
 
 |Country              | n universities|n fractional publications | Mean APC|
 |:--------------------|--------------:|:-------------------------|--------:|
-|China                |            216|95,704.20                 |   1869.1|
-|United States        |            199|126,649.10                |   1925.4|
-|United Kingdom       |             60|36,360.40                 |   1808.8|
-|Japan                |             55|19,429.20                 |   1815.6|
-|Germany              |             54|28,814.30                 |   1808.0|
-|South Korea          |             46|19,925.40                 |   1707.5|
-|Spain                |             42|33,455.80                 |    673.4|
-|Italy                |             41|17,786.00                 |   1688.9|
-|India                |             38|8,475.40                  |    956.4|
-|Iran                 |             36|8,343.70                  |    764.1|
-|Australia            |             32|21,265.20                 |   1784.4|
-|Brazil               |             31|92,967.90                 |    253.9|
-|Poland               |             31|14,022.50                 |    832.9|
-|Turkey               |             31|6,290.10                  |    804.6|
-|Canada               |             30|26,074.30                 |   1691.0|
-|France               |             28|7,658.90                  |   1583.3|
-|Taiwan               |             21|9,017.70                  |   1840.2|
-|Netherlands          |             13|10,614.50                 |   1816.5|
-|Sweden               |             12|10,154.20                 |   1832.4|
-|Austria              |             12|4,415.10                  |   1687.8|
-|Russia               |             10|4,257.70                  |    463.1|
-|South Africa         |              9|10,503.30                 |    936.4|
-|Switzerland          |              8|7,505.90                  |   2008.0|
-|Belgium              |              8|6,114.80                  |   1708.6|
-|Israel               |              8|4,594.30                  |   2011.4|
-|Egypt                |              8|3,309.90                  |    923.4|
-|Greece               |              8|2,443.10                  |   1471.6|
-|Finland              |              7|3,317.40                  |   1562.9|
-|New Zealand          |              7|2,830.90                  |   1679.8|
-|Czech Republic       |              7|2,524.90                  |   1049.7|
-|Mexico               |              6|6,463.60                  |    678.5|
-|Portugal             |              6|5,818.60                  |    780.3|
-|Malaysia             |              6|4,952.60                  |   1127.2|
-|Norway               |              6|4,443.60                  |   1567.0|
-|Thailand             |              6|2,594.20                  |   1521.1|
-|Ireland              |              6|2,168.40                  |   1773.5|
-|Hungary              |              6|1,608.70                  |   1408.6|
-|Denmark              |              5|5,131.10                  |   1733.7|
-|Saudi Arabia         |              5|4,004.00                  |   1433.7|
-|Pakistan             |              5|1,167.50                  |   1039.0|
-|Colombia             |              3|4,280.90                  |    237.0|
-|Argentina            |              3|3,937.70                  |    290.0|
-|Chile                |              3|3,444.50                  |    582.3|
-|Singapore            |              3|2,771.10                  |   2000.9|
-|Serbia               |              3|1,791.80                  |    559.5|
-|Romania              |              3|718.10                    |    870.8|
-|Tunisia              |              3|292.30                    |   1194.0|
-|Slovenia             |              2|1,606.20                  |    847.8|
-|Nigeria              |              2|719.30                    |   1101.1|
-|Slovakia             |              2|489.80                    |    647.0|
-|Jordan               |              2|482.60                    |   1321.6|
-|United Arab Emirates |              2|406.40                    |   1766.3|
-|Croatia              |              1|1,435.80                  |    393.6|
-|Uruguay              |              1|710.90                    |    385.6|
-|Estonia              |              1|570.70                    |    992.3|
-|Lithuania            |              1|477.40                    |    772.1|
-|Oman                 |              1|398.50                    |    508.1|
-|Lebanon              |              1|361.60                    |   1686.6|
-|Ethiopia             |              1|334.10                    |   1643.8|
-|Ghana                |              1|328.90                    |   1562.7|
-|Uganda               |              1|324.70                    |   1784.2|
-|Kuwait               |              1|304.20                    |   1636.9|
-|Iceland              |              1|237.50                    |   1420.8|
-|Qatar                |              1|201.90                    |   1542.5|
-|Luxembourg           |              1|197.10                    |   1747.0|
-|Viet Nam             |              1|136.00                    |   1314.0|
-|Cyprus               |              1|130.20                    |   1570.5|
-|Morocco              |              1|129.30                    |    882.8|
-|Algeria              |              1|37.90                     |    725.4|
+|China                |            216|95,237.8                  |   1871.5|
+|United States        |            199|125,334.6                 |   1930.2|
+|United Kingdom       |             60|35,912.8                  |   1817.8|
+|Japan                |             55|19,303.5                  |   1816.7|
+|Germany              |             54|28,500.1                  |   1816.5|
+|South Korea          |             46|19,847.4                  |   1708.8|
+|Spain                |             42|32,073.9                  |    697.5|
+|Italy                |             41|17,540.0                  |   1703.4|
+|India                |             38|8,434.9                   |    957.3|
+|Iran                 |             36|8,281.1                   |    766.6|
+|Australia            |             32|21,045.8                  |   1790.0|
+|Brazil               |             31|88,014.2                  |    264.5|
+|Poland               |             31|13,594.0                  |    854.1|
+|Turkey               |             31|6,126.6                   |    823.4|
+|Canada               |             30|25,745.8                  |   1700.1|
+|France               |             28|7,500.7                   |   1606.3|
+|Taiwan               |             21|8,989.2                   |   1841.1|
+|Netherlands          |             13|10,488.8                  |   1826.8|
+|Sweden               |             12|10,052.5                  |   1842.3|
+|Austria              |             12|4,339.3                   |   1708.3|
+|Russia               |             10|4,104.9                   |    477.6|
+|South Africa         |              9|10,264.7                  |    942.4|
+|Switzerland          |              8|7,427.1                   |   2016.4|
+|Belgium              |              8|6,023.9                   |   1723.8|
+|Israel               |              8|4,540.2                   |   2019.7|
+|Egypt                |              8|3,296.5                   |    923.8|
+|Greece               |              8|2,421.1                   |   1475.0|
+|Finland              |              7|3,241.3                   |   1591.7|
+|New Zealand          |              7|2,795.6                   |   1681.2|
+|Czech Republic       |              7|2,481.3                   |   1062.1|
+|Mexico               |              6|6,230.1                   |    700.6|
+|Portugal             |              6|5,591.3                   |    807.6|
+|Malaysia             |              6|4,901.4                   |   1134.5|
+|Norway               |              6|4,298.4                   |   1604.8|
+|Thailand             |              6|2,580.2                   |   1525.6|
+|Ireland              |              6|2,146.9                   |   1786.5|
+|Hungary              |              6|1,574.1                   |   1428.8|
+|Denmark              |              5|5,011.5                   |   1762.0|
+|Saudi Arabia         |              5|3,992.1                   |   1434.9|
+|Pakistan             |              5|1,156.7                   |   1045.3|
+|Colombia             |              3|4,057.8                   |    249.0|
+|Argentina            |              3|3,765.4                   |    300.8|
+|Chile                |              3|3,329.1                   |    597.7|
+|Singapore            |              3|2,753.1                   |   2005.6|
+|Serbia               |              3|1,756.1                   |    568.5|
+|Romania              |              3|702.2                     |    859.7|
+|Tunisia              |              3|291.1                     |   1198.8|
+|Slovenia             |              2|1,563.7                   |    865.4|
+|Nigeria              |              2|715.8                     |   1102.8|
+|Jordan               |              2|481.2                     |   1325.2|
+|Slovakia             |              2|481.2                     |    652.9|
+|United Arab Emirates |              2|404.1                     |   1770.5|
+|Croatia              |              1|1,327.4                   |    423.8|
+|Uruguay              |              1|668.6                     |    409.0|
+|Estonia              |              1|513.3                     |   1098.9|
+|Lithuania            |              1|450.2                     |    818.3|
+|Oman                 |              1|398.5                     |    508.1|
+|Lebanon              |              1|359.1                     |   1687.3|
+|Ethiopia             |              1|331.9                     |   1649.4|
+|Ghana                |              1|327.3                     |   1563.2|
+|Uganda               |              1|324.0                     |   1785.0|
+|Kuwait               |              1|303.2                     |   1642.3|
+|Iceland              |              1|229.0                     |   1453.3|
+|Qatar                |              1|200.4                     |   1552.0|
+|Luxembourg           |              1|192.1                     |   1791.3|
+|Viet Nam             |              1|136.0                     |   1314.0|
+|Cyprus               |              1|129.0                     |   1583.2|
+|Morocco              |              1|127.4                     |    893.9|
+|Algeria              |              1|37.0                      |    708.9|
 
 
 
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve379e5136c6ab8d5f
+preservea48b52b4e3e1ea9a
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserved7aa5d74421a89b2
+preserve40cdfca2ff85c3cd
 
 
 ## Papers per continent
@@ -462,7 +462,7 @@ works %>%
 ```
 
 ```
-## [1] 1593398
+## [1] 1572417
 ```
 
 
@@ -770,7 +770,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservecb343237433c0ccc
+preservea486cc67f0e1a714
 
 
 Using ggrepel
