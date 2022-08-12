@@ -38,64 +38,64 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Poland               |             31|
-|Turkey               |             31|
 |Brazil               |             31|
+|Turkey               |             31|
+|Poland               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Austria              |             12|
 |Sweden               |             12|
+|Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
 |Belgium              |              8|
 |Israel               |              8|
-|Egypt                |              8|
 |Switzerland          |              8|
 |Greece               |              8|
+|Egypt                |              8|
+|Finland              |              7|
 |Czech Republic       |              7|
 |New Zealand          |              7|
-|Finland              |              7|
 |Malaysia             |              6|
-|Ireland              |              6|
 |Norway               |              6|
-|Mexico               |              6|
 |Portugal             |              6|
-|Thailand             |              6|
 |Hungary              |              6|
-|Saudi Arabia         |              5|
+|Thailand             |              6|
+|Ireland              |              6|
+|Mexico               |              6|
 |Denmark              |              5|
+|Saudi Arabia         |              5|
 |Pakistan             |              5|
-|Argentina            |              3|
-|Chile                |              3|
-|Colombia             |              3|
 |Singapore            |              3|
-|Serbia               |              3|
-|Romania              |              3|
 |Tunisia              |              3|
-|Jordan               |              2|
-|United Arab Emirates |              2|
-|Slovakia             |              2|
+|Chile                |              3|
+|Serbia               |              3|
+|Colombia             |              3|
+|Argentina            |              3|
+|Romania              |              3|
 |Nigeria              |              2|
 |Slovenia             |              2|
-|Algeria              |              1|
+|Jordan               |              2|
+|Slovakia             |              2|
+|United Arab Emirates |              2|
 |Ghana                |              1|
-|Uruguay              |              1|
-|Estonia              |              1|
-|Lebanon              |              1|
-|Morocco              |              1|
-|Luxembourg           |              1|
-|Cyprus               |              1|
-|Iceland              |              1|
-|Qatar                |              1|
 |Kuwait               |              1|
-|Lithuania            |              1|
-|Uganda               |              1|
-|Viet Nam             |              1|
-|Croatia              |              1|
-|Oman                 |              1|
+|Cyprus               |              1|
+|Uruguay              |              1|
 |Ethiopia             |              1|
+|Viet Nam             |              1|
+|Algeria              |              1|
+|Iceland              |              1|
+|Croatia              |              1|
+|Lithuania            |              1|
+|Luxembourg           |              1|
+|Qatar                |              1|
+|Morocco              |              1|
+|Estonia              |              1|
+|Uganda               |              1|
+|Oman                 |              1|
+|Lebanon              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preservea48b52b4e3e1ea9a
+preserve8ad7559fe032a026
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve40cdfca2ff85c3cd
+preserved1b306d135c064a0
 
 
 ## Papers per continent
@@ -444,7 +444,6 @@ How many papers do we have, which also have a topic?
 
 ```r
 works %>% 
-  filter(!is.na(field)) %>% 
   distinct(id) %>% 
   sdf_nrow()
 ```
@@ -453,17 +452,6 @@ works %>%
 ## [1] 1572417
 ```
 This is our total sample size.
-
-
-```r
-works %>% 
-  distinct(id) %>% 
-  sdf_nrow()
-```
-
-```
-## [1] 1572417
-```
 
 
 Which topics are represented in our sample?
@@ -559,7 +547,7 @@ p_apc_field <- apc_field %>%
   ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
   geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
   geom_point() + 
-  geom_text(aes(label = scales::comma(round(mean_apc))), nudge_x = 30, 
+  geom_text(aes(label = scales::comma(mean_apc, accuracy = 1)), nudge_x = 30, 
             hjust = "left") +
   labs(y = NULL, x = "Mean APC (in $)") +
   theme(panel.grid.major.y = element_blank(),
@@ -770,7 +758,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservea486cc67f0e1a714
+preserve6ac29ba2512f9053
 
 
 Using ggrepel
