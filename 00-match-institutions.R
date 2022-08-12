@@ -156,4 +156,9 @@ full_matched %>%
 full_matched %>%
   write_csv("data/processed/leiden_matched.csv")
 
+# upload file to hadopp
+system("hdfs dfs -rm apc_paper/leiden_matched.csv") # this could be incorporated
+# directly below with '-f' but I prefer to separate them so they fail explicitly
+system("hdfs dfs -put data/processed/leiden_matched.csv apc_paper/leiden_matched.csv")
+
 spark_disconnect(sc)
