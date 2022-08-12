@@ -230,17 +230,10 @@ plot_data %>%
 How many papers do we have, which also have a topic?
 ```{r}
 works %>% 
-  filter(!is.na(field)) %>% 
   distinct(id) %>% 
   sdf_nrow()
 ```
 This is our total sample size.
-
-```{r}
-works %>% 
-  distinct(id) %>% 
-  sdf_nrow()
-```
 
 
 Which topics are represented in our sample?
