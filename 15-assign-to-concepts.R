@@ -48,10 +48,11 @@ concept_fraction <- work_ids_with_concepts %>%
   group_by(id) %>%
   mutate(concept_frac = score^2/sum(score))
 
-works <- works %>%
-  left_join(concept_fraction, by = "id")
+works_out <- works %>%
+  # merge concepts to works by only retaining works where we have a concept
+  inner_join(concept_fraction, by = "id")
 
-spark_write_parquet(works,
+spark_write_parquet(works_out,
                     "/user/tklebel/apc_paper/papers_with_concepts.parquet",
                     mode = "overwrite")
 
