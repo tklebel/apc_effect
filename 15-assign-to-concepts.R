@@ -46,7 +46,7 @@ work_ids_with_concepts <- works_with_concept_id %>%
 
 concept_fraction <- work_ids_with_concepts %>%
   group_by(id) %>%
-  mutate(concept_frac = score/sum(score))
+  mutate(concept_frac = score^2/sum(score))
 
 works <- works %>%
   left_join(concept_fraction, by = "id")
