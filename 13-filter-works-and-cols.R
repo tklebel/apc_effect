@@ -8,7 +8,7 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 15 # this can go up to 27, depending on RAM
+config$spark.executor.instances <- 10 # this can go up to 27, depending on RAM
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "filter_works_and_cols")
@@ -27,7 +27,7 @@ works_oa <- works %>%
 works_w_leiden <- works_oa %>%
   filter(!is.na(Period))
 
-check(works_w_leiden)
+# check(works_w_leiden)
 
 # only keep rows where publication year is the last year of the leiden period
 matched_works <- works_w_leiden %>%
@@ -36,7 +36,7 @@ matched_works <- works_w_leiden %>%
   filter(publication_year <= last_year_of_period &
            publication_year >= first_year_of_period)
 
-check(matched_works)
+# check(matched_works)
 
 selected_cols <- matched_works %>%
   select(id, doi, title, venue_id, author_position, institution_id, work_frac,
@@ -44,7 +44,7 @@ selected_cols <- matched_works %>%
          country_code, Period, P_top10, publication_year, first_year_of_period,
          last_year_of_period)
 
-check(selected_cols, sampling = TRUE)
+# check(selected_cols, sampling = TRUE)
 
 # fix type of APC column
 selected_cols <- selected_cols %>%
