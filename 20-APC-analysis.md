@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "11 August, 2022"
+date: "12 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -49,53 +49,53 @@ universities_per_country %>%
 |Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Israel               |              8|
-|Switzerland          |              8|
-|Greece               |              8|
 |Belgium              |              8|
 |Egypt                |              8|
+|Greece               |              8|
+|Israel               |              8|
+|Switzerland          |              8|
 |New Zealand          |              7|
 |Finland              |              7|
 |Czech Republic       |              7|
-|Ireland              |              6|
+|Malaysia             |              6|
 |Portugal             |              6|
 |Norway               |              6|
-|Hungary              |              6|
-|Malaysia             |              6|
+|Ireland              |              6|
 |Thailand             |              6|
+|Hungary              |              6|
 |Mexico               |              6|
-|Saudi Arabia         |              5|
 |Denmark              |              5|
 |Pakistan             |              5|
-|Singapore            |              3|
-|Chile                |              3|
+|Saudi Arabia         |              5|
 |Tunisia              |              3|
-|Serbia               |              3|
-|Romania              |              3|
-|Argentina            |              3|
 |Colombia             |              3|
-|United Arab Emirates |              2|
+|Serbia               |              3|
+|Argentina            |              3|
+|Romania              |              3|
+|Chile                |              3|
+|Singapore            |              3|
 |Jordan               |              2|
-|Nigeria              |              2|
+|United Arab Emirates |              2|
 |Slovenia             |              2|
 |Slovakia             |              2|
+|Nigeria              |              2|
+|Croatia              |              1|
 |Lithuania            |              1|
-|Iceland              |              1|
+|Oman                 |              1|
 |Viet Nam             |              1|
-|Cyprus               |              1|
-|Morocco              |              1|
-|Ethiopia             |              1|
-|Estonia              |              1|
+|Qatar                |              1|
+|Ghana                |              1|
+|Uruguay              |              1|
 |Kuwait               |              1|
+|Luxembourg           |              1|
+|Estonia              |              1|
+|Ethiopia             |              1|
+|Iceland              |              1|
+|Cyprus               |              1|
 |Algeria              |              1|
+|Morocco              |              1|
 |Uganda               |              1|
 |Lebanon              |              1|
-|Qatar                |              1|
-|Luxembourg           |              1|
-|Oman                 |              1|
-|Ghana                |              1|
-|Croatia              |              1|
-|Uruguay              |              1|
 
 
 ```r
@@ -125,7 +125,7 @@ papers_per_country %>%
 |country              | sum_fractional_works|
 |:--------------------|--------------------:|
 |United States        |             126649.1|
-|China                |              95656.3|
+|China                |              95704.2|
 |Brazil               |              92967.9|
 |United Kingdom       |              36360.4|
 |Spain                |              33455.8|
@@ -192,7 +192,6 @@ papers_per_country %>%
 |Viet Nam             |                136.0|
 |Cyprus               |                130.2|
 |Morocco              |                129.3|
-|China                |                 48.0|
 |Algeria              |                 37.9|
 
 
@@ -277,8 +276,7 @@ all_three_descriptives %>%
 
 |Country              | n universities|n fractional publications | Mean APC|
 |:--------------------|--------------:|:-------------------------|--------:|
-|China                |            216|95,656.30                 |   1869.1|
-|China                |            216|48.00                     |   1869.1|
+|China                |            216|95,704.20                 |   1869.1|
 |United States        |            199|126,649.10                |   1925.4|
 |United Kingdom       |             60|36,360.40                 |   1808.8|
 |Japan                |             55|19,429.20                 |   1815.6|
@@ -372,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve40f2b0b0bb4c8466
+preserve501523b5c11f7e53
 
 
 ```r
@@ -411,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve6ab4bdf31ca602ad
+preserve6151a43b04d87be4
 
 
 ## Papers per continent
@@ -761,7 +759,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve193f16b1dcad11a9
+preservec0160cdb4d36554f
 
 
 Using ggrepel
