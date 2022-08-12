@@ -8,7 +8,7 @@ message("Connecting to spark...")
 
 config <- spark_config()
 config$spark.executor.cores <- 5 # this should always stay the same
-config$spark.executor.instances <- 27 # this can go up to 27, depending on RAM
+config$spark.executor.instances <- 20 # this can go up to 27, depending on RAM
 config$spark.executor.memory <- "12G"
 sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "assign_to_concepts")
@@ -26,7 +26,6 @@ concepts <- tbl(sc, "concepts")
 concepts <- concepts %>%
   select(id, field = display_name, level) %>%
   filter(level == 0)
-concepts
 
 csv_reader("/user/tklebel/openalex/works_concepts.csv.bz2", "works_concepts")
 works_concepts <- tbl(sc, "works_concepts")
