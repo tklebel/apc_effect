@@ -38,64 +38,64 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Brazil               |             31|
 |Poland               |             31|
+|Brazil               |             31|
 |Turkey               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Sweden               |             12|
 |Austria              |             12|
+|Sweden               |             12|
 |Russia               |             10|
 |South Africa         |              9|
 |Belgium              |              8|
-|Egypt                |              8|
-|Greece               |              8|
-|Israel               |              8|
 |Switzerland          |              8|
-|New Zealand          |              7|
-|Finland              |              7|
+|Egypt                |              8|
+|Israel               |              8|
+|Greece               |              8|
 |Czech Republic       |              7|
-|Malaysia             |              6|
+|Finland              |              7|
+|New Zealand          |              7|
 |Portugal             |              6|
-|Norway               |              6|
-|Ireland              |              6|
 |Thailand             |              6|
+|Malaysia             |              6|
 |Hungary              |              6|
+|Ireland              |              6|
 |Mexico               |              6|
-|Denmark              |              5|
-|Pakistan             |              5|
+|Norway               |              6|
 |Saudi Arabia         |              5|
+|Pakistan             |              5|
+|Denmark              |              5|
+|Chile                |              3|
 |Tunisia              |              3|
 |Colombia             |              3|
-|Serbia               |              3|
 |Argentina            |              3|
+|Serbia               |              3|
 |Romania              |              3|
-|Chile                |              3|
 |Singapore            |              3|
-|Jordan               |              2|
-|United Arab Emirates |              2|
-|Slovenia             |              2|
-|Slovakia             |              2|
 |Nigeria              |              2|
-|Croatia              |              1|
-|Lithuania            |              1|
-|Oman                 |              1|
-|Viet Nam             |              1|
+|Slovakia             |              2|
+|Jordan               |              2|
+|Slovenia             |              2|
+|United Arab Emirates |              2|
 |Qatar                |              1|
 |Ghana                |              1|
+|Croatia              |              1|
 |Uruguay              |              1|
-|Kuwait               |              1|
-|Luxembourg           |              1|
-|Estonia              |              1|
-|Ethiopia             |              1|
-|Iceland              |              1|
-|Cyprus               |              1|
-|Algeria              |              1|
-|Morocco              |              1|
 |Uganda               |              1|
+|Ethiopia             |              1|
+|Estonia              |              1|
+|Morocco              |              1|
+|Oman                 |              1|
+|Iceland              |              1|
+|Viet Nam             |              1|
 |Lebanon              |              1|
+|Luxembourg           |              1|
+|Algeria              |              1|
+|Cyprus               |              1|
+|Kuwait               |              1|
+|Lithuania            |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve501523b5c11f7e53
+preserve379e5136c6ab8d5f
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve6151a43b04d87be4
+preserved7aa5d74421a89b2
 
 
 ## Papers per continent
@@ -453,6 +453,17 @@ works %>%
 ## [1] 1572417
 ```
 This is our total sample size.
+
+
+```r
+works %>% 
+  distinct(id) %>% 
+  sdf_nrow()
+```
+
+```
+## [1] 1593398
+```
 
 
 Which topics are represented in our sample?
@@ -520,25 +531,25 @@ plot_data %>%
 
 |field                 |frac_papers |prop  |label           |
 |:---------------------|:-----------|:-----|:---------------|
-|Medicine              |481,047     |30.6% |481,047 (30.6%) |
-|Biology               |290,499     |18.5% |290,499 (18.5%) |
-|Chemistry             |163,767     |10.4% |163,767 (10.4%) |
-|Computer science      |140,438     |8.9%  |140,438 (8.9%)  |
-|Materials science     |106,550     |6.8%  |106,550 (6.8%)  |
-|Psychology            |98,461      |6.3%  |98,461 (6.3%)   |
-|Environmental science |46,768      |3.0%  |46,768 (3.0%)   |
-|Physics               |44,382      |2.8%  |44,382 (2.8%)   |
-|Political science     |36,339      |2.3%  |36,339 (2.3%)   |
-|Geography             |31,787      |2.0%  |31,787 (2.0%)   |
-|Sociology             |29,340      |1.9%  |29,340 (1.9%)   |
-|Mathematics           |24,093      |1.5%  |24,093 (1.5%)   |
-|Art                   |21,573      |1.4%  |21,573 (1.4%)   |
-|Business              |20,992      |1.3%  |20,992 (1.3%)   |
-|Geology               |13,937      |0.9%  |13,937 (0.9%)   |
-|Philosophy            |10,596      |0.7%  |10,596 (0.7%)   |
-|Economics             |5,709       |0.4%  |5,709 (0.4%)    |
-|History               |3,379       |0.2%  |3,379 (0.2%)    |
-|Engineering           |2,760       |0.2%  |2,760 (0.2%)    |
+|Medicine              |330,091     |36.2% |330,091 (36.2%) |
+|Biology               |163,396     |17.9% |163,396 (17.9%) |
+|Chemistry             |82,019      |9.0%  |82,019 (9.0%)   |
+|Computer science      |77,209      |8.5%  |77,209 (8.5%)   |
+|Materials science     |65,406      |7.2%  |65,406 (7.2%)   |
+|Psychology            |49,027      |5.4%  |49,027 (5.4%)   |
+|Physics               |28,484      |3.1%  |28,484 (3.1%)   |
+|Environmental science |23,262      |2.6%  |23,262 (2.6%)   |
+|Political science     |16,094      |1.8%  |16,094 (1.8%)   |
+|Mathematics           |14,337      |1.6%  |14,337 (1.6%)   |
+|Geography             |13,944      |1.5%  |13,944 (1.5%)   |
+|Sociology             |12,119      |1.3%  |12,119 (1.3%)   |
+|Art                   |10,435      |1.1%  |10,435 (1.1%)   |
+|Business              |9,167       |1.0%  |9,167 (1.0%)    |
+|Geology               |7,362       |0.8%  |7,362 (0.8%)    |
+|Philosophy            |4,787       |0.5%  |4,787 (0.5%)    |
+|Economics             |2,518       |0.3%  |2,518 (0.3%)    |
+|History               |1,330       |0.1%  |1,330 (0.1%)    |
+|Engineering           |1,023       |0.1%  |1,023 (0.1%)    |
 
 
 
@@ -759,7 +770,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservec0160cdb4d36554f
+preservecb343237433c0ccc
 
 
 Using ggrepel

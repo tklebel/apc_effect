@@ -236,6 +236,12 @@ works %>%
 ```
 This is our total sample size.
 
+```{r}
+works %>% 
+  distinct(id) %>% 
+  sdf_nrow()
+```
+
 
 Which topics are represented in our sample?
 ```{r}
