@@ -1,7 +1,7 @@
 ---
 title: "Additional mini analyses"
 author: "Thomas Klebel"
-date: "10 August, 2022"
+date: "12 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -86,7 +86,7 @@ institutions %>%
 ## # A tibble: 1 × 2
 ##     q20   q80
 ##   <dbl> <dbl>
-## 1  86.3  541.
+## 1  86.2  540.
 ```
 
 
