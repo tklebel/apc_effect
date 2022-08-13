@@ -203,7 +203,7 @@ plotly::ggplotly(p)
 
 
 ## Papers per continent
-```{r papers-p-continent, fig.width=9, fig.height=3.5}
+```{r papers-p-continent, fig.width=9, fig.height=3}
 plot_data <- papers_per_country %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>% 
   group_by(region) %>% 
@@ -216,13 +216,15 @@ plot_data <- papers_per_country %>%
 
 plot_data %>% 
   ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
-  geom_col(width = .5) +
+  geom_segment(aes(xend = 0, yend = region), colour = "grey70") +
+  geom_point() +
   geom_text(aes(label = label), nudge_x = 2000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"))
+        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
 
@@ -247,7 +249,7 @@ frac_concept_papers <- works %>%
 ```
 
 
-```{r concept-overview, fig.height=8, fig.width=8}
+```{r concept-overview, fig.height=6, fig.width=8}
 plot_data <- frac_concept_papers %>% 
   drop_na() %>% 
   mutate(prop = frac_papers / sum(frac_papers),
@@ -258,13 +260,15 @@ plot_data <- frac_concept_papers %>%
 
 plot_data %>% 
   ggplot(aes(frac_papers, fct_reorder(field, prop))) +
-  geom_col(width = .5) +
+  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
+  geom_point() +
   geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"))
+        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
 
