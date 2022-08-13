@@ -53,7 +53,9 @@ base <- df %>%
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
                                    TRUE ~ APC_in_dollar)) %>% 
-  mutate(P_top10 = scale(log(P_top10), scale = FALSE))
+  mutate(P_top10 = scale(log(P_top10), scale = FALSE)) %>% 
+  filter(country != "South Africa")  # this is excluded from the model for now,
+  # so need to remove
 ```
 
 ```{r}
