@@ -49,7 +49,7 @@ n <- sdf_nrow(only_papers)
 frac <- 80000 / n
 
 the_sample <- only_papers %>%
-  sdf_sample(fraction = frac, replacement = FALSE, seed = 20220726) %>%
+  sdf_sample(fraction = frac, replacement = FALSE, seed = 20220813) %>%
   left_join(selected_works) %>%
   collect()
 
@@ -63,7 +63,7 @@ the_sample <- the_sample %>%
 the_sample %>%
   distinct(id) %>%
   nrow()
-# yep: 79975
+# yep: 80222
 
 # what about the distribution of fields
 the_sample %>%
@@ -74,25 +74,25 @@ the_sample %>%
 # # A tibble: 19 × 2
 #   field                      n
 #   <chr>                  <dbl>
-#  1 Medicine              24561.
-#  2 Biology               13099.
-#  3 Chemistry              7941.
-#  4 Computer science       7428.
-#  5 Materials science      6551.
-#  6 Psychology             4817.
-#  7 Physics                2555.
-#  8 Environmental science  2357.
-#  9 Political science      1964.
-# 10 Geography              1654.
-# 11 Sociology              1549.
-# 12 Art                    1257.
-# 13 Business               1207.
-# 14 Mathematics             975.
-# 15 Geology                 813.
-# 16 Philosophy              564.
-# 17 Economics               317.
-# 18 History                 183.
-# 19 Engineering             182.
+#  1 Medicine              17139.
+#  2 Biology                7226.
+#  3 Computer science       4225.
+#  4 Materials science      4011.
+#  5 Chemistry              3930.
+#  6 Psychology             2390.
+#  7 Physics                1654.
+#  8 Environmental science  1182.
+#  9 Political science       857.
+# 10 Geography               761.
+# 11 Sociology               636.
+# 12 Art                     605.
+# 13 Mathematics             554.
+# 14 Business                527.
+# 15 Geology                 428.
+# 16 Philosophy              251.
+# 17 Economics               121.
+# 18 History                  66.9
+# 19 Engineering              64.8
 
 # this conforms in general to the overall pattern, but the ordinal ranking is
 # not identical (expected given this is a sample and some differences are small)
@@ -105,16 +105,16 @@ the_sample %>%
 # # A tibble: 69 × 2
 #    country            n
 #    <chr>          <int>
-#  1 China          16140
-#  2 United States  14011
-#  3 Brazil          7229
-#  4 United Kingdom  4462
-#  5 Germany         3536
-#  6 Spain           3116
-#  7 Japan           2836
-#  8 South Korea     2801
-#  9 Australia       2744
-# 10 Canada          2714
+#  1 China          16248
+#  2 United States  13959
+#  3 Brazil          7075
+#  4 United Kingdom  4602
+#  5 Germany         3634
+#  6 Spain           2982
+#  7 South Korea     2878
+#  8 Canada          2833
+#  9 Japan           2820
+# 10 Australia       2762
 # # … with 59 more rows
 
 
