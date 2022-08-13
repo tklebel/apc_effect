@@ -18,6 +18,9 @@ library(scales)
 library(colorspace)
 library(modelr)
 
+# set number of cores for prediction tasks
+mc_cores <- 10
+
 # Use the Johnson color palette
 clrs <- MetBrewer::met.brewer("Johnson")
 
@@ -77,7 +80,8 @@ effect_scale <- list(
 
 
 ```{r}
-hm <- brm(file = "final_models/mix_final_vienna.rds", file_refit = "never")
+hm <- brm(file = "final_models/17-wo-south-africa_brm-large-sample.rds", 
+          file_refit = "never")
 ```
 
 ```{r, include=FALSE, eval=FALSE}
@@ -110,7 +114,7 @@ summary(mix_identified)
 # Posterior predictive check
 
 ```{r pp_check, eval=FALSE}
-pp_check(hm, ndraws = 10) +
+pp_check(hm, ndraws = 10, cores = mc_cores) +
   coord_cartesian(xlim = c(0, 8000))
 ```
 ![](20-analyse-hurdle_files/figure-html/pp_check-1.png)
@@ -124,7 +128,8 @@ pred_vis <- function(df, model, country_selection,
   df %>%
     filter(country == country_selection) %>%
     modelr::data_grid(P_top10, country, field) %>%
-    add_predicted_draws(model, ndraws = ndraws, re_formula = NULL) %>%
+    add_predicted_draws(model, ndraws = ndraws, re_formula = NULL, 
+                        cores = mc_cores) %>%
     get_back() %>% 
     ggplot(aes(P_top10, .prediction)) +
     stat_interval() +
