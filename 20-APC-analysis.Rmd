@@ -146,6 +146,10 @@ all_three_descriptives %>%
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
   knitr::kable()
+
+# restrict data for plotting so we only plot countries with at least 5 universities
+all_three_descriptives <- all_three_descriptives %>% 
+  filter(n_universities >= 5)
 ```
 
 
@@ -175,7 +179,7 @@ pdata <- all_three_descriptives %>%
 
 labels <- pdata %>% 
   mutate(label = case_when(
-    country.x %in% c("China", "India", "Uganda", "United States",
+    country.x %in% c("China", "India", "United States",
                       "Brazil", "Switzerland", "Israel", "Spain",
                      "Saudi Arabia") ~ country.x,
     TRUE ~ ""))
