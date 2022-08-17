@@ -18,23 +18,14 @@ spark_read_parquet(sc, "/user/tklebel/apc_paper/fractional_works.parquet",
                    name = "fractional_works", memory = TRUE)
 fractional_works <- tbl(sc, "fractional_works")
 
+csv_reader("/user/tklebel/openalex/institutions_geo.csv.bz2", "institutions_geo")
+institutions_geo <- tbl(sc, "institutions_geo")
+
 csv_reader("/user/tklebel/openalex/venues_in_doaj.csv", "venues_in_doaj")
 venues_in_doaj <- tbl(sc, "venues_in_doaj")
 
 venues_apcs <- venues_in_doaj %>%
   select(id, APC, waiver, APC_in_dollar)
-
-
-csv_reader("/user/tklebel/apc_paper/leiden_matched.csv", "leiden_key")
-leiden_key <- tbl(sc, "leiden_key")
-
-spark_read_csv(sc, "leiden", "/user/tklebel/apc_paper/leiden_2021.csv",
-               memory = TRUE, null_value = "NA")
-
-leiden <- tbl(sc, "leiden") %>%
-  filter(Field == "All sciences", Frac_counting == 1,
-         !is.na(P_top10)) %>%
-  select(University, Period, Frac_counting, P_top10)
 
 # the single remaining issue seems to be: some journals only become OA later
 # so we should filter out those articles where the publication year is smaller
@@ -54,9 +45,7 @@ fractional_works %>% count(is_oa)
 # we only keep those that are OA, which is done in the next script
 # get journal for work -> get APC value and Ptop_10
 joined <- fractional_works %>%
-  left_join(venues_apcs, by = c("venue_id" = "id")) %>%
-  left_join(leiden_key, by = c("institution_id" = "id")) %>%
-  left_join(leiden, by = c("University"))
+  left_join(venues_apcs, by = c("venue_id" = "id"))
 
 # how many works remain?
 joined %>%
@@ -67,10 +56,11 @@ joined %>%
 #       <int>
 #   1 2499446
 
-# need to filter so the publication year fits to the leiden data year -> this
-# is done in the next script
+# add in geographi information from OpenAlex
+out <- joined %>%
+  left_join(institutions_geo, by = "institution_id")
 
-spark_write_parquet(joined, "/user/tklebel/apc_paper/all_papers_merged.parquet",
+spark_write_parquet(out, "/user/tklebel/apc_paper/all_papers_merged_wo_leiden.parquet",
                     partition_by = "publication_year",
                     mode = "overwrite")
 

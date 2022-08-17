@@ -14,7 +14,7 @@ sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "filter_works_and_cols")
 
 spark_read_parquet(
-  sc, "works_base", "/user/tklebel/apc_paper/all_papers_merged.parquet",
+  sc, "works_base", "/user/tklebel/apc_paper/all_papers_merged_wo_leiden.parquet",
   memory = FALSE
 )
 works <- tbl(sc, "works_base")
@@ -25,9 +25,8 @@ works_oa <- works %>%
 
 
 selected_cols <- works_oa %>%
-  select(id, doi, title, venue_id, author_position, institution_id, work_frac,
-         APC, waiver, APC_in_dollar, University, country = Country1,
-         country_code, publication_year)
+  select(id, doi, title, venue_id, author_position, institution_id, country,
+         country_code, work_frac, APC, waiver, APC_in_dollar, publication_year)
 
 # check(selected_cols, sampling = TRUE)
 
