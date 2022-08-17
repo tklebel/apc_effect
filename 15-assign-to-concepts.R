@@ -14,7 +14,7 @@ sc <- spark_connect(master = "yarn-client", config = config,
                     app_name = "assign_to_concepts")
 
 spark_read_parquet(
-  sc, "works", "/user/tklebel/apc_paper/all_papers_selected_cols.parquet",
+  sc, "works", "/user/tklebel/apc_paper/all_papers_selected_cols_wo_leiden.parquet",
   memory = FALSE
 )
 works <- tbl(sc, "works")
@@ -53,7 +53,7 @@ works_out <- works %>%
   inner_join(concept_fraction, by = "id")
 
 spark_write_parquet(works_out,
-                    "/user/tklebel/apc_paper/papers_with_concepts.parquet",
+                    "/user/tklebel/apc_paper/papers_with_concepts_wo_leiden.parquet",
                     mode = "overwrite")
 
 spark_disconnect(sc)
