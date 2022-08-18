@@ -33,16 +33,13 @@ sc <- spark_connect(master = "yarn-client", config = config,
 message("Connection to Spark successful!")
 
 spark_read_parquet(
-  sc, "works", "/user/tklebel/apc_paper/papers_with_concepts.parquet",
+  sc, "works", "/user/tklebel/apc_paper/papers_with_concepts_wo_leiden.parquet",
   memory = TRUE
 )
 works <- tbl(sc, "works")
 
 works <- works %>% 
   mutate(
-    # on miscoding when matching institutions
-    country_code = case_when(country_code == "UK" ~ "GB",
-                                  TRUE ~ country_code),
     # rerunning the data pipeline introduced a hiccup regarding decimal precision
     # this is unlikely of substantive concern, since all values are present,
     # and no missing values are introduced through the below command
@@ -51,7 +48,7 @@ works <- works %>%
 message("Successfully read all datasets!")
 
 wdi <- WDI_data$country %>% as_tibble() %>% 
-  select(iso2c, region, income)
+  select(iso2c, region, income, country)
 
 theme_clean <- theme_bw() +
   theme(panel.border = element_blank(),
@@ -59,34 +56,42 @@ theme_clean <- theme_bw() +
         axis.text = element_text(size = rel(1)))
 
 theme_set(theme_clean)
+
+add_country <- function(df) {
+  df %>% 
+    left_join(select(wdi, iso2c, country), by = c("country_code" = "iso2c"))
+}
 ```
 
 # Sample description 
 ## Institutions per country
 ```{r}
 universities_per_country <- works %>% 
-  distinct(country, University) %>% 
-  count(country, name = "n_universities") %>% 
+  distinct(country_code, institution_id) %>% 
+  count(country_code, name = "n_universities") %>% 
   arrange(desc(n_universities)) %>% 
-  collect()
+  collect() %>% 
+  add_country()
 
 universities_per_country %>% 
+  select(country, n_universities) %>% 
   knitr::kable()
 ```
 
 ```{r}
 # papers per country
 papers_per_country <- works %>% 
-  distinct(country, country_code, id, work_frac, author_position, institution_id) %>% 
-  group_by(country, country_code) %>% 
+  distinct(country_code, id, work_frac, author_position, institution_id) %>% 
+  group_by(country_code) %>% 
   summarise(sum_fractional_works = sum(work_frac) %>% round(digits = 1)) %>% 
   arrange(desc(sum_fractional_works)) %>% 
-  collect()
+  collect() %>% 
+  add_country()
 ```
 
 ```{r}
 papers_per_country %>% 
-  select(-country_code) %>% 
+  select(country, country_code, sum_fractional_works) %>% 
   knitr::kable()
 ```
 
@@ -94,28 +99,29 @@ papers_per_country %>%
 # average apc
 average_apc <- works %>%
   # first get rid of duplicates from concepts
-  distinct(country, country_code, id, work_frac, author_position, institution_id,
+  distinct(country_code, id, work_frac, author_position, institution_id,
            APC_in_dollar) %>% 
-  group_by(country) %>%
+  group_by(country_code) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
-  group_by(country, sum_frac) %>%
+  group_by(country_code, sum_frac) %>%
   summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac) %>% 
-  collect()
+  collect() %>% 
+  add_country()
 ```
 
 ```{r}
 # average APC over time
 average_apc_time <- works %>%
   # first get rid of duplicates from concepts
-  distinct(country, country_code, id, work_frac, author_position, institution_id,
+  distinct(country_code, id, work_frac, author_position, institution_id,
            APC_in_dollar, publication_year) %>% 
-  group_by(country, country_code, publication_year) %>%
+  group_by(country_code, publication_year) %>%
   # compute the average APC using fractional authorships as weights
   mutate(sum_frac = sum(work_frac)) %>%
-  group_by(country, country_code, sum_frac, publication_year) %>%
+  group_by(country_code, sum_frac, publication_year) %>%
   summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac) %>% 
-  collect()
+  collect() 
 ```
 
 ```{r apc-region-time, fig.width=10, fig.height=6}
@@ -135,8 +141,14 @@ average_apc_time %>%
 All three joined
 ```{r}
 all_three_descriptives <- universities_per_country %>% 
-  left_join(papers_per_country, by = "country") %>% 
-  left_join(average_apc, by = "country")
+  left_join(papers_per_country, by = c("country", "country_code")) %>% 
+  left_join(average_apc, by = c("country", "country_code")) %>% 
+  # remove missing values
+  # these arise since the wdi data on country codes does not have a mapping for
+  # all codes that are present in the data. in most cases, these are small 
+  # countries, and in the case of a high university count (433) simply all
+  # institutions that were not assigned a country code at all.
+  drop_na()
 
 all_three_descriptives %>% 
   arrange(desc(n_universities), desc(sum_fractional_works)) %>% 
@@ -158,7 +170,7 @@ gdp <- WDI::WDI(start = 2019, end = 2019)
 
 # plot n papers against average apc
 p <- all_three_descriptives %>% 
-  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  left_join(wdi, by = c("country_code" = "iso2c", "country" = "country")) %>% 
   ggplot(aes(sum_fractional_works, mean_apc, colour = region, label = country)) +
   geom_point() +
   scale_x_log10(labels = scales::comma) +
@@ -174,22 +186,23 @@ plotly::ggplotly(p)
 
 ```{r apc-vs-gdp, fig.width=8, fig.height=5}
 pdata <- all_three_descriptives %>% 
-  left_join(gdp, by = c("country_code" = "iso2c")) %>% 
-  left_join(wdi, by = c("country_code" = "iso2c"))
+  left_join(gdp, by = c("country_code" = "iso2c", "country" = "country")) %>% 
+  left_join(wdi, by = c("country_code" = "iso2c", "country" = "country"))
 
 labels <- pdata %>% 
   mutate(label = case_when(
-    country.x %in% c("China", "India", "United States",
+    country %in% c("China", "India", "United States","Uganda",
                       "Brazil", "Switzerland", "Israel", "Spain",
-                     "Saudi Arabia") ~ country.x,
+                     "Saudi Arabia") ~ country,
     TRUE ~ ""))
 
 p <- pdata %>% 
-  ggplot(aes(NY.GDP.PCAP.KD, mean_apc, colour = region, label = country.x)) +
+  ggplot(aes(NY.GDP.PCAP.KD, mean_apc, colour = region, label = country)) +
   geom_point(aes(alpha = sum_fractional_works)) +
   ggrepel::geom_text_repel(data = labels, aes(label = label),
                            show.legend = FALSE, max.overlaps = Inf,
-                           box.padding = 1, min.segment.length = 0) +
+                           box.padding = 1, min.segment.length = 0,
+                           nudge_y = -10) +
   scale_x_continuous(labels = scales::dollar) +
   scale_y_continuous(labels = scales::comma) +
   scale_alpha_continuous(trans = "log10", range = c(.1, 1),
@@ -206,364 +219,6 @@ plotly::ggplotly(p)
 ```
 
 
-## Papers per continent
-```{r papers-p-continent, fig.width=9, fig.height=3}
-plot_data <- papers_per_country %>% 
-  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
-  group_by(region) %>% 
-  summarise(sum_fractional_works = sum(sum_fractional_works)) %>% 
-  mutate(prop = sum_fractional_works / sum(sum_fractional_works),
-         label = glue::glue(
-           "{scales::comma(sum_fractional_works)} ({scales::percent(prop, accuracy = .1)})"
-         )
-  )
-
-plot_data %>% 
-  ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
-  geom_segment(aes(xend = 0, yend = region), colour = "grey70") +
-  geom_point() +
-  geom_text(aes(label = label), nudge_x = 2000, hjust = "left") +
-  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
-                     labels = scales::comma) +
-  labs(x = "Number of fractional publications", y = NULL) +
-  theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
-        axis.text.y = element_text(margin = margin(r = -10)))
-```
-
-
-## Distribution across topics
-How many papers do we have, which also have a topic?
-```{r}
-works %>% 
-  distinct(id) %>% 
-  sdf_nrow()
-```
-This is our total sample size.
-
-
-Which topics are represented in our sample?
-```{r}
-frac_concept_papers <- works %>% 
-  distinct(id, field, concept_frac) %>% 
-  group_by(field) %>% 
-  summarise(frac_papers = sum(concept_frac)) %>% 
-  arrange(desc(frac_papers)) %>% 
-  collect()
-```
-
-
-```{r concept-overview, fig.height=6, fig.width=8}
-plot_data <- frac_concept_papers %>% 
-  drop_na() %>% 
-  mutate(prop = frac_papers / sum(frac_papers),
-         label = glue::glue(
-           "{scales::comma(frac_papers)} ({scales::percent(prop, accuracy = .1)})"
-         )
-  )
-
-plot_data %>% 
-  ggplot(aes(frac_papers, fct_reorder(field, prop))) +
-  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
-  geom_point() +
-  geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
-  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
-                     labels = scales::comma) +
-  labs(x = "Number of fractional publications", y = NULL) +
-  theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
-        axis.text.y = element_text(margin = margin(r = -10)))
-```
-
-
-What is the average apc across topics?
-```{r}
-apc_field <- works %>% 
-  distinct(id, field, concept_frac, APC_in_dollar) %>% 
-  group_by(field) %>%
-  mutate(sum_frac = sum(concept_frac)) %>%
-  group_by(field, sum_frac) %>%
-  summarise(mean_apc = sum(concept_frac * APC_in_dollar) / sum_frac) %>% 
-  collect()
-```
-
-```{r}
-plot_data %>% 
-  mutate(frac_papers = scales::comma(frac_papers),
-         prop = scales::percent(prop, accuracy = .1)) %>% 
-  knitr::kable()
-```
-
-
-```{r apc-field-overall, fig.width=7, fig.height=5}
-p_apc_field <- apc_field %>% 
-  drop_na() %>% 
-  ggplot(aes(mean_apc, fct_reorder(field, mean_apc))) +
-  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
-  geom_point() + 
-  geom_text(aes(label = scales::comma(mean_apc, accuracy = 1)), nudge_x = 30, 
-            hjust = "left") +
-  labs(y = NULL, x = "Mean APC (in $)") +
-  theme(panel.grid.major.y = element_blank(),
-        panel.grid.minor.x = element_blank(),
-        axis.ticks = element_blank(),
-        panel.border = element_blank()) +
-  scale_x_continuous(expand = expansion(mult = c(0, .1)),
-                     labels = scales::comma)
-p_apc_field
-```
-
-
-# Association between P_top10 and APC
-```{r}
-get_mean_apc_by_author_position <- function(df) {
-  df %>%
-    # first get rid of duplicates from concepts
-    distinct(id, author_position, work_frac, APC_in_dollar, University, country,
-             publication_year, P_top10) %>% 
-    group_by(University, publication_year, country, P_top10) %>%
-    # compute the average APC using fractional authorships as weights
-    mutate(sum_frac = sum(work_frac)) %>%
-    group_by(University, publication_year, country, P_top10, sum_frac,
-             author_position) %>%
-    summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac,
-              fractional_works = sum(work_frac))
-}
-
-mean_apcs <- works %>% 
-  filter(publication_year == last_year_of_period) %>% 
-  get_mean_apc_by_author_position()
-
-mean_apcs_local <- mean_apcs %>%
-  collect()
-
-mean_apc_16_19 <- works %>% 
-  filter(first_year_of_period == 2016) %>% 
-  get_mean_apc_by_author_position()
-
-mean_apc_16_19_local <- mean_apc_16_19 %>% 
-  collect()
-```
-
-```{r apc-first-last, fig.width=8, fig.height=4.5}
-# plot for 2016-19
-
-# taking out the correlation, because they are incorrect given that the figure
-# shows a non-linear relationship (x-axis logged), but the correlation is linear
-# (and quite unsuitable to the skewed P_top10)
-p1 <- mean_apc_16_19_local %>%
-  mutate(author_position = recode(author_position, first = "First authors", 
-                                  last = "Last authors")) %>% 
-  ggplot(aes(P_top10, mean_apc, colour = fractional_works)) + 
-  geom_point(aes(), alpha = .5) +
-  scale_colour_continuous_sequential(palette = "Mako", trans = "log10",
-                                     labels = comma) +
-  geom_smooth(colour = "grey30") +
-  facet_wrap(vars(author_position)) +
-  scale_x_log10() +
-  scale_y_continuous(labels = dollar) +
-  labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
-       colour = "Number of papers per institution",
-       x = expression(P["top 10%"])) +
-  theme(legend.position = "top",
-        legend.key.width = unit(1.5, 'cm'))
-p1
-```
-
-```{r apc-first-last-time, fig.height=4, fig.width=8}
-p2 <- mean_apcs_local %>%
-  mutate(author_position = recode(author_position, first = "First authors", 
-                                  last = "Last authors")) %>% 
-  group_by(publication_year, author_position) %>%
-  mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
-  group_by(ptop10_quantiles, publication_year, author_position) %>%
-  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
-            .groups = "drop_last") %>%
-  ggplot(aes(publication_year, mean_apc, colour = ptop10_quantiles,
-             group = ptop10_quantiles)) +
-  geom_line() +
-  facet_wrap(vars(author_position)) +
-  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
-  scale_y_continuous(labels = dollar) +
-  scale_color_discrete_qualitative(palette = "Dark 3") +
-  theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
-       colour = expression(P["top 10%"]), x = NULL)
-p2
-```
-
-```{r apc-composite, fig.height=8.5, fig.width=8}
-p1 / p2 +
-  plot_layout(heights = c(4.5, 4)) +
-  plot_annotation(tag_levels = "A")
-```
-
-```{r}
-get_mean_apc_by_concept <- function(df) {
-  df %>%
-    distinct(id, University, publication_year, P_top10, field, work_frac, 
-             APC_in_dollar, author_position) %>% 
-    group_by(University, publication_year, P_top10, field) %>%
-    # spark is unhappy for some reason, so coerce again to numeric
-    mutate(work_frac = as.numeric(work_frac)) %>% 
-    # compute the average APC using fractional authorships as weights
-    mutate(sum_frac = sum(work_frac)) %>%
-    group_by(University, publication_year, P_top10, sum_frac,
-             author_position, field) %>%
-    summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
-}
-
-mean_apc_concept <- works %>% 
-  filter(publication_year == last_year_of_period) %>% 
-  get_mean_apc_by_concept()
-
-mean_apc_concept_local <- mean_apc_concept %>%
-  collect()
-
-mean_apc_concept_16_19 <- works %>% 
-  filter(first_year_of_period == 2016) %>% 
-  get_mean_apc_by_concept()
-
-mean_apc_concept_16_19_local <- mean_apc_concept_16_19 %>% 
-  collect()
-
-mean_apc_concept_16_19_local <- mean_apc_concept_16_19_local %>% 
-  mutate(author_position = recode(author_position, first = "First authors", 
-                                  last = "Last authors"))
-```
-
-
-
-```{r apc-concepts, fig.height=6, fig.width=13}
-# plot for 2016-2019
-p <- mean_apc_concept_16_19_local %>%
-  drop_na(field) %>% 
-  ggplot(aes(P_top10, mean_apc, colour = field)) +
-  geom_smooth(alpha = .15) +
-  facet_wrap(vars(author_position), nrow = 1) +
-  scale_x_log10() +
-  scale_y_continuous(labels = dollar) + 
-  labs(caption = "2016-2019", y = "Mean APC",
-       x = expression(P["top 10%"]))
-p
-```
-
-
-```{r dpi=100, fig.width=9, fig.height=6}
-plotly::ggplotly(p)
-```
-
-
-Using ggrepel
-```{r field-selection, fig.width=8, fig.height=5}
-field_selection <- mean_apc_concept_16_19_local %>%
-  drop_na(field) %>% 
-  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
-                      "Materials science", "Physics"))
-  
-final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 
-  anti_join(field_selection) %>% 
-  ggplot(aes(P_top10, mean_apc, group = field)) +
-  geom_smooth(alpha = .3, colour = "grey80", fill = "grey90") +
-  geom_smooth(aes(colour = field), data = field_selection) +
-  facet_wrap(vars(author_position), nrow = 1) +
-  scale_x_log10() +
-  scale_y_continuous(labels = dollar) + 
-  scale_color_discrete_qualitative(palette = "Dark 3") +
-  labs(caption = "Time period: 2016-2019", y = "Mean APC", colour = NULL,
-       x = expression(P["top 10%"])) +
-  theme(legend.position = "top") +
-  guides(colour = guide_legend(override.aes = list(alpha = 0),
-                               nrow = 1))
-final_ptop_apc_field
-```
-
-
-```{r composite-field, fig.height=10, fig.width=8}
-(final_ptop_apc_field + 
-   # https://stackoverflow.com/a/65946462/3149349
-   theme(axis.title.y = element_text(margin = margin(r = -120, unit = "pt")))
-   ) / p_apc_field +
-  plot_layout(heights = c(3.5, 5)) +
-  plot_annotation(tag_levels = "A")
-```
-
-
-## Over time - first-authors
-```{r apc-time-concept-first, fig.width=10, fig.height=8}
-mean_apc_concept_local %>%
-  filter(!is.na(field), author_position == "first") %>% 
-  group_by(publication_year, field) %>%
-  mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
-  group_by(ptop10_quantiles, publication_year, field) %>%
-  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
-            .groups = "drop_last") %>%
-  ggplot(aes(publication_year, mean_apc, colour = ptop10_quantiles,
-             group = ptop10_quantiles)) +
-  geom_line() +
-  facet_wrap(vars(field)) +
-  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
-  scale_color_discrete_qualitative(palette = "Dark 3") +
-  theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
-       colour = expression(P["top 10%"]), x = NULL)
-```
-
-## Over time - last-authors
-```{r apc-time-concept-last, fig.width=10, fig.height=8}
-mean_apc_concept_local %>%
-  filter(!is.na(field), author_position == "last") %>% 
-  group_by(publication_year, field) %>%
-  mutate(ptop10_quantiles = cut_quartiles(P_top10)) %>%
-  group_by(ptop10_quantiles, publication_year, field) %>%
-  summarise(mean_apc = weighted.mean(mean_apc, sum_frac, na.rm = TRUE), 
-            .groups = "drop_last") %>%
-  ggplot(aes(publication_year, mean_apc, colour = ptop10_quantiles,
-             group = ptop10_quantiles)) +
-  geom_line() +
-  facet_wrap(vars(field)) +
-  scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
-  scale_color_discrete_qualitative(palette = "Dark 3") +
-  theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
-       colour = expression(P["top 10%"]), x = NULL)
-```
-
-# Country comparison
-```{r}
-mean_apc_country_16_19 <- works %>%
-  filter(first_year_of_period == 2016) %>% 
-  # first get rid of duplicates from concepts
-  distinct(id, work_frac, APC_in_dollar, University, country, P_top10, country_code) %>% 
-  # spark is unhappy for some reason, so coerce again to numeric
-  mutate(work_frac = as.numeric(work_frac)) %>% 
-  group_by(University, country, P_top10) %>%
-  # compute the average APC using fractional authorships as weights
-  mutate(sum_frac = sum(work_frac)) %>%
-  group_by(University, country, P_top10, sum_frac, country_code) %>%
-  summarise(mean_apc = sum(work_frac * APC_in_dollar) / sum_frac)
-
-mean_apc_country_16_19_local <- mean_apc_country_16_19 %>%
-  collect()
-```
-
-```{r}
-mean_apc_country_16_19_local <- mean_apc_country_16_19_local %>% 
-  left_join(wdi, by = c("country_code" = "iso2c"))
-```
-
-```{r apc-by-country}
-mean_apc_country_16_19_local %>% 
-  ggplot(aes(P_top10, mean_apc, colour = region)) +
-  geom_point(alpha = .3, size = 1.2) +
-  geom_smooth(alpha = .3) +
-  scale_x_log10() +
-  scale_y_continuous(labels = dollar) +
-  scale_color_discrete_qualitative(palette = "Dark 3") +
-  labs(y = "Mean APC", x = expression(P["top 10%"]), colour = NULL) +
-  theme(legend.position = "top") +
-  guides(colour = guide_legend(override.aes = list(alpha = 0)))
-```
 
 
 ```{r}
