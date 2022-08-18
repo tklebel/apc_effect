@@ -82,7 +82,7 @@ effect_scale <- list(
 
 
 ```{r}
-hm <- brm(file = "final_models/17-wo-south-africa_brm-large-sample.rds", 
+hm <- brm(file = "final_models/17-brm-large-sample.rds", 
           file_refit = "never")
 ```
 
