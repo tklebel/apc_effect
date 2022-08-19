@@ -218,7 +218,41 @@ p
 plotly::ggplotly(p)
 ```
 
+## Across topics within continents
+```{r topic-share-across-continents, fig.width=12, fig.height=10}
+papers_per_country_per_field <- works %>% 
+  mutate(total_weight = work_frac * concept_frac) %>% 
+  distinct(country, country_code, id, author_position, institution_id, field,
+           total_weight) %>% 
+  group_by(country, country_code, field) %>% 
+  summarise(sum_fractional_works = sum(total_weight) %>% round(digits = 1)) %>% 
+  arrange(desc(sum_fractional_works)) %>% 
+  collect()
 
+plot_data <- papers_per_country_per_field %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  group_by(region, field) %>% 
+  summarise(sum_fractional_works = sum(sum_fractional_works)) %>% 
+  mutate(prop = sum_fractional_works / sum(sum_fractional_works),
+         label = case_when(
+           prop > .15 ~ scales::percent(prop, accuracy = .1),
+           TRUE ~ "")
+  )
+
+plot_data %>% 
+  drop_na() %>% 
+  ggplot(aes(prop, fct_reorder(field, prop))) +
+  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
+  geom_point() +
+  geom_text(aes(label = label), nudge_x = .015, hjust = "left") +
+  facet_wrap(vars(region)) +
+  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
+                     labels = function(x) scales::percent(x, accuracy = 1)) +
+  labs(x = "% of fractional publications", y = NULL) +
+  theme(panel.grid = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.y = element_text(margin = margin(r = -2)))
+```
 
 
 ```{r}

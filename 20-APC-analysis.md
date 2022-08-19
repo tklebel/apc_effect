@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "18 August, 2022"
+date: "19 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -91,8 +91,8 @@ universities_per_country %>%
 |United Arab Emirates           |             60|
 |Serbia                         |             60|
 |Croatia                        |             59|
-|Ghana                          |             54|
 |Ethiopia                       |             54|
+|Ghana                          |             54|
 |Iraq                           |             52|
 |Kazakhstan                     |             51|
 |Tanzania                       |             48|
@@ -100,19 +100,19 @@ universities_per_country %>%
 |Nepal                          |             46|
 |Belarus                        |             40|
 |Venezuela, RB                  |             39|
-|Sri Lanka                      |             38|
-|Cuba                           |             38|
 |Latvia                         |             38|
+|Cuba                           |             38|
+|Sri Lanka                      |             38|
 |Lithuania                      |             36|
-|Tunisia                        |             33|
 |Estonia                        |             33|
+|Tunisia                        |             33|
 |Jordan                         |             32|
-|Morocco                        |             28|
 |Zimbabwe                       |             28|
-|Cameroon                       |             27|
-|Sudan                          |             27|
+|Morocco                        |             28|
 |Uzbekistan                     |             27|
+|Cameroon                       |             27|
 |Uruguay                        |             27|
+|Sudan                          |             27|
 |Lebanon                        |             26|
 |Cyprus                         |             26|
 |Costa Rica                     |             25|
@@ -124,120 +124,120 @@ universities_per_country %>%
 |Cambodia                       |             20|
 |Bolivia                        |             20|
 |Azerbaijan                     |             19|
+|Bosnia and Herzegovina         |             19|
 |Syrian Arab Republic           |             19|
 |Myanmar                        |             19|
 |Kuwait                         |             19|
-|Bosnia and Herzegovina         |             19|
 |Qatar                          |             19|
 |Iceland                        |             19|
 |Congo, Dem. Rep.               |             18|
-|Paraguay                       |             17|
 |West Bank and Gaza             |             17|
+|Paraguay                       |             17|
 |Zambia                         |             16|
+|Panama                         |             15|
 |Malawi                         |             15|
 |Dominican Republic             |             15|
-|Panama                         |             15|
+|Mongolia                       |             14|
 |Yemen, Rep.                    |             14|
 |Mozambique                     |             14|
-|Mongolia                       |             14|
 |Moldova                        |             14|
 |Kyrgyz Republic                |             14|
 |Senegal                        |             14|
 |Bahrain                        |             13|
-|Burkina Faso                   |             13|
-|Guatemala                      |             13|
 |North Macedonia                |             13|
+|Guatemala                      |             13|
+|Burkina Faso                   |             13|
 |Rwanda                         |             12|
 |Hong Kong SAR, China           |             11|
-|Cote d'Ivoire                  |             10|
 |Botswana                       |             10|
-|Libya                          |             10|
 |Afghanistan                    |             10|
+|Cote d'Ivoire                  |             10|
+|Libya                          |             10|
 |Nicaragua                      |              9|
 |Tajikistan                     |              9|
 |El Salvador                    |              9|
-|Trinidad and Tobago            |              8|
 |Somalia                        |              8|
-|Madagascar                     |              7|
+|Trinidad and Tobago            |              8|
 |Angola                         |              7|
 |Namibia                        |              7|
 |Papua New Guinea               |              7|
+|Madagascar                     |              7|
+|Niger                          |              6|
 |Malta                          |              6|
 |Mauritius                      |              6|
 |Mali                           |              6|
-|Niger                          |              6|
 |Lao PDR                        |              5|
-|Gambia, The                    |              5|
+|Montenegro                     |              5|
+|Honduras                       |              5|
 |Kosovo                         |              5|
 |Jamaica                        |              5|
-|Honduras                       |              5|
-|Benin                          |              5|
-|Montenegro                     |              5|
 |Fiji                           |              5|
-|Brunei Darussalam              |              4|
-|Togo                           |              4|
+|Gambia, The                    |              5|
+|Benin                          |              5|
 |Korea, Dem. People's Rep.      |              4|
-|Gabon                          |              4|
 |South Sudan                    |              4|
+|Togo                           |              4|
 |Curacao                        |              4|
+|Gabon                          |              4|
+|Brunei Darussalam              |              4|
+|Greenland                      |              3|
 |Liechtenstein                  |              3|
 |Bermuda                        |              3|
-|Greenland                      |              3|
-|Belize                         |              3|
-|Sierra Leone                   |              3|
 |Monaco                         |              3|
-|Liberia                        |              3|
-|Maldives                       |              3|
+|Belize                         |              3|
 |St. Kitts and Nevis            |              3|
-|Bahamas, The                   |              3|
 |Mauritania                     |              3|
-|Guinea-Bissau                  |              3|
+|Sierra Leone                   |              3|
+|Bahamas, The                   |              3|
 |Turkmenistan                   |              3|
+|Liberia                        |              3|
 |French Polynesia               |              3|
 |Puerto Rico                    |              3|
-|NA                             |              2|
-|Congo, Rep.                    |              2|
-|Guyana                         |              2|
+|Guinea-Bissau                  |              3|
+|Maldives                       |              3|
 |Seychelles                     |              2|
-|Burundi                        |              2|
-|St. Lucia                      |              2|
-|Macao SAR, China               |              2|
-|New Caledonia                  |              2|
-|Eswatini                       |              2|
-|Haiti                          |              2|
-|Bhutan                         |              2|
+|Congo, Rep.                    |              2|
 |Sint Maarten (Dutch part)      |              2|
-|Antigua and Barbuda            |              2|
-|Suriname                       |              2|
 |NA                             |              2|
+|Burundi                        |              2|
+|Guyana                         |              2|
+|Bhutan                         |              2|
+|Haiti                          |              2|
+|Eswatini                       |              2|
+|New Caledonia                  |              2|
+|Macao SAR, China               |              2|
+|Suriname                       |              2|
 |Chad                           |              2|
-|Micronesia, Fed. Sts.          |              1|
-|Marshall Islands               |              1|
-|NA                             |              1|
+|NA                             |              2|
+|St. Lucia                      |              2|
+|Antigua and Barbuda            |              2|
 |Andorra                        |              1|
-|British Virgin Islands         |              1|
 |Timor-Leste                    |              1|
-|Grenada                        |              1|
-|NA                             |              1|
-|NA                             |              1|
-|Cayman Islands                 |              1|
-|Sao Tome and Principe          |              1|
-|Faroe Islands                  |              1|
 |Gibraltar                      |              1|
-|Cabo Verde                     |              1|
-|NA                             |              1|
-|Barbados                       |              1|
+|Marshall Islands               |              1|
+|Micronesia, Fed. Sts.          |              1|
 |Lesotho                        |              1|
 |St. Vincent and the Grenadines |              1|
-|Isle of Man                    |              1|
-|Central African Republic       |              1|
-|Palau                          |              1|
 |Eritrea                        |              1|
 |NA                             |              1|
-|Guinea                         |              1|
+|NA                             |              1|
+|British Virgin Islands         |              1|
+|Faroe Islands                  |              1|
+|NA                             |              1|
+|Grenada                        |              1|
 |Aruba                          |              1|
+|Guinea                         |              1|
+|Cayman Islands                 |              1|
+|Palau                          |              1|
+|Isle of Man                    |              1|
+|Cabo Verde                     |              1|
 |NA                             |              1|
 |NA                             |              1|
+|NA                             |              1|
+|NA                             |              1|
+|Central African Republic       |              1|
+|Barbados                       |              1|
+|Sao Tome and Principe          |              1|
 
 
 ```r
@@ -439,8 +439,8 @@ papers_per_country %>%
 |Guyana                         |GY           |                  7.9|
 |Burundi                        |BI           |                  6.1|
 |Liechtenstein                  |LI           |                  5.5|
-|NA                             |GF           |                  4.2|
 |St. Vincent and the Grenadines |VC           |                  4.2|
+|NA                             |GF           |                  4.2|
 |Marshall Islands               |MH           |                  4.1|
 |Sint Maarten (Dutch part)      |SX           |                  3.3|
 |Somalia                        |SO           |                  3.2|
@@ -450,15 +450,15 @@ papers_per_country %>%
 |Mauritania                     |MR           |                  2.4|
 |St. Lucia                      |LC           |                  2.3|
 |Chad                           |TD           |                  2.3|
-|NA                             |JE           |                  2.0|
 |Maldives                       |MV           |                  2.0|
+|NA                             |JE           |                  2.0|
 |Liberia                        |LR           |                  1.9|
 |Macao SAR, China               |MO           |                  1.5|
 |Belize                         |BZ           |                  1.5|
-|Micronesia, Fed. Sts.          |FM           |                  1.0|
 |Cayman Islands                 |KY           |                  1.0|
-|Timor-Leste                    |TL           |                  0.8|
+|Micronesia, Fed. Sts.          |FM           |                  1.0|
 |Andorra                        |AD           |                  0.8|
+|Timor-Leste                    |TL           |                  0.8|
 |Haiti                          |HT           |                  0.8|
 |Aruba                          |AW           |                  0.7|
 |Palau                          |PW           |                  0.6|
@@ -735,8 +735,8 @@ all_three_descriptives %>%
 |New Caledonia                  |              2|7.900                     |   1129.7|
 |Burundi                        |              2|6.100                     |    899.1|
 |Sint Maarten (Dutch part)      |              2|3.300                     |    716.5|
-|St. Lucia                      |              2|2.300                     |   1605.0|
 |Chad                           |              2|2.300                     |   1534.5|
+|St. Lucia                      |              2|2.300                     |   1605.0|
 |Haiti                          |              2|0.800                     |   1184.9|
 |Seychelles                     |              2|0.500                     |   1607.5|
 |Sao Tome and Principe          |              1|73.200                    |    238.4|
@@ -790,7 +790,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve7b9be8de4bd2b1ba
+preserve39585f26cf238027
 
 
 ```r
@@ -830,9 +830,60 @@ p
 plotly::ggplotly(p)
 ```
 
-preserveac339696cd4dd8e4
+preservee99965d790746a16
 
+## Across topics within continents
 
+```r
+papers_per_country_per_field <- works %>% 
+  mutate(total_weight = work_frac * concept_frac) %>% 
+  distinct(country, country_code, id, author_position, institution_id, field,
+           total_weight) %>% 
+  group_by(country, country_code, field) %>% 
+  summarise(sum_fractional_works = sum(total_weight) %>% round(digits = 1)) %>% 
+  arrange(desc(sum_fractional_works)) %>% 
+  collect()
+```
+
+```
+## `summarise()` has grouped output by 'country', 'country_code'. You can override using the `.groups` argument.
+## `summarise()` has grouped output by 'country', 'country_code'. You can override using the `.groups` argument.
+```
+
+```r
+plot_data <- papers_per_country_per_field %>% 
+  left_join(wdi, by = c("country_code" = "iso2c")) %>% 
+  group_by(region, field) %>% 
+  summarise(sum_fractional_works = sum(sum_fractional_works)) %>% 
+  mutate(prop = sum_fractional_works / sum(sum_fractional_works),
+         label = case_when(
+           prop > .15 ~ scales::percent(prop, accuracy = .1),
+           TRUE ~ "")
+  )
+```
+
+```
+## `summarise()` has grouped output by 'region'. You can override using the
+## `.groups` argument.
+```
+
+```r
+plot_data %>% 
+  drop_na() %>% 
+  ggplot(aes(prop, fct_reorder(field, prop))) +
+  geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
+  geom_point() +
+  geom_text(aes(label = label), nudge_x = .015, hjust = "left") +
+  facet_wrap(vars(region)) +
+  scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
+                     labels = function(x) scales::percent(x, accuracy = 1)) +
+  labs(x = "% of fractional publications", y = NULL) +
+  theme(panel.grid = element_blank(),
+        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.y = element_text(margin = margin(r = -2)))
+```
+
+![](20-APC-analysis_files/figure-html/topic-share-across-continents-1.png)<!-- -->
 
 
 
