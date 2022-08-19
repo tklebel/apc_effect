@@ -40,9 +40,6 @@ works <- tbl(sc, "works")
 
 works <- works %>% 
   mutate(
-    # on miscoding when matching institutions
-    country_code = case_when(country_code == "UK" ~ "GB",
-                                  TRUE ~ country_code),
     # rerunning the data pipeline introduced a hiccup regarding decimal precision
     # this is unlikely of substantive concern, since all values are present,
     # and no missing values are introduced through the below command
