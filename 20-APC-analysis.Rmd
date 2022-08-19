@@ -40,6 +40,8 @@ works <- tbl(sc, "works")
 
 works <- works %>% 
   mutate(
+    APC_in_dollar = case_when(!APC ~ 0,
+                              TRUE ~ APC_in_dollar),
     # rerunning the data pipeline introduced a hiccup regarding decimal precision
     # this is unlikely of substantive concern, since all values are present,
     # and no missing values are introduced through the below command
