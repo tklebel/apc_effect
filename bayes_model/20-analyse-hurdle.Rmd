@@ -44,18 +44,13 @@ wdi <- WDI::WDI_data$country %>%
   select(iso2c, region, income)
 
 base <- df %>%
-  # on miscoding when matching institutions
-  mutate(country_code = case_when(country_code == "UK" ~ "GB",
-                                  TRUE ~ country_code)) %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>%
   select(institution_id, University, country, region, author_position,
          P_top10, field, country_code,
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
                                    TRUE ~ APC_in_dollar)) %>% 
-  mutate(P_top10 = scale(log(P_top10), scale = FALSE)) %>% 
-  filter(country != "South Africa")  # this is excluded from the model for now,
-  # so need to remove
+  mutate(P_top10 = scale(log(P_top10), scale = FALSE)) 
 ```
 
 ```{r}
@@ -82,36 +77,9 @@ effect_scale <- list(
 
 
 ```{r}
-hm <- brm(file = "final_models/17-wo-south-africa_brm-large-sample.rds", 
+hm <- brm(file = "final_models/17-brm-large-sample.rds", 
           file_refit = "never")
 ```
-
-```{r, include=FALSE, eval=FALSE}
-# code for analysing samples coming from cmdstan
-fit <- readRDS("bayes_model/final_models/17-try-1.rds")
-
-summary_obj <- fit$summary()
-
-
-fit$diagnostic_summary()
-
-stanfit <- rstan::read_stan_csv(fit$output_files())
-launch_shinystan(stanfit)
-
-# workflow for getting back parameters after fitting adapted model
-# adapted from https://github.com/paul-buerkner/brms/issues/745
-
-mix_identified <- brms::brm(model_formula,
-                      family = mix,
-                      prior = priors_narrower,
-                      data = base,
-                      empty = TRUE)
-mix_identified$fit <- stanfit
-mix_identified <- rename_pars(mix_identified)
-summary(mix_identified)
-# this seems to work well
-```
-
 
 # Posterior predictive check
 
