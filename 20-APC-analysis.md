@@ -38,64 +38,64 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Poland               |             31|
 |Turkey               |             31|
 |Brazil               |             31|
+|Poland               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Austria              |             12|
 |Sweden               |             12|
+|Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Greece               |              8|
-|Israel               |              8|
-|Egypt                |              8|
 |Belgium              |              8|
+|Israel               |              8|
+|Greece               |              8|
 |Switzerland          |              8|
-|New Zealand          |              7|
+|Egypt                |              8|
 |Finland              |              7|
 |Czech Republic       |              7|
-|Thailand             |              6|
-|Mexico               |              6|
-|Norway               |              6|
-|Hungary              |              6|
-|Portugal             |              6|
+|New Zealand          |              7|
 |Malaysia             |              6|
+|Thailand             |              6|
+|Portugal             |              6|
+|Hungary              |              6|
 |Ireland              |              6|
-|Saudi Arabia         |              5|
-|Denmark              |              5|
+|Norway               |              6|
+|Mexico               |              6|
 |Pakistan             |              5|
-|Singapore            |              3|
-|Romania              |              3|
-|Chile                |              3|
-|Serbia               |              3|
-|Tunisia              |              3|
+|Denmark              |              5|
+|Saudi Arabia         |              5|
 |Argentina            |              3|
+|Romania              |              3|
+|Tunisia              |              3|
+|Chile                |              3|
 |Colombia             |              3|
+|Singapore            |              3|
+|Serbia               |              3|
 |United Arab Emirates |              2|
 |Slovakia             |              2|
-|Nigeria              |              2|
 |Jordan               |              2|
 |Slovenia             |              2|
-|Algeria              |              1|
+|Nigeria              |              2|
 |Croatia              |              1|
-|Oman                 |              1|
-|Ethiopia             |              1|
-|Iceland              |              1|
-|Estonia              |              1|
-|Ghana                |              1|
 |Morocco              |              1|
-|Cyprus               |              1|
-|Qatar                |              1|
-|Kuwait               |              1|
+|Estonia              |              1|
 |Uganda               |              1|
-|Lithuania            |              1|
-|Uruguay              |              1|
+|Algeria              |              1|
+|Iceland              |              1|
+|Qatar                |              1|
+|Cyprus               |              1|
+|Ethiopia             |              1|
+|Ghana                |              1|
+|Oman                 |              1|
+|Kuwait               |              1|
 |Lebanon              |              1|
-|Viet Nam             |              1|
 |Luxembourg           |              1|
+|Lithuania            |              1|
+|Viet Nam             |              1|
+|Uruguay              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve5e4399fd73f125df
+preserveca5371c5c9769709
 
 
 ```r
@@ -392,12 +392,12 @@ p <- pdata %>%
                            show.legend = FALSE, max.overlaps = Inf,
                            box.padding = 1, min.segment.length = 0) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::dollar) +
   scale_alpha_continuous(trans = "log10", range = c(.1, 1),
                          labels = scales::comma) +
   scale_colour_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top", legend.box = "vertical") +
-  labs(y = "Average APC", colour = NULL, x = "GDP per capita", 
+  labs(y = "Mean APC", colour = NULL, x = "GDP per capita", 
        alpha = "Number of fractional publications")
 p
 ```
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserveec3caa0ce8579925
+preservee8d3c2539f9268a4
 
 
 ## Papers per continent
@@ -762,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservefc36a29a5fc23c46
+preserve7dd34a6976746078
 
 
 Using ggrepel
