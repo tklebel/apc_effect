@@ -146,10 +146,6 @@ all_three_descriptives %>%
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
   knitr::kable()
-
-# restrict data for plotting so we only plot countries with at least 5 universities
-all_three_descriptives <- all_three_descriptives %>% 
-  filter(n_universities >= 5)
 ```
 
 
