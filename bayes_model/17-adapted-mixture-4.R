@@ -50,11 +50,8 @@ priors_narrower <- c(
   prior(lkj(4), class = cor)
 )
 
-subsample <- base %>%
-  filter(country == "South Africa")
-
 fitting_data <- make_standata(model_formula,
-                              data = subsample,
+                              data = base,
                               family = mix,
                               prior = priors_narrower,
                               internal = TRUE)
@@ -62,7 +59,7 @@ fitting_data <- make_standata(model_formula,
 empty_mod <- brm(model_formula,
                  family = mix,
                  prior = priors_narrower,
-                 data = subsample,
+                 data = base,
                  empty = TRUE)
 
 message("Compiling model code.")
@@ -72,7 +69,7 @@ mod <- cmdstan_model(stan_file = "bayes_model/17-adapted-mixture.stan",
 message("Start sampling.")
 fit <- mod$sample(
   data = fitting_data,
-  seed = 123,
+  seed = 101112,
   chains = 4,
   parallel_chains = 4,
   iter_warmup = 1000,
@@ -83,14 +80,12 @@ fit <- mod$sample(
 )
 
 message("Saving model to file.")
-fit$save_object(file = "bayes_model/final_models/17-only-south-africa.rds")
-fit$save_output_files(dir = "bayes_model/output_files/")
 
 # saving to brm model directly
 stanfit <- rstan::read_stan_csv(fit$output_files())
 empty_mod$fit <- stanfit
 wo_sa_brm <- rename_pars(empty_mod)
 write_rds(wo_sa_brm,
-          "bayes_model/final_models/17-only-south-africa_brm-large-sample.rds")
+          "bayes_model/final_models/17-brm-large-sample-4.rds")
 message("File saved.")
 
