@@ -187,12 +187,12 @@ p <- pdata %>%
                            show.legend = FALSE, max.overlaps = Inf,
                            box.padding = 1, min.segment.length = 0) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::dollar) +
   scale_alpha_continuous(trans = "log10", range = c(.1, 1),
                          labels = scales::comma) +
   scale_colour_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top", legend.box = "vertical") +
-  labs(y = "Average APC", colour = NULL, x = "GDP per capita", 
+  labs(y = "Mean APC", colour = NULL, x = "GDP per capita", 
        alpha = "Number of fractional publications")
 p
 ```
