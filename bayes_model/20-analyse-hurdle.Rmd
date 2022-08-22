@@ -79,10 +79,13 @@ effect_scale <- list(
 ```{r}
 hm <- brm(file = "final_models/17-brm-large-sample.rds", 
           file_refit = "never")
+
+hm_simple <- brm(file = "final_models/hm_final_rerun.rds", file_refit = "never")
 ```
 
-# Posterior predictive check
 
+
+# Posterior predictive check
 ```{r pp_check, eval=FALSE}
 pp_check(hm, ndraws = 10, cores = mc_cores) +
   coord_cartesian(xlim = c(0, 8000))
@@ -139,6 +142,18 @@ pred_vis(base, hm, "United States", alpha = .2)
 ```{r pp_turkey, fig.width=10, fig.height=7}
 pred_vis(base, hm, "Turkey", alpha = .7)
 ```
+
+
+## PP check for simple model 
+```{r pp_check, eval=TRUE}
+pp_check(hm_simple, ndraws = 10, cores = mc_cores) +
+  coord_cartesian(xlim = c(0, 8000))
+```
+
+```{r pp_brazil_simple_hm, fig.width=10, fig.height=7}
+pred_vis(base, hm_simple, "Brazil", alpha = .2)
+```
+
 
 
 # Model variances and covariances
