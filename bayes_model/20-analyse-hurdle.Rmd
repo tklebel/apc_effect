@@ -19,7 +19,7 @@ library(colorspace)
 library(modelr)
 
 # set number of cores for prediction tasks
-mc_cores <- 10
+mc_cores <- 4
 
 # Use the Johnson color palette
 clrs <- MetBrewer::met.brewer("Johnson")
@@ -77,8 +77,7 @@ effect_scale <- list(
 
 
 ```{r}
-hm <- brm(file = "final_models/17-brm-large-sample.rds", 
-          file_refit = "never")
+hm <- read_rds("final_models/17-brm-large-sample.rds.bz2")
 
 hm_simple <- brm(file = "final_models/hm_final_rerun.rds", file_refit = "never")
 ```
@@ -145,7 +144,7 @@ pred_vis(base, hm, "Turkey", alpha = .7)
 
 
 ## PP check for simple model 
-```{r pp_check, eval=TRUE}
+```{r pp_check_simple_hm, eval=TRUE}
 pp_check(hm_simple, ndraws = 10, cores = mc_cores) +
   coord_cartesian(xlim = c(0, 8000))
 ```
