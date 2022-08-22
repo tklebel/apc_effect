@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "17 August, 2022"
+date: "19 August, 2022"
 output: 
   html_document:
     keep_md: true
@@ -39,8 +39,8 @@ universities_per_country %>%
 |Iran                 |             36|
 |Australia            |             32|
 |Turkey               |             31|
-|Poland               |             31|
 |Brazil               |             31|
+|Poland               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
@@ -49,53 +49,53 @@ universities_per_country %>%
 |Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Switzerland          |              8|
 |Belgium              |              8|
-|Egypt                |              8|
 |Israel               |              8|
 |Greece               |              8|
+|Switzerland          |              8|
+|Egypt                |              8|
 |Finland              |              7|
 |Czech Republic       |              7|
 |New Zealand          |              7|
+|Malaysia             |              6|
+|Thailand             |              6|
+|Portugal             |              6|
+|Hungary              |              6|
+|Ireland              |              6|
 |Norway               |              6|
 |Mexico               |              6|
-|Portugal             |              6|
-|Malaysia             |              6|
-|Ireland              |              6|
-|Hungary              |              6|
-|Thailand             |              6|
-|Saudi Arabia         |              5|
 |Pakistan             |              5|
 |Denmark              |              5|
-|Chile                |              3|
+|Saudi Arabia         |              5|
+|Argentina            |              3|
+|Romania              |              3|
 |Tunisia              |              3|
+|Chile                |              3|
 |Colombia             |              3|
 |Singapore            |              3|
-|Romania              |              3|
 |Serbia               |              3|
-|Argentina            |              3|
-|Jordan               |              2|
-|Slovakia             |              2|
 |United Arab Emirates |              2|
-|Nigeria              |              2|
+|Slovakia             |              2|
+|Jordan               |              2|
 |Slovenia             |              2|
-|Kuwait               |              1|
+|Nigeria              |              2|
+|Croatia              |              1|
 |Morocco              |              1|
-|Cyprus               |              1|
-|Uganda               |              1|
-|Lebanon              |              1|
-|Lithuania            |              1|
-|Viet Nam             |              1|
-|Qatar                |              1|
 |Estonia              |              1|
-|Oman                 |              1|
+|Uganda               |              1|
 |Algeria              |              1|
+|Iceland              |              1|
+|Qatar                |              1|
+|Cyprus               |              1|
 |Ethiopia             |              1|
 |Ghana                |              1|
-|Iceland              |              1|
-|Croatia              |              1|
-|Uruguay              |              1|
+|Oman                 |              1|
+|Kuwait               |              1|
+|Lebanon              |              1|
 |Luxembourg           |              1|
+|Lithuania            |              1|
+|Viet Nam             |              1|
+|Uruguay              |              1|
 
 
 ```r
@@ -175,8 +175,8 @@ papers_per_country %>%
 |Romania              |                702.2|
 |Uruguay              |                668.6|
 |Estonia              |                513.3|
-|Jordan               |                481.2|
 |Slovakia             |                481.2|
+|Jordan               |                481.2|
 |Lithuania            |                450.2|
 |United Arab Emirates |                404.1|
 |Oman                 |                398.5|
@@ -325,8 +325,8 @@ all_three_descriptives %>%
 |Tunisia              |              3|291.1                     |   1198.8|
 |Slovenia             |              2|1,563.7                   |    865.4|
 |Nigeria              |              2|715.8                     |   1102.8|
-|Jordan               |              2|481.2                     |   1325.2|
 |Slovakia             |              2|481.2                     |    652.9|
+|Jordan               |              2|481.2                     |   1325.2|
 |United Arab Emirates |              2|404.1                     |   1770.5|
 |Croatia              |              1|1,327.4                   |    423.8|
 |Uruguay              |              1|668.6                     |    409.0|
@@ -345,12 +345,6 @@ all_three_descriptives %>%
 |Cyprus               |              1|129.0                     |   1583.2|
 |Morocco              |              1|127.4                     |    893.9|
 |Algeria              |              1|37.0                      |    708.9|
-
-```r
-# restrict data for plotting so we only plot countries with at least 5 universities
-all_three_descriptives <- all_three_descriptives %>% 
-  filter(n_universities >= 5)
-```
 
 
 
@@ -376,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preservecad2c72dea388401
+preserveca5371c5c9769709
 
 
 ```r
@@ -398,12 +392,12 @@ p <- pdata %>%
                            show.legend = FALSE, max.overlaps = Inf,
                            box.padding = 1, min.segment.length = 0) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::dollar) +
   scale_alpha_continuous(trans = "log10", range = c(.1, 1),
                          labels = scales::comma) +
   scale_colour_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top", legend.box = "vertical") +
-  labs(y = "Average APC", colour = NULL, x = "GDP per capita", 
+  labs(y = "Mean APC", colour = NULL, x = "GDP per capita", 
        alpha = "Number of fractional publications")
 p
 ```
@@ -415,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve58ea08d5ad44e1b4
+preservee8d3c2539f9268a4
 
 
 ## Papers per continent
@@ -768,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve04dbe9ae6a8eba39
+preserve7dd34a6976746078
 
 
 Using ggrepel
