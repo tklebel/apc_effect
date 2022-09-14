@@ -256,6 +256,7 @@ contrast_80 <- average_draws(hm, df$P_top10, q = .8)
 ```{r}
 contrast_20_field <- summarise_by(contrast_20, field)
 ```
+
 ```{r fields-20, fig.width=7, fig.height=8}
 contrast_20_field %>% 
   plot_effect("the 20% quantile")
