@@ -325,9 +325,8 @@ p +
 Questions that arise:
 - why in some fields stronger/weaker effect for larger/smaller P_top10? Is this
 also associated with hurdle component?
-- Especially: why physics and mathematics negative? because of hurdle?
+- Especially: why physics and mathematics negative? because of hurdle? -> Yes
 
-- Effect is diminishing for all fields with sufficient data. 
 
 Need to put into context of overall averages: give average per field (from model
 or full set)
