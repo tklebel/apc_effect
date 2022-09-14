@@ -322,16 +322,6 @@ p +
 ```
 
 
-```{r fields-combined-2, fig.width=7, fig.height=10}
-custom_pal <- sequential_hcl(5, palette = "Mako") %>% 
-  lighten(amount = .1)
-p + scale_color_manual(values = c(
-    effect_20 = custom_pal[3],
-    effect_50 = custom_pal[3],
-    effect_80 = custom_pal[4]
-  ))
-```
-
 Questions that arise:
 - why in some fields stronger/weaker effect for larger/smaller P_top10? Is this
 also associated with hurdle component?
