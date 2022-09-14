@@ -314,11 +314,11 @@ p <- all_joined %>%
   guides(colour = guide_legend(reverse = FALSE))
 ```
 
-```{r fields-combined-1, fig.width=7, fig.height=10}
+```{r fields-combined-1, fig.width=6.1, fig.height=8}
 p + 
   effect_scale +
-  theme(legend.position = "top") + 
-  labs(colour = NULL)
+  theme(legend.position = "top", legend.justification = c(1, 0)) + 
+  labs(colour = NULL) 
 ```
 
 
