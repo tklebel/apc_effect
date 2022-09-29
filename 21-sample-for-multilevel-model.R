@@ -44,12 +44,14 @@ only_papers <- selected_works %>%
   distinct(id)
 
 n <- sdf_nrow(only_papers)
-# choose 80k papers -> this will lead to much more rows, since we have multiple
+# 960469 papers are in this set
+
+# sample 8% of papers -> this will lead to much more rows, since we have multiple
 # institutions and fields
-frac <- 80000 / n
+frac <- .08
 
 the_sample <- only_papers %>%
-  sdf_sample(fraction = frac, replacement = FALSE, seed = 20220813) %>%
+  sdf_sample(fraction = frac, replacement = FALSE, seed = 20220929) %>%
   left_join(selected_works) %>%
   collect()
 
@@ -63,7 +65,7 @@ the_sample <- the_sample %>%
 the_sample %>%
   distinct(id) %>%
   nrow()
-# yep: 80222
+# yep: 76447
 
 # what about the distribution of fields
 the_sample %>%
@@ -73,26 +75,26 @@ the_sample %>%
   arrange(desc(n))
 # # A tibble: 19 × 2
 #   field                      n
-#   <chr>                  <dbl>
-#  1 Medicine              17139.
-#  2 Biology                7226.
-#  3 Computer science       4225.
-#  4 Materials science      4011.
-#  5 Chemistry              3930.
-#  6 Psychology             2390.
-#  7 Physics                1654.
-#  8 Environmental science  1182.
-#  9 Political science       857.
-# 10 Geography               761.
-# 11 Sociology               636.
-# 12 Art                     605.
-# 13 Mathematics             554.
-# 14 Business                527.
-# 15 Geology                 428.
-# 16 Philosophy              251.
-# 17 Economics               121.
-# 18 History                  66.9
-# 19 Engineering              64.8
+#    <chr>                  <dbl>
+#  1 Medicine              23422.
+#  2 Biology               12584.
+#  3 Chemistry              7456.
+#  4 Computer science       7185.
+#  5 Materials science      6358.
+#  6 Psychology             4483.
+#  7 Physics                2458.
+#  8 Environmental science  2257.
+#  9 Political science      1875.
+# 10 Geography              1602.
+# 11 Sociology              1497.
+# 12 Art                    1213.
+# 13 Business               1158.
+# 14 Mathematics             911.
+# 15 Geology                 761.
+# 16 Philosophy              527.
+# 17 Economics               322.
+# 18 History                 198.
+# 19 Engineering             180.
 
 # this conforms in general to the overall pattern, but the ordinal ranking is
 # not identical (expected given this is a sample and some differences are small)
@@ -105,16 +107,16 @@ the_sample %>%
 # # A tibble: 69 × 2
 #    country            n
 #    <chr>          <int>
-#  1 China          16248
-#  2 United States  13959
-#  3 Brazil          7075
-#  4 United Kingdom  4602
-#  5 Germany         3634
-#  6 Spain           2982
-#  7 South Korea     2878
-#  8 Canada          2833
-#  9 Japan           2820
-# 10 Australia       2762
+#  1 China          15407
+#  2 United States  13265
+#  3 Brazil          6853
+#  4 United Kingdom  4339
+#  5 Germany         3461
+#  6 Spain           2985
+#  7 Japan           2790
+#  8 South Korea     2723
+#  9 Canada          2574
+# 10 Australia       2544
 # # … with 59 more rows
 
 
