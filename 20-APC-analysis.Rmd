@@ -453,7 +453,7 @@ Using ggrepel
 ```{r field-selection, fig.width=8, fig.height=5}
 field_selection <- mean_apc_concept_16_19_local %>%
   drop_na(field) %>% 
-  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
+  filter(field %in% c("Medicine", "Philosophy", "Sociology", "Biology",
                       "Materials science", "Physics"))
   
 final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 

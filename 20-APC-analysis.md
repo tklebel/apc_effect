@@ -45,57 +45,57 @@ universities_per_country %>%
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Sweden               |             12|
 |Austria              |             12|
+|Sweden               |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Belgium              |              8|
-|Israel               |              8|
 |Switzerland          |              8|
 |Egypt                |              8|
+|Israel               |              8|
 |Greece               |              8|
+|Belgium              |              8|
+|New Zealand          |              7|
 |Czech Republic       |              7|
 |Finland              |              7|
-|New Zealand          |              7|
-|Mexico               |              6|
-|Thailand             |              6|
 |Norway               |              6|
-|Hungary              |              6|
-|Malaysia             |              6|
 |Ireland              |              6|
 |Portugal             |              6|
+|Mexico               |              6|
+|Hungary              |              6|
+|Thailand             |              6|
+|Malaysia             |              6|
+|Denmark              |              5|
 |Saudi Arabia         |              5|
 |Pakistan             |              5|
-|Denmark              |              5|
-|Singapore            |              3|
 |Chile                |              3|
-|Tunisia              |              3|
-|Romania              |              3|
-|Argentina            |              3|
-|Colombia             |              3|
 |Serbia               |              3|
-|Jordan               |              2|
-|Slovenia             |              2|
-|United Arab Emirates |              2|
+|Singapore            |              3|
+|Argentina            |              3|
+|Romania              |              3|
+|Tunisia              |              3|
+|Colombia             |              3|
 |Slovakia             |              2|
+|United Arab Emirates |              2|
+|Slovenia             |              2|
 |Nigeria              |              2|
-|Ghana                |              1|
-|Lithuania            |              1|
-|Uruguay              |              1|
+|Jordan               |              2|
 |Algeria              |              1|
-|Cyprus               |              1|
+|Morocco              |              1|
 |Iceland              |              1|
+|Uganda               |              1|
+|Lebanon              |              1|
+|Qatar                |              1|
+|Croatia              |              1|
 |Oman                 |              1|
 |Kuwait               |              1|
-|Uganda               |              1|
-|Qatar                |              1|
-|Ethiopia             |              1|
+|Lithuania            |              1|
+|Cyprus               |              1|
 |Viet Nam             |              1|
-|Luxembourg           |              1|
-|Croatia              |              1|
 |Estonia              |              1|
-|Morocco              |              1|
-|Lebanon              |              1|
+|Ghana                |              1|
+|Ethiopia             |              1|
+|Uruguay              |              1|
+|Luxembourg           |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve4278abdbc602ce84
+preserveff7076a6799310d0
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve0a6d836724b44147
+preserve91e3aeb2b7b8c9e4
 
 
 ## Papers per continent
@@ -762,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve3f25c3c602a60e2d
+preserve842abfb08f2129d7
 
 
 Using ggrepel
@@ -770,7 +770,7 @@ Using ggrepel
 ```r
 field_selection <- mean_apc_concept_16_19_local %>%
   drop_na(field) %>% 
-  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
+  filter(field %in% c("Medicine", "Philosophy", "Sociology", "Biology",
                       "Materials science", "Physics"))
   
 final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 
