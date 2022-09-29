@@ -144,10 +144,11 @@ pred_vis(base, hm, "Turkey", alpha = .7)
 
 
 ## PP check for simple model 
-```{r pp_check_simple_hm, eval=TRUE}
+```{r pp_check_simple_hm, eval=FALSE}
 pp_check(hm_simple, ndraws = 10, cores = mc_cores) +
   coord_cartesian(xlim = c(0, 8000))
 ```
+![](20-analyse-hurdle_files/figure-html/pp_check_simple_hm-1.png)
 
 ```{r pp_brazil_simple_hm, fig.width=10, fig.height=7}
 pred_vis(base, hm_simple, "Brazil", alpha = .2)
