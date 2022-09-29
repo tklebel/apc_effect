@@ -217,7 +217,7 @@ plot_data %>%
   ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
   geom_segment(aes(xend = 0, yend = region), colour = "grey70") +
   geom_point() +
-  geom_text(aes(label = label), nudge_x = 2000, hjust = "left") +
+  geom_text(aes(label = label), nudge_x = 10000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
@@ -261,7 +261,7 @@ plot_data %>%
   ggplot(aes(frac_papers, fct_reorder(field, prop))) +
   geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
   geom_point() +
-  geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
+  geom_text(aes(label = label), nudge_x = 8000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
