@@ -19,7 +19,7 @@ library(colorspace)
 library(modelr)
 
 # set number of cores for prediction tasks
-mc_cores <- 10
+mc_cores <- 4
 
 # Use the Johnson color palette
 clrs <- MetBrewer::met.brewer("Johnson")
@@ -44,18 +44,13 @@ wdi <- WDI::WDI_data$country %>%
   select(iso2c, region, income)
 
 base <- df %>%
-  # on miscoding when matching institutions
-  mutate(country_code = case_when(country_code == "UK" ~ "GB",
-                                  TRUE ~ country_code)) %>% 
   left_join(wdi, by = c("country_code" = "iso2c")) %>%
   select(institution_id, University, country, region, author_position,
          P_top10, field, country_code,
          APC_in_dollar, total_weight) %>%
   mutate(APC_in_dollar = case_when(is.na(APC_in_dollar) ~ 0,
                                    TRUE ~ APC_in_dollar)) %>% 
-  mutate(P_top10 = scale(log(P_top10), scale = FALSE)) %>% 
-  filter(country != "South Africa")  # this is excluded from the model for now,
-  # so need to remove
+  mutate(P_top10 = scale(log(P_top10), scale = FALSE)) 
 ```
 
 ```{r}
@@ -82,39 +77,14 @@ effect_scale <- list(
 
 
 ```{r}
-hm <- brm(file = "final_models/17-wo-south-africa_brm-large-sample.rds", 
-          file_refit = "never")
+hm <- read_rds("final_models/17-brm-large-sample.rds.bz2")
+
+hm_simple <- brm(file = "final_models/hm_final_rerun.rds", file_refit = "never")
 ```
 
-```{r, include=FALSE, eval=FALSE}
-# code for analysing samples coming from cmdstan
-fit <- readRDS("bayes_model/final_models/17-try-1.rds")
-
-summary_obj <- fit$summary()
-
-
-fit$diagnostic_summary()
-
-stanfit <- rstan::read_stan_csv(fit$output_files())
-launch_shinystan(stanfit)
-
-# workflow for getting back parameters after fitting adapted model
-# adapted from https://github.com/paul-buerkner/brms/issues/745
-
-mix_identified <- brms::brm(model_formula,
-                      family = mix,
-                      prior = priors_narrower,
-                      data = base,
-                      empty = TRUE)
-mix_identified$fit <- stanfit
-mix_identified <- rename_pars(mix_identified)
-summary(mix_identified)
-# this seems to work well
-```
 
 
 # Posterior predictive check
-
 ```{r pp_check, eval=FALSE}
 pp_check(hm, ndraws = 10, cores = mc_cores) +
   coord_cartesian(xlim = c(0, 8000))
@@ -171,6 +141,18 @@ pred_vis(base, hm, "United States", alpha = .2)
 ```{r pp_turkey, fig.width=10, fig.height=7}
 pred_vis(base, hm, "Turkey", alpha = .7)
 ```
+
+
+## PP check for simple model 
+```{r pp_check_simple_hm, eval=TRUE}
+pp_check(hm_simple, ndraws = 10, cores = mc_cores) +
+  coord_cartesian(xlim = c(0, 8000))
+```
+
+```{r pp_brazil_simple_hm, fig.width=10, fig.height=7}
+pred_vis(base, hm_simple, "Brazil", alpha = .2)
+```
+
 
 
 # Model variances and covariances
@@ -273,6 +255,7 @@ contrast_80 <- average_draws(hm, df$P_top10, q = .8)
 ```{r}
 contrast_20_field <- summarise_by(contrast_20, field)
 ```
+
 ```{r fields-20, fig.width=7, fig.height=8}
 contrast_20_field %>% 
   plot_effect("the 20% quantile")
@@ -330,30 +313,19 @@ p <- all_joined %>%
   guides(colour = guide_legend(reverse = FALSE))
 ```
 
-```{r fields-combined-1, fig.width=7, fig.height=10}
+```{r fields-combined-1, fig.width=6.1, fig.height=8}
 p + 
   effect_scale +
-  theme(legend.position = "top") + 
-  labs(colour = NULL)
+  theme(legend.position = "top", legend.justification = c(1, 0)) + 
+  labs(colour = NULL) 
 ```
 
-
-```{r fields-combined-2, fig.width=7, fig.height=10}
-custom_pal <- sequential_hcl(5, palette = "Mako") %>% 
-  lighten(amount = .1)
-p + scale_color_manual(values = c(
-    effect_20 = custom_pal[3],
-    effect_50 = custom_pal[3],
-    effect_80 = custom_pal[4]
-  ))
-```
 
 Questions that arise:
 - why in some fields stronger/weaker effect for larger/smaller P_top10? Is this
 also associated with hurdle component?
-- Especially: why physics and mathematics negative? because of hurdle?
+- Especially: why physics and mathematics negative? because of hurdle? -> Yes
 
-- Effect is diminishing for all fields with sufficient data. 
 
 Need to put into context of overall averages: give average per field (from model
 or full set)

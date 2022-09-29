@@ -40,6 +40,8 @@ works <- tbl(sc, "works")
 
 works <- works %>% 
   mutate(
+    APC_in_dollar = case_when(!APC ~ 0,
+                              TRUE ~ APC_in_dollar),
     # rerunning the data pipeline introduced a hiccup regarding decimal precision
     # this is unlikely of substantive concern, since all values are present,
     # and no missing values are introduced through the below command
@@ -158,10 +160,6 @@ all_three_descriptives %>%
          `n fractional publications` = sum_fractional_works, 
          `Mean APC` = mean_apc) %>% 
   knitr::kable()
-
-# restrict data for plotting so we only plot countries with at least 5 universities
-all_three_descriptives <- all_three_descriptives %>% 
-  filter(n_universities >= 5)
 ```
 
 
@@ -204,12 +202,12 @@ p <- pdata %>%
                            box.padding = 1, min.segment.length = 0,
                            nudge_y = -10) +
   scale_x_continuous(labels = scales::dollar) +
-  scale_y_continuous(labels = scales::comma) +
+  scale_y_continuous(labels = scales::dollar) +
   scale_alpha_continuous(trans = "log10", range = c(.1, 1),
                          labels = scales::comma) +
   scale_colour_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top", legend.box = "vertical") +
-  labs(y = "Average APC", colour = NULL, x = "GDP per capita", 
+  labs(y = "Mean APC", colour = NULL, x = "GDP per capita", 
        alpha = "Number of fractional publications")
 p
 ```
