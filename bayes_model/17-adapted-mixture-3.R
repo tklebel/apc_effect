@@ -63,8 +63,7 @@ empty_mod <- brm(model_formula,
                  empty = TRUE)
 
 message("Compiling model code.")
-mod <- cmdstan_model(stan_file = "bayes_model/17-adapted-mixture.stan",
-                     stanc_options = list("O1"))
+mod <- cmdstan_model(stan_file = "bayes_model/17-adapted-mixture.stan")
 
 message("Start sampling.")
 fit <- mod$sample(
@@ -76,7 +75,7 @@ fit <- mod$sample(
   iter_sampling = 1000,
   refresh = 20,
   init = 0,
-  adapt_delta = .9
+  adapt_delta = .8
 )
 
 message("Saving model to file.")
