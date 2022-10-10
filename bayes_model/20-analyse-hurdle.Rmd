@@ -82,6 +82,16 @@ hm <- read_rds("final_models/17-brm-large-sample.rds.bz2")
 hm_simple <- brm(file = "final_models/hm_final_rerun.rds", file_refit = "never")
 ```
 
+In this last round, the sampler issued warnings about hitting the maximum
+treedepth:
+
+> Warning: 4000 of 4000 (100.0%) transitions hit the maximum treedepth limit of 10.
+
+This was to be expected, given the model took about twice as long to run as in
+previous iterations. The only aspects that changed were: revision of weights and
+resampling of data. Given that we had a slightly smaller sample size, it could
+be that some peculiarities of the specific sample led to inefficient sampling.
+Inference is likely to be unaffected.
 
 
 # Posterior predictive check
@@ -417,7 +427,7 @@ plot_countries_by_region <- function(df) {
       colour = NULL) +
     theme_clean() +
     facet_grid(rows = vars(str_wrap(region, 9)), space = "free_y", scales = "free_y") +
-    coord_cartesian(xlim = c(-0.001, 0.005)) +
+    # coord_cartesian(xlim = c(-0.001, 0.005)) +
     guides(colour = guide_legend(reverse = FALSE, override.aes = list(size = 2))) +
     theme(legend.position = "top") +
     effect_scale
@@ -464,8 +474,8 @@ p <- country_effect_with_gdp %>%
   labs(colour = NULL, x = "GDP per capita", 
        y = "% increase in APC for 1% increase of P_top10 at the median") +
   theme_clean() +
-  theme(legend.position = "top")  +
-  coord_cartesian(ylim = c(0, .003))
+  theme(legend.position = "top")  
+  #coord_cartesian(ylim = c(0, .003))
 ```
 
 ```{r countries-gdp}
@@ -517,8 +527,8 @@ pdata %>%
                " at the median")
          )) +
   theme_clean() +
-  theme(legend.position = "top", legend.box = "vertical")  +
-  coord_cartesian(ylim = c(0, .003))
+  theme(legend.position = "top", legend.box = "vertical")  
+  # coord_cartesian(ylim = c(0, .003))
 ```
 
 
