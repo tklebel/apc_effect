@@ -38,9 +38,9 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Brazil               |             31|
 |Poland               |             31|
 |Turkey               |             31|
+|Brazil               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
@@ -50,52 +50,52 @@ universities_per_country %>%
 |Russia               |             10|
 |South Africa         |              9|
 |Belgium              |              8|
-|Israel               |              8|
-|Switzerland          |              8|
 |Egypt                |              8|
 |Greece               |              8|
+|Israel               |              8|
+|Switzerland          |              8|
 |Czech Republic       |              7|
 |Finland              |              7|
 |New Zealand          |              7|
+|Ireland              |              6|
 |Mexico               |              6|
-|Thailand             |              6|
-|Norway               |              6|
 |Hungary              |              6|
 |Malaysia             |              6|
-|Ireland              |              6|
 |Portugal             |              6|
-|Saudi Arabia         |              5|
+|Norway               |              6|
+|Thailand             |              6|
 |Pakistan             |              5|
+|Saudi Arabia         |              5|
 |Denmark              |              5|
 |Singapore            |              3|
-|Chile                |              3|
-|Tunisia              |              3|
 |Romania              |              3|
 |Argentina            |              3|
-|Colombia             |              3|
 |Serbia               |              3|
+|Tunisia              |              3|
+|Chile                |              3|
+|Colombia             |              3|
 |Jordan               |              2|
-|Slovenia             |              2|
-|United Arab Emirates |              2|
 |Slovakia             |              2|
 |Nigeria              |              2|
-|Ghana                |              1|
-|Lithuania            |              1|
-|Uruguay              |              1|
-|Algeria              |              1|
-|Cyprus               |              1|
-|Iceland              |              1|
-|Oman                 |              1|
+|United Arab Emirates |              2|
+|Slovenia             |              2|
 |Kuwait               |              1|
-|Uganda               |              1|
-|Qatar                |              1|
-|Ethiopia             |              1|
-|Viet Nam             |              1|
-|Luxembourg           |              1|
-|Croatia              |              1|
-|Estonia              |              1|
-|Morocco              |              1|
+|Lithuania            |              1|
+|Oman                 |              1|
 |Lebanon              |              1|
+|Qatar                |              1|
+|Uganda               |              1|
+|Ghana                |              1|
+|Viet Nam             |              1|
+|Iceland              |              1|
+|Uruguay              |              1|
+|Luxembourg           |              1|
+|Algeria              |              1|
+|Ethiopia             |              1|
+|Cyprus               |              1|
+|Croatia              |              1|
+|Morocco              |              1|
+|Estonia              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve4278abdbc602ce84
+preserve3183de8ee12fb2c4
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve0a6d836724b44147
+preserved411d637a948c4c2
 
 
 ## Papers per continent
@@ -429,7 +429,7 @@ plot_data %>%
   ggplot(aes(sum_fractional_works, fct_reorder(region, prop))) +
   geom_segment(aes(xend = 0, yend = region), colour = "grey70") +
   geom_point() +
-  geom_text(aes(label = label), nudge_x = 2000, hjust = "left") +
+  geom_text(aes(label = label), nudge_x = 10000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
@@ -482,7 +482,7 @@ plot_data %>%
   ggplot(aes(frac_papers, fct_reorder(field, prop))) +
   geom_segment(aes(xend = 0, yend = field), colour = "grey70") +
   geom_point() +
-  geom_text(aes(label = label), nudge_x = 5000, hjust = "left") +
+  geom_text(aes(label = label), nudge_x = 8000, hjust = "left") +
   scale_x_continuous(expand = expansion(mult = c(0.05, .25)),
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
@@ -762,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve3f25c3c602a60e2d
+preserve0312828d0c5ffbe4
 
 
 Using ggrepel
@@ -770,7 +770,7 @@ Using ggrepel
 ```r
 field_selection <- mean_apc_concept_16_19_local %>%
   drop_na(field) %>% 
-  filter(field %in% c("Medicine", "History", "Sociology", "Biology",
+  filter(field %in% c("Medicine", "Philosophy", "Sociology", "Biology",
                       "Materials science", "Physics"))
   
 final_ptop_apc_field <- mean_apc_concept_16_19_local %>% 
