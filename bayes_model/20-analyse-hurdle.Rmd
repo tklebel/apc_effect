@@ -517,7 +517,7 @@ pdata %>%
                             show.legend = FALSE, max.overlaps = Inf,
                            box.padding = 1, min.segment.length = 0) +
   scale_y_continuous(labels = scales::percent) +
-  scale_x_continuous(labels = scales::comma) +
+  scale_x_continuous(labels = scales::dollar) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
   # scale_size_continuous(trans = "sqrt") +
   scale_alpha_continuous(range = c(.2, 1), trans = "log10") +
