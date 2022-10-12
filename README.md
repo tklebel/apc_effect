@@ -45,9 +45,23 @@ for reanalysis:
 as an attached binary to the release, and needs to be moved to the correct location
 before the notebook can be rendered.
 
+# Version history
+To enable full transparency of our steps, this repository includes all steps we
+took when starting with this particular analysis. To avoid clutter, we deleted
+many outdated files from the main branch, which now only holds the core files
+from the analysis. All earlier files are still available on the `archive` branch.
+
+The paper also contains an analysis of the full set of universities (even those
+that are not included in the Leiden Ranking). The analysis for this is available
+in the branch `full-country-apc-average`. 
+
+Given the long version history, the full repository is fairly large (~800Mb). It
+might therefore easier to simply download release snapshots which will be 
+available on Zenodo.
+
 # Licenses
 
-![](license.png){width="194"}
+![](license.png)
 
 All code and data in this repository is made available under the CC-BY-SA 4.0
 license.
