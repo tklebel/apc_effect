@@ -222,7 +222,7 @@ plot_data %>%
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.x = element_blank(),
         axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
@@ -266,7 +266,7 @@ plot_data %>%
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.x = element_blank(),
         axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
