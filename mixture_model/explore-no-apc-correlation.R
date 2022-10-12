@@ -1,3 +1,7 @@
+# In the paper we claim that in Mathematics, researchers from higher-ranked
+# institutions publish more often in 0-APC journals than those from lower-ranked
+# institutions. This script was used to validate this claim.
+
 library(tidyverse)
 library(brms)
 library(broom)
