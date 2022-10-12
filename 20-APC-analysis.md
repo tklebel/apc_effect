@@ -1,7 +1,7 @@
 ---
 title: "Relationship between OA publishing, APCs and IF"
 author: "Thomas Klebel"
-date: "29 September, 2022"
+date: "12 October, 2022"
 output: 
   html_document:
     keep_md: true
@@ -38,9 +38,9 @@ universities_per_country %>%
 |India                |             38|
 |Iran                 |             36|
 |Australia            |             32|
-|Poland               |             31|
 |Turkey               |             31|
 |Brazil               |             31|
+|Poland               |             31|
 |Canada               |             30|
 |France               |             28|
 |Taiwan               |             21|
@@ -49,52 +49,52 @@ universities_per_country %>%
 |Austria              |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Belgium              |              8|
-|Egypt                |              8|
-|Greece               |              8|
 |Israel               |              8|
 |Switzerland          |              8|
-|Czech Republic       |              7|
+|Greece               |              8|
+|Belgium              |              8|
+|Egypt                |              8|
 |Finland              |              7|
 |New Zealand          |              7|
+|Czech Republic       |              7|
+|Malaysia             |              6|
+|Norway               |              6|
+|Portugal             |              6|
+|Thailand             |              6|
 |Ireland              |              6|
 |Mexico               |              6|
 |Hungary              |              6|
-|Malaysia             |              6|
-|Portugal             |              6|
-|Norway               |              6|
-|Thailand             |              6|
 |Pakistan             |              5|
-|Saudi Arabia         |              5|
 |Denmark              |              5|
-|Singapore            |              3|
-|Romania              |              3|
+|Saudi Arabia         |              5|
 |Argentina            |              3|
+|Romania              |              3|
+|Singapore            |              3|
 |Serbia               |              3|
-|Tunisia              |              3|
-|Chile                |              3|
 |Colombia             |              3|
-|Jordan               |              2|
+|Chile                |              3|
+|Tunisia              |              3|
 |Slovakia             |              2|
-|Nigeria              |              2|
-|United Arab Emirates |              2|
 |Slovenia             |              2|
-|Kuwait               |              1|
-|Lithuania            |              1|
-|Oman                 |              1|
-|Lebanon              |              1|
-|Qatar                |              1|
-|Uganda               |              1|
-|Ghana                |              1|
-|Viet Nam             |              1|
-|Iceland              |              1|
-|Uruguay              |              1|
-|Luxembourg           |              1|
+|Nigeria              |              2|
+|Jordan               |              2|
+|United Arab Emirates |              2|
 |Algeria              |              1|
+|Kuwait               |              1|
+|Croatia              |              1|
+|Lithuania            |              1|
+|Iceland              |              1|
+|Ghana                |              1|
+|Qatar                |              1|
+|Uruguay              |              1|
+|Oman                 |              1|
+|Morocco              |              1|
 |Ethiopia             |              1|
 |Cyprus               |              1|
-|Croatia              |              1|
-|Morocco              |              1|
+|Uganda               |              1|
+|Lebanon              |              1|
+|Luxembourg           |              1|
+|Viet Nam             |              1|
 |Estonia              |              1|
 
 
@@ -181,8 +181,8 @@ papers_per_country %>%
 |United Arab Emirates |               1500.0|
 |Lebanon              |               1475.3|
 |Oman                 |               1250.8|
-|Lithuania            |               1221.0|
 |Tunisia              |               1221.0|
+|Lithuania            |               1221.0|
 |Ghana                |               1194.2|
 |Ethiopia             |               1106.8|
 |Kuwait               |                876.5|
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve3183de8ee12fb2c4
+preserve1b73ccd680446fd5
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserved411d637a948c4c2
+preserveb1c19a3d76b68cfa
 
 
 ## Papers per continent
@@ -628,7 +628,7 @@ p1 <- mean_apc_16_19_local %>%
   facet_wrap(vars(author_position)) +
   scale_x_log10() +
   scale_y_continuous(labels = dollar) +
-  labs(caption = "Fractional counting; 2016-2019", y = "Mean APC",
+  labs(caption = "Time period: 2016-2019", y = "Mean APC",
        colour = "Number of papers per institution",
        x = expression(P["top 10%"])) +
   theme(legend.position = "top",
@@ -660,7 +660,7 @@ p2 <- mean_apcs_local %>%
   scale_y_continuous(labels = dollar) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
+  labs(y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
 p2
 ```
@@ -762,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preserve0312828d0c5ffbe4
+preservec3cc201a83c49da5
 
 
 Using ggrepel
@@ -841,7 +841,7 @@ mean_apc_concept_local %>%
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
+  labs(y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
 ```
 
@@ -864,7 +864,7 @@ mean_apc_concept_local %>%
   scale_x_continuous(breaks = seq(2010, 2018, by = 4)) +
   scale_color_discrete_qualitative(palette = "Dark 3") +
   theme(legend.position = "top") +
-  labs(caption = "Fractional counting", y = "Mean APC",
+  labs(y = "Mean APC",
        colour = expression(P["top 10%"]), x = NULL)
 ```
 
