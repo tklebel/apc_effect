@@ -45,57 +45,57 @@ universities_per_country %>%
 |France               |             28|
 |Taiwan               |             21|
 |Netherlands          |             13|
-|Sweden               |             12|
 |Austria              |             12|
+|Sweden               |             12|
 |Russia               |             10|
 |South Africa         |              9|
-|Israel               |              8|
-|Switzerland          |              8|
 |Greece               |              8|
 |Belgium              |              8|
+|Switzerland          |              8|
 |Egypt                |              8|
-|Finland              |              7|
-|New Zealand          |              7|
+|Israel               |              8|
 |Czech Republic       |              7|
-|Malaysia             |              6|
-|Norway               |              6|
-|Portugal             |              6|
+|New Zealand          |              7|
+|Finland              |              7|
 |Thailand             |              6|
+|Portugal             |              6|
+|Hungary              |              6|
 |Ireland              |              6|
 |Mexico               |              6|
-|Hungary              |              6|
-|Pakistan             |              5|
-|Denmark              |              5|
+|Malaysia             |              6|
+|Norway               |              6|
 |Saudi Arabia         |              5|
-|Argentina            |              3|
-|Romania              |              3|
+|Denmark              |              5|
+|Pakistan             |              5|
 |Singapore            |              3|
+|Tunisia              |              3|
+|Romania              |              3|
+|Argentina            |              3|
+|Chile                |              3|
 |Serbia               |              3|
 |Colombia             |              3|
-|Chile                |              3|
-|Tunisia              |              3|
-|Slovakia             |              2|
-|Slovenia             |              2|
-|Nigeria              |              2|
 |Jordan               |              2|
+|Slovakia             |              2|
+|Nigeria              |              2|
 |United Arab Emirates |              2|
-|Algeria              |              1|
-|Kuwait               |              1|
-|Croatia              |              1|
-|Lithuania            |              1|
-|Iceland              |              1|
-|Ghana                |              1|
-|Qatar                |              1|
-|Uruguay              |              1|
+|Slovenia             |              2|
 |Oman                 |              1|
-|Morocco              |              1|
-|Ethiopia             |              1|
 |Cyprus               |              1|
-|Uganda               |              1|
-|Lebanon              |              1|
-|Luxembourg           |              1|
-|Viet Nam             |              1|
 |Estonia              |              1|
+|Uganda               |              1|
+|Luxembourg           |              1|
+|Kuwait               |              1|
+|Algeria              |              1|
+|Croatia              |              1|
+|Ghana                |              1|
+|Iceland              |              1|
+|Qatar                |              1|
+|Viet Nam             |              1|
+|Uruguay              |              1|
+|Ethiopia             |              1|
+|Lithuania            |              1|
+|Morocco              |              1|
+|Lebanon              |              1|
 
 
 ```r
@@ -370,7 +370,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserve1b73ccd680446fd5
+preserve4904f9f20c21d3ab
 
 
 ```r
@@ -409,7 +409,7 @@ p
 plotly::ggplotly(p)
 ```
 
-preserveb1c19a3d76b68cfa
+preserve8098e76bd79ab088
 
 
 ## Papers per continent
@@ -434,7 +434,7 @@ plot_data %>%
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.x = element_blank(),
         axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
@@ -487,7 +487,7 @@ plot_data %>%
                      labels = scales::comma) +
   labs(x = "Number of fractional publications", y = NULL) +
   theme(panel.grid = element_blank(),
-        panel.grid.major.x = element_line(colour = "grey92"),
+        axis.text.x = element_blank(),
         axis.text.y = element_text(margin = margin(r = -10)))
 ```
 
@@ -762,7 +762,7 @@ plotly::ggplotly(p)
 ## `geom_smooth()` using method = 'gam' and formula 'y ~ s(x, bs = "cs")'
 ```
 
-preservec3cc201a83c49da5
+preserve503bbba6547ddd22
 
 
 Using ggrepel
