@@ -175,6 +175,7 @@ available on Zenodo.
 
 <details>
   <summary>Software versions for multilevel modelling</summary>
+  
 ```r
 ─ Session info ─────────────────────────────────────────────────────────────────
  setting  value
@@ -304,11 +305,13 @@ available on Zenodo.
  xts              0.12.1   2020-09-09 [1] CRAN (R 4.1.2)
  zoo              1.8-10   2022-04-15 [1] CRAN (R 4.1.2)
 ```
+
 </details>
 
 <details>
   <summary>Software versions for analysing mixture model</summary>
   The analysis of the mixture model was last rendered with the following versions
+  
 ```r
 ─ Session info ─────────────────────────────────────────────────────────────────
  setting  value
@@ -460,6 +463,7 @@ available on Zenodo.
 
  D ── DLL MD5 mismatch, broken installation.
 ```
+
 </details>
 
 
