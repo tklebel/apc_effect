@@ -12,9 +12,9 @@ target set and compute necessary quantities.
 
 The R scripts numbered 00 to 15 were executed in order to achieve this. The
 resultant file `papers_with_concepts.parquet` was then used for descriptive
-analysis. 
+analysis. This file is available at https://doi.org/10.5281/zenodo.7014802.
 
-## Descriptive analysis
+# Descriptive analysis
 
 -   The file `21-sample-for-multilevel-model.R` was used to create the subsample
     for the mixture model.
@@ -29,7 +29,7 @@ Spark/Hadoop.
 - The file `22-additional-mini-analyses.Rmd` includes a few further analyses, one
 of which is present in the supplement.
 
-## Mixture modelling
+# Mixture modelling
 The mixture model was built iteratively, through the files 11 to 17. The file
 `17-adapted-mixture.R` holds the final R script, which used the stan model present
 in `17-adapted-mixture.stan`. 
@@ -67,7 +67,8 @@ available on Zenodo.
   <summary>Software versions on Hadoop Cluster</summary>
   We used Spark2 (v2.3.2) to conduct computations. The full session info is as
   follows:
-  ```r
+
+```r
 ─ Session info ───────────────────────────────────────────────────────────────
  setting  value
  version  R version 3.6.0 (2019-04-26)
@@ -168,7 +169,8 @@ available on Zenodo.
  xfun          0.29    2021-12-14 [1] CRAN (R 3.6.0)
  xml2          1.3.3   2021-11-30 [1] CRAN (R 3.6.0)
  yaml          2.2.2   2022-01-25 [1] CRAN (R 3.6.0)
- ```
+```
+
 </details>
 
 <details>
@@ -308,7 +310,7 @@ available on Zenodo.
   <summary>Software versions for analysing mixture model</summary>
   The analysis of the mixture model was last rendered with the following versions
 ```r
-─ Session info ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+─ Session info ─────────────────────────────────────────────────────────────────
  setting  value
  version  R version 4.2.1 (2022-06-23 ucrt)
  os       Windows 10 x64 (build 19044)
@@ -322,7 +324,7 @@ available on Zenodo.
  rstudio  2022.07.1+554 Spotted Wakerobin (desktop)
  pandoc   2.11.0.2 @ C:\\Users\\tklebel\\AppData\\Local\\Pandoc\\pandoc.exe
 
-─ Packages ───────────────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+─ Packages ─────────────────────────────────────────────────────────────────────
  ! package         * version  date (UTC) lib source
    abind             1.4-5    2016-07-21 [1] CRAN (R 4.2.0)
    arrayhelpers      1.1-0    2020-02-04 [1] CRAN (R 4.2.1)
@@ -459,6 +461,7 @@ available on Zenodo.
  D ── DLL MD5 mismatch, broken installation.
 ```
 </details>
+
 
 # Licenses
 
