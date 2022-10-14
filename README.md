@@ -23,15 +23,13 @@ analysis. This file is available at https://doi.org/10.5281/zenodo.7014802.
 version is provided in `20-APC-analysis.html` which can be viewed in the browser.
 This also contains interactive figures that allow for further exploration. The 
 dataset that underlies this analysis is available at https://doi.org/10.5281/zenodo.7014802.
-Given its size, it can definitely also be analysed without the need for 
-Spark/Hadoop.
 
 - The file `22-additional-mini-analyses.Rmd` includes a few further analyses, one
 of which is present in the supplement.
 
 # Mixture modelling
 The mixture model was built iteratively, through the files 11 to 17. The file
-`17-adapted-mixture.R` holds the final R script, which used the stan model present
+`17-adapted-mixture.R` holds the final R script, which used the Stan model present
 in `17-adapted-mixture.stan`. 
 
 Analysis of the model (once sampled) was conducted via the notebook 
